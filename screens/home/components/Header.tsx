@@ -2,16 +2,18 @@ import { View,Pressable,Text, StyleSheet } from "react-native"
 import HeaderLogo from "../../../assets/jsx/HeaderLogo"
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Colors from "../../../constants/color";
+import { useNavigation } from "@react-navigation/native";
 
 const Header = () =>{
+    const navigation = useNavigation()
 return  <View style={styles.header}>
     <HeaderLogo/>
          <View style={styles.rowContainer}>
-          <Pressable style={styles.btnContainer}>
+          <Pressable style={styles.btnContainer} onPress={()=>navigation.navigate('createLead')}>
             <Text style={styles.btnTxt}>Create Lead</Text>
           </Pressable>
           <Pressable onPress={() => {}}>
-            <MaterialIcons name="notifications-none" size={28} />
+            <MaterialIcons name="notifications-none" size={28}  />
           </Pressable>
         </View>
     </View>
