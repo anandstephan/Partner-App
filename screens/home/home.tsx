@@ -1,28 +1,51 @@
 import React from 'react';
-import { View, Text, StyleSheet,Pressable } from 'react-native';
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import HeaderLogo from '../../assets/jsx/HeaderLogo';
-import Colors from '../../constants/color';
+import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Carousel from './components/Carousel';
+import TrackerCard from './components/TrackerCard';
+import SwipeCard from './components/SwipeCard';
+import Header from './components/Header';
+import Colors from '../../constants/color';
+import PerformanceCard from './components/PerformanceCard';
 
 const Home: React.FC = () => {
     return (
         <SafeAreaView>
-    <View style={styles.header}>
-    <HeaderLogo/>
-         <View style={styles.rowContainer}>
-          <Pressable style={styles.btnContainer}>
-            <Text style={styles.btnTxt}>Create Lead</Text>
-          </Pressable>
-          <Pressable onPress={() => {}}>
-            <MaterialIcons name="notifications-none" size={28} />
-          </Pressable>
-        </View>
-    </View>
+          <Header/>
         <View style={styles.container}>
-       
-            <Text style={styles.title}>Home Screen</Text>
-        </View>
+          <Carousel/>
+          <SwipeCard/>
+        <TrackerCard
+        title="Lead Tracker"
+        totalLeads={12}
+        subtitle="Today"
+        stages={[
+          { label: "Leads", value: 50 },
+          { label: "KYC", value: 30 },
+          { label: "Onboarding", value: 20 },
+        ]}
+      />
+        <TrackerCard
+        title="EMI Tracker"
+        totalLeads={15}
+        subtitle="June 25'"
+        stages={[
+          { label: "Upcoming", value: 10 },
+          { label: "Due", value: 3 },
+          { label: "OverDue", value: 2 },
+        ]}
+      />
+
+          <PerformanceCard
+          month="July"
+          target="45 Onboarding"
+          onboarded="74%"
+          conversationRate="19%"
+          totalLeads={91}
+          convertedLeads={80}
+        />
+          </View>
+      
         </SafeAreaView>
     );
 };
@@ -31,35 +54,13 @@ export default Home;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        // flex: 1,
+        // backgroundColor:Colors.primary
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
     },
- header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: '2%',
-    marginTop: 10,
-    marginVertical: 10,
-  },
-rowContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    // marginVertical:120
-  },
-  btnContainer:{
-    backgroundColor:Colors.secondary,
-    padding:10,
-    margin:10
-  },
-  btnTxt:{
-    color:"#FFFFFF"
-  }
+
 });
 
