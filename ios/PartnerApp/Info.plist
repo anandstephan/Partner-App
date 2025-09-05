@@ -51,6 +51,7 @@
 	<false/>
 	<key>UIAppFonts</key>
 	<array>
+		<!-- Inter Fonts -->
 		<string>Inter_18pt-Black.ttf</string>
 		<string>Inter_18pt-BlackItalic.ttf</string>
 		<string>Inter_18pt-Bold.ttf</string>
@@ -105,6 +106,23 @@
 		<string>Inter_28pt-SemiBoldItalic.ttf</string>
 		<string>Inter_28pt-Thin.ttf</string>
 		<string>Inter_28pt-ThinItalic.ttf</string>
+
+		<!-- React Native Vector Icons Fonts -->
+		<string>AntDesign.ttf</string>
+		<string>Entypo.ttf</string>
+		<string>EvilIcons.ttf</string>
+		<string>Feather.ttf</string>
+		<string>FontAwesome.ttf</string>
+		<string>FontAwesome5_Brands.ttf</string>
+		<string>FontAwesome5_Regular.ttf</string>
+		<string>FontAwesome5_Solid.ttf</string>
+		<string>Foundation.ttf</string>
+		<string>Ionicons.ttf</string>
+		<string>MaterialIcons.ttf</string>
+		<string>MaterialCommunityIcons.ttf</string>
+		<string>SimpleLineIcons.ttf</string>
+		<string>Octicons.ttf</string>
+		<string>Zocial.ttf</string>
 	</array>
 </dict>
 </plist>
