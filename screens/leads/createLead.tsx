@@ -11,6 +11,8 @@ import {
   StatusBar,
 } from 'react-native';
 
+import Entypo from 'react-native-vector-icons/Entypo'
+import Header from '../../commonComponents/Header';
 const CreateLead = () => {
     const navigation = useNavigation()
   const [formData, setFormData] = useState({
@@ -44,19 +46,19 @@ const CreateLead = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const toggleDropdown = (field) => {
+  const toggleDropdown = (field:string) => {
     setDropdowns(prev => ({
       ...prev,
       [field]: !prev[field]
     }));
   };
 
-  const selectDropdownValue = (field, value) => {
+  const selectDropdownValue = (field:string, value:string) => {
     updateFormData(field, value);
     setDropdowns(prev => ({ ...prev, [field]: false }));
   };
 
-  const renderDropdown = (field, placeholder, options, currentValue) => (
+  const renderDropdown = (field:string, placeholder:string, options:string, currentValue:string) => (
     <View style={styles.dropdownContainer}>
       <Pressable
         style={styles.dropdown}
@@ -85,17 +87,8 @@ const CreateLead = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={()=>navigation.goBack()}>
-          <Text style={styles.backArrow}>←</Text>
-        </Pressable>
-        <Text style={styles.headerTitle}>Create Lead</Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
+ 
+      <Header/>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Lead Source */}
         <View style={styles.section}>
@@ -204,35 +197,60 @@ const CreateLead = () => {
         </View>
 
         {/* Segment */}
+        {/* Segment */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Segment</Text>
-          <View style={styles.segmentContainer}>
-            <Pressable
-              style={[
-                styles.segmentButton,
-                formData.segment === 'Current' && styles.segmentButtonActive
-              ]}
-              onPress={() => updateFormData('segment', 'Current')}
-            >
-              <Text style={[
-                styles.segmentButtonText,
-                formData.segment === 'Current' && styles.segmentButtonTextActive
-              ]}>Current</Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.segmentButton,
-                formData.segment === 'Proposed' && styles.segmentButtonActive
-              ]}
-              onPress={() => updateFormData('segment', 'Proposed')}
-            >
-              <Text style={[
-                styles.segmentButtonText,
-                formData.segment === 'Proposed' && styles.segmentButtonTextActive
-              ]}>Proposed</Text>
-            </Pressable>
+          <View style={styles.row}>
+            <View style={styles.halfWidth}>
+              <Text style={styles.label}>Current</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.segment === "Current" ? formData.segment : ""}
+                onChangeText={(value) => updateFormData("segment", value)}
+                placeholder=""
+              />
+            </View>
+            <View style={styles.halfWidth}>
+              <Text style={styles.label}>Proposed</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.segment === "Proposed" ? formData.segment : ""}
+                onChangeText={(value) => updateFormData("segment", value)}
+                placeholder=""
+              />
+            </View>
           </View>
         </View>
+
+        {/* Selfie with Customer */}
+        <View style={styles.section}>
+          <Pressable style={styles.selfieButton}>
+            <Entypo name="camera" size={25}/>
+            <Text style={styles.selfieText}>Selfie with Customer</Text>
+          </Pressable>
+        </View>
+
+        {/* Remarks */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Remarks (If Any)</Text>
+          <TextInput
+            style={[styles.input, { height: 80, textAlignVertical: "top" }]}
+            multiline
+            numberOfLines={4}
+            placeholder="Write remarks here..."
+          />
+        </View>
+
+        {/* Save & Submit Buttons */}
+        <View style={styles.buttonRow}>
+          <Pressable style={[styles.actionButton, { backgroundColor: "#00BCD4" }]}>
+            <Text style={styles.actionButtonText}>Save</Text>
+          </Pressable>
+          <Pressable style={[styles.actionButton, { backgroundColor: "#00BCD4" }]}>
+            <Text style={styles.actionButtonText}>Submit</Text>
+          </Pressable>
+        </View>
+    
 
         <View style={styles.bottomSpacing} />
       </ScrollView>
@@ -242,40 +260,23 @@ const CreateLead = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  backButton: {
-    padding: 4,
-  },
-  backArrow: {
-    fontSize: 24,
-    color: '#333333',
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333333',
-  },
-  headerSpacer: {
-    width: 32,
   },
   scrollView: {
-    flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 26,
   },
   section: {
     marginTop: 24,
+    paddingVertical:15,
+    // borderWidth:2,
+    padding:10,
+    borderRadius:10,
+    backgroundColor:"#FFFFFF",
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation:3
   },
   sectionTitle: {
     fontSize: 16,
@@ -393,6 +394,46 @@ const styles = StyleSheet.create({
   bottomSpacing: {
     height: 32,
   },
+    selfieButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent:"flex-start",
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    borderRadius: 8,
+    padding: 16,
+    backgroundColor: "#F9F9F9",
+  },
+  selfieIcon: {
+    fontSize: 22,
+    marginRight: 12,
+  },
+  selfieText: {
+    fontSize: 16,
+    color: "#333333",
+    fontWeight: "500",
+    marginLeft:20
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 24,
+    marginBottom: 40,
+    paddingHorizontal: 16,
+  },
+  actionButton: {
+    flex: 1,
+    paddingVertical: 14,
+    marginHorizontal: 8,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  actionButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
 });
 
 export default CreateLead;

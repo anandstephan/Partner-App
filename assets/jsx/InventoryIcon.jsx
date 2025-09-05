@@ -1,0 +1,33 @@
+import * as React from "react";
+import Svg, { Rect, Defs, Pattern, Use, Image } from "react-native-svg";
+const InventoryIcon = (props) => (
+  <Svg
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlnsXlink="http://www.w3.org/1999/xlink"
+    {...props}
+  >
+    <Rect width={24} height={24} fill="url(#pattern0_421_3271)" />
+    <Defs>
+      <Pattern
+        id="pattern0_421_3271"
+        patternContentUnits="objectBoundingBox"
+        width={1}
+        height={1}
+      >
+        <Use xlinkHref="#image0_421_3271" transform="scale(0.0078125)" />
+      </Pattern>
+      <Image
+        id="image0_421_3271"
+        width={128}
+        height={128}
+        preserveAspectRatio="none"
+        xlinkHref="data:image/png;base64,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"
+      />
+    </Defs>
+  </Svg>
+);
+export default InventoryIcon;

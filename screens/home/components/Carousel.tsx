@@ -34,7 +34,7 @@ const Carousel = () => {
   };
 
   useEffect(() => {
-    animateText();
+    // animateText();
   }, [index]);
 
   return ( <View style={styles.container}> 
@@ -61,11 +61,12 @@ const Carousel = () => {
 export default Carousel
 const styles = StyleSheet.create({
   container: {
-    height: 80,
+    height: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    backgroundColor:"#434343"
+    paddingHorizontal: 10,
+    backgroundColor:"#434343",
+    marginHorizontal:30
   },
   text: {
     color: 'white',

@@ -33,10 +33,11 @@ const SwipeCard = () => {
 export default SwipeCard
 const styles = StyleSheet.create({
   container: {
-    height: 80,
+    height: 60,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
+    marginHorizontal:10
   },
   text: {
     color: 'white',

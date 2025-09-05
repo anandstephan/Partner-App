@@ -1,6 +1,7 @@
 import { View,Pressable,Text, StyleSheet } from "react-native"
 import HeaderLogo from "../../../assets/jsx/HeaderLogo"
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import AntDesign from 'react-native-vector-icons/AntDesign'
 import Colors from "../../../constants/color";
 import { useNavigation } from "@react-navigation/native";
 
@@ -9,7 +10,9 @@ const Header = () =>{
 return  <View style={styles.header}>
     <HeaderLogo/>
          <View style={styles.rowContainer}>
+
           <Pressable style={styles.btnContainer} onPress={()=>navigation.navigate('createLead')}>
+            <AntDesign name="plus" size={20} color={'#FFFFFF'}/>
             <Text style={styles.btnTxt}>Create Lead</Text>
           </Pressable>
           <Pressable onPress={() => {}}>
@@ -36,9 +39,12 @@ const styles = StyleSheet.create({
     // marginVertical:120
   },
     btnContainer:{
+      flexDirection:"row",
     backgroundColor:Colors.secondary,
     padding:10,
-    margin:10
+    margin:10,
+    justifyContent:"space-between",
+    alignItems:'center'
   },
   btnTxt:{
     color:"#FFFFFF"
