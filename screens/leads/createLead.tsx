@@ -7,8 +7,6 @@ import {
   StyleSheet,
   ScrollView,
   Pressable,
-  SafeAreaView,
-  StatusBar,
 } from 'react-native';
 
 import Entypo from 'react-native-vector-icons/Entypo'
@@ -86,9 +84,8 @@ const CreateLead = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
- 
-      <Header/>
+    <> 
+      <Header title="Create Lead"/>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Lead Source */}
         <View style={styles.section}>
@@ -254,7 +251,8 @@ const CreateLead = () => {
 
         <View style={styles.bottomSpacing} />
       </ScrollView>
-    </SafeAreaView>
+</>
+
   );
 };
 

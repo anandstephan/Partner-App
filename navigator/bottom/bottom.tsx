@@ -2,11 +2,11 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, Image } from 'react-native';
 import Colors from '../../constants/color';
-import HomeScreen from '../../screens/home';
-import Leads from '../../screens/leads';
-import Assets from '../../screens/assets';
-import Wallet from '../../screens/wallet';
-import Profile from '../../screens/profile';
+import HomeStack from '../../screens/home';
+import LeadStack from '../../screens/leads';
+import AssetStack from '../../screens/assets';
+import WalletStack from '../../screens/wallet';
+import ProfileStack from '../../screens/profile';
 
 const Tab = createBottomTabNavigator();
 
@@ -17,16 +17,16 @@ const getIcon = (routeName:any, focused:any) => {
     case 'Home':
       return require('../../assets/png/bottomIcon/home.png')
      
-    case 'My Leads':
+    case 'Lead':
       return require('../../assets/png/bottomIcon/leads.png')
 
-    case 'Assets':
+    case 'Asset':
         return require('../../assets/png/bottomIcon/battery.png')
         
     case 'Wallet':
       return require('../../assets/png/bottomIcon/wallet.png')
    
-    case 'My Profile':
+    case 'Profile':
       return require('../../assets/png/bottomIcon/profile.png')
 
 
@@ -69,11 +69,11 @@ const BottomTab = () => {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen}/>
-      <Tab.Screen name="My Leads" component={Leads}/>
-      <Tab.Screen name="Assets" component={Assets}/>
-      <Tab.Screen name="Wallet" component={Wallet}/>
-      <Tab.Screen name="My Profile" component={Profile}/>
+      <Tab.Screen name="Home" component={HomeStack}/>
+      <Tab.Screen name="Lead" component={LeadStack}/>
+      <Tab.Screen name="Asset" component={AssetStack}/>
+      <Tab.Screen name="Wallet" component={WalletStack}/>
+      <Tab.Screen name="Profile" component={ProfileStack}/>
     </Tab.Navigator>
   );
 };

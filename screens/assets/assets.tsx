@@ -16,6 +16,7 @@ import BoxIcon from "../../assets/jsx/BoxIcon";
 import InventoryIcon from "../../assets/jsx/InventoryIcon";
 import EagleIcon from "../../assets/jsx/EagleIcon";
 import AnalystIcon from "../../assets/jsx/AnalystIcon";
+import { useNavigation } from "@react-navigation/native";
 
 const data = [
   {
@@ -23,29 +24,33 @@ const data = [
     title: "Product Assign",
     subtitle: "Driver Mapping to Assets",
     icon: <ProductIcon/>,
+    screenName:"productAssign"
   },
   {
     id: "2",
     title: "Request Assets",
     subtitle: "Take New Requirements",
-    icon: <TodoListIcon/>
+    icon: <TodoListIcon/>,
+    screenName:"requestForm"
   },
   {
     id: "3",
     title: "Inventory Management",
     subtitle: "Check Assigned / Instock",
-    icon: <BoxIcon/>
+    icon: <BoxIcon/>,
+    screenName:"inventory"
   },
   {
     id: "4",
     title: "Inventory Move",
     subtitle: "Remapping of Inventory",
-    icon: <InventoryIcon/>
+    icon: <InventoryIcon/>,
+    screenName:"productAssign"
   },
   {
     id: "5",
     title: "Eagle View",
-    subtitle: "Reports",
+    subtitle: "eagle",
     icon: <EagleIcon/>
   },
   {
@@ -57,8 +62,10 @@ const data = [
 ];
 
 const AssetScreen = () => {
-  const renderItem = ({ item }: any) => (
-    <Pressable style={styles.card}>
+    const navigation = useNavigation()
+  const renderItem = ({ item }: any) => {
+    console.log(item.screenName)
+    return     <Pressable style={styles.card} onPress={()=>navigation.navigate(item.screenName)}>
       <View style={styles.row}>
             {item.icon}
         <View style={styles.textContainer}>
@@ -68,11 +75,11 @@ const AssetScreen = () => {
       </View>
       <Icon name="chevron-right" size={24} color="#999" />
     </Pressable>
-  );
+  }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-        <Header/>
+    <>
+  <Header title="Assets"/>
       <View style={styles.container}>
         <FlatList
           data={data}
@@ -81,7 +88,7 @@ const AssetScreen = () => {
           contentContainerStyle={{ paddingVertical: 10 }}
         />
       </View>
-    </SafeAreaView>
+      </>
   );
 };
 

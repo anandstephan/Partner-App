@@ -11,7 +11,7 @@ return  <View style={styles.header}>
     <HeaderLogo/>
          <View style={styles.rowContainer}>
 
-          <Pressable style={styles.btnContainer} onPress={()=>navigation.navigate('createLead')}>
+          <Pressable style={styles.btnContainer} onPress={()=>navigation.navigate('Lead')}>
             <AntDesign name="plus" size={20} color={'#FFFFFF'}/>
             <Text style={styles.btnTxt}>Create Lead</Text>
           </Pressable>

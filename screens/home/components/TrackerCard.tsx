@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
     position: "relative",
+    
   },
   circle: {
     backgroundColor: "#00953C",
