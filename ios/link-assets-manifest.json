@@ -10,10 +10,6 @@
       "sha1": "1d5eae80ec55b454fad2bc00e3190e006ebbdb9f"
     },
     {
-      "path": "assets/fonts/Inter_18pt-Bold.ttf",
-      "sha1": "518a0361a245a66b49bc24ae0137f38328197bdc"
-    },
-    {
       "path": "assets/fonts/Inter_18pt-BoldItalic.ttf",
       "sha1": "3be7a4fdd0a2901f4607cb5d5914086cd87c3421"
     },
@@ -216,6 +212,10 @@
     {
       "path": "assets/fonts/Inter_28pt-ThinItalic.ttf",
       "sha1": "beed0d0fb7783d5da5d366036b5e481f895e1970"
+    },
+    {
+      "path": "assets/fonts/inter_18pt-bold.ttf",
+      "sha1": "518a0361a245a66b49bc24ae0137f38328197bdc"
     }
   ]
 }

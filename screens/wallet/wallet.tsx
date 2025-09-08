@@ -15,11 +15,11 @@ const Wallet = () => {
     const navigation = useNavigation()
   const options = [
     { id: "1", label: "Payments", icon: "credit-card-outline",screenName:"payment" },
-    { id: "2", label: "Collection & Deposit", icon: "bank-transfer" },
+    { id: "2", label: "Collection & Deposit", icon: "bank-transfer",screenName:"collectiondeposit" },
   ];
 
   const renderCard = ({ item }: any) => (
-    <Pressable style={styles.card} onPress={()=>navigation.navigate('payment')}>
+    <Pressable style={styles.card} onPress={()=>navigation.navigate(item.screenName)}>
       <MaterialCommunityIcons name={item.icon} size={28} color="#1976D2" />
       <Text style={styles.cardLabel}>{item.label}</Text>
     </Pressable>

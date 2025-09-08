@@ -51,7 +51,8 @@ const data = [
     id: "5",
     title: "Eagle View",
     subtitle: "eagle",
-    icon: <EagleIcon/>
+    icon: <EagleIcon/>,
+    screenName:"eagle"
   },
   {
     id: "6",
