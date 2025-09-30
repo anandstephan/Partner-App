@@ -5,22 +5,23 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
-  TouchableOpacity,
-  SafeAreaView,
   Dimensions,
   StatusBar,
   Image,
   Pressable,
+  Alert,
 } from 'react-native';
 import Header from '../../commonComponents/Header';
 import { useNavigation } from '@react-navigation/native';
+import ActionAlert from '../../commonComponents/ActionAlert';
 
 const { width } = Dimensions.get('window');
 
 const Leads = () => {
     const navigation = useNavigation()
   const [searchText, setSearchText] = useState('');
-
+  const [modalVisible,setModalVisible] = useState(false)
+console.log("===>",modalVisible)
   const leads = [
     {
       id: 1,
@@ -106,6 +107,7 @@ const Leads = () => {
 
   const TableHeader = () => (
     <View style={styles.tableHeader}>
+     <Text style={[styles.headerText, styles.nameColumn]}>#</Text>
       <Text style={[styles.headerText, styles.nameColumn]}>Lead Name</Text>
       <Text style={[styles.headerText, styles.idColumn]}>Lead ID</Text>
       <Text style={[styles.headerText, styles.dateColumn]}>Add Date</Text>
@@ -124,9 +126,13 @@ const Leads = () => {
       </View>
       <Text style={[styles.cellText, styles.idColumn]}>{lead.leadId}</Text>
       <Text style={[styles.cellText, styles.dateColumn]}>{lead.date}</Text>
-      <View style={styles.statusColumn}>
+       <Pressable onPress={()=>setModalVisible(!modalVisible)}>
+      <View style={[styles.statusColumn]}>
+       
         <StatusBadge status={lead.status} color={lead.statusColor} />
+  
       </View>
+            </Pressable>
     </View>
   );
 
@@ -146,7 +152,7 @@ const Leads = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <>
       <StatusBar backgroundColor="#f8f9fa" barStyle="dark-content" />
 
       {/* Header */}
@@ -222,7 +228,8 @@ const Leads = () => {
         </Pressable>
         </View>
       </ScrollView>
-    </SafeAreaView>
+        <ActionAlert showModal={modalVisible} setModalVisible={setModalVisible}/>
+    </>
   );
 };
 
@@ -350,7 +357,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#4fc3f7',
     paddingVertical: 12,
     paddingHorizontal: 10,
-    borderRadius: 8,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
     marginBottom: 15,
   },
   headerText: {
@@ -374,6 +382,7 @@ const styles = StyleSheet.create({
   statusColumn: {
     flex: 2,
     alignItems: 'center',
+
   },
 
   tableRow: {

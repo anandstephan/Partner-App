@@ -7,11 +7,15 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "debug-build": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && cd android && ./gradlew assembleDebug && cd app/src/main/res/ && rmdir /S /Q raw && rmdir /S /Q drawable-mdpi",
+    "release-build": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease && cd..",
+    "install-apk": "cd android && ./gradlew installRelease",
+    "release-aab": "cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
+    "@react-native-community/datetimepicker": "^8.4.5",
     "@react-native-community/geolocation": "^3.4.0",
-    "@react-native-picker/picker": "^2.11.1",
     "@react-native/new-app-screen": "0.80.1",
     "@react-navigation/bottom-tabs": "^7.4.7",
     "@react-navigation/elements": "^2.5.2",
@@ -20,8 +24,10 @@
     "@types/react-native-vector-icons": "^6.4.18",
     "react": "^19.1.0",
     "react-native": "^0.80.1",
+    "react-native-element-dropdown": "^2.12.4",
     "react-native-gesture-handler": "^2.28.0",
     "react-native-get-random-values": "^1.11.0",
+    "react-native-image-picker": "^8.2.1",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-maps": "^1.26.0",
     "react-native-reanimated": "^3.19.1",

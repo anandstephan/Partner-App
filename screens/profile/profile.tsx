@@ -1,3 +1,7 @@
+
+
+
+
 import React from 'react';
 import {
   View,
@@ -11,92 +15,97 @@ import {
 } from 'react-native';
 
 const Profile = () => {
-  const menuItems = [
-    {
-      id: 1,
-      title: 'Personal information',
-      icon: '👤',
-    },
-    {
-      id: 2,
-      title: 'Performance Tracker',
-      icon: '📊',
-    },
-    {
-      id: 3,
-      title: 'Toolkit',
-      icon: '🔧',
-    },
-    {
-      id: 4,
-      title: 'My ticket',
-      icon: '🎫',
-    },
-    {
-      id: 5,
-      title: 'Services',
-      icon: '⚙️',
-    },
-    {
-      id: 6,
-      title: 'Logout',
-      icon: '🚪',
-    },
-  ];
+
+    return <View>
+        <Text>Hi</Text>
+    </View>
+
+//     const menuItems = [
+//     {
+//       id: 1,
+//       title: 'Personal information',
+//       icon: '👤',
+//     },
+//     {
+//       id: 2,
+//       title: 'Performance Tracker',
+//       icon: '📊',
+//     },
+//     {
+//       id: 3,
+//       title: 'Toolkit',
+//       icon: '🔧',
+//     },
+//     {
+//       id: 4,
+//       title: 'My ticket',
+//       icon: '🎫',
+//     },
+//     {
+//       id: 5,
+//       title: 'Services',
+//       icon: '⚙️',
+//     },
+//     {
+//       id: 6,
+//       title: 'Logout',
+//       icon: '🚪',
+//     },
+//   ];
 
 
-  const MenuItemRow = ({ item }) => (
-    <TouchableOpacity style={styles.menuItem}>
-      <View style={styles.menuItemLeft}>
-        <Text style={styles.menuIcon}>{item.icon}</Text>
-        <Text style={styles.menuTitle}>{item.title}</Text>
-      </View>
-      <Text style={styles.chevron}>›</Text>
-    </TouchableOpacity>
-  );
+//   const MenuItemRow = ({ item }) => (
+//     <TouchableOpacity style={styles.menuItem}>
+//       <View style={styles.menuItemLeft}>
+//         <Text style={styles.menuIcon}>{item.icon}</Text>
+//         <Text style={styles.menuTitle}>{item.title}</Text>
+//       </View>
+//       <Text style={styles.chevron}>›</Text>
+//     </TouchableOpacity>
+//   );
 
-  return (
-    <SafeAreaView style={styles.container}>
+//   return (
+//     <SafeAreaView style={styles.container}>
      
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Profile</Text>
-      </View>
+//       {/* Header */}
+//       <View style={styles.header}>
+//         <Text style={styles.headerTitle}>My Profile</Text>
+//       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Profile Section */}
-        <View style={styles.profileSection}>
-          {/* Avatar */}
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Image 
-                source={{
-                  uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
-                }}
-                style={styles.avatarImage}
-              />
-            </View>
-          </View>
+//       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+//         {/* Profile Section */}
+//         <View style={styles.profileSection}>
+//           {/* Avatar */}
+//           <View style={styles.avatarContainer}>
+//             <View style={styles.avatar}>
+//               <Image 
+//                 source={{
+//                   uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+//                 }}
+//                 style={styles.avatarImage}
+//               />
+//             </View>
+//           </View>
 
-          {/* User Info Card */}
-          <View style={styles.userInfoCard}>
-            <Text style={styles.userName}>Vishu Kumar_DV1149</Text>
-            <Text style={styles.userRole}>Manager Ops & Sales</Text>
-            <Text style={styles.userLocation}>Delhi & Gurgaon</Text>
-          </View>
-        </View>
+//           {/* User Info Card */}
+//           <View style={styles.userInfoCard}>
+//             <Text style={styles.userName}>Vishu Kumar_DV1149</Text>
+//             <Text style={styles.userRole}>Manager Ops & Sales</Text>
+//             <Text style={styles.userLocation}>Delhi & Gurgaon</Text>
+//           </View>
+//         </View>
 
-        {/* Menu Items */}
-        <View style={styles.menuSection}>
-          {menuItems.map((item) => (
-            <MenuItemRow key={item.id} item={item} />
-          ))}
-        </View>
-      </ScrollView>
+//         {/* Menu Items */}
+//         <View style={styles.menuSection}>
+//           {menuItems.map((item) => (
+//             <MenuItemRow key={item.id} item={item} />
+//           ))}
+//         </View>
+//       </ScrollView>
     
-    </SafeAreaView>
-  );
+//     </SafeAreaView>
+//   );
 };
 
 const styles = StyleSheet.create({

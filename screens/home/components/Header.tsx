@@ -12,8 +12,9 @@ return  <View style={styles.header}>
          <View style={styles.rowContainer}>
 
           <Pressable style={styles.btnContainer} onPress={()=>navigation.navigate('Lead')}>
-            <AntDesign name="plus" size={20} color={'#FFFFFF'}/>
+          
             <Text style={styles.btnTxt}>Create Lead</Text>
+              <AntDesign name="plus" size={20} color={'#FFFFFF'}/>
           </Pressable>
           <Pressable onPress={() => {}}>
             <MaterialIcons name="notifications-none" size={28}  />
@@ -47,6 +48,7 @@ const styles = StyleSheet.create({
     alignItems:'center'
   },
   btnTxt:{
-    color:"#FFFFFF"
+    color:"#FFFFFF",
+    marginHorizontal:5
   }
 })
