@@ -11,21 +11,109 @@ import {
 import { Dropdown } from "react-native-element-dropdown";
 import { launchImageLibrary } from "react-native-image-picker";
 import Icon from "react-native-vector-icons/FontAwesome";
-
+import DateTimePicker from "@react-native-community/datetimepicker";
 import Colors from "../../constants/color";
 import Header from "../../commonComponents/Header";
 import { useNavigation } from "@react-navigation/native";
 
 export default function KycForm3() {
-   const navigation = useNavigation() 
+  const navigation = useNavigation();
 
-      const [rcFrontPic, setRcFrontPic] = useState(null);
-      const [rcBackPic,setRCBackPic] = useState(null)
-      const [rc,setRc] = useState('')
+  // ✅ Unified form state
+  const [formData, setFormData] = useState({
+    // RC Details
+    rcFrontPic: null,
+    rcBackPic: null,
+    rcNumber: "",
+    rcRegistrationDate: "",
+    rcMake: "",
+    rcModel: "",
+    ownership: null,
+    nocDoc: "",
+    nocDocPic: null,
 
-  // --- BANK INFO ---
-  const [bankName, setBankName] = useState(null);
-  const [ownership, setOwnership] = useState(null);
+    // Bank Info
+    bankName: null,
+    accountNo: "",
+    ifsc: "",
+    blankChequePic: null,
+
+    // Guarantor 1
+    guarantor1: {
+      aadhaarFrontPic: null,
+      aadhaarBackPic: null,
+      aadhaarNumber: "",
+      name: "",
+      dob: new Date(),
+      address: "",
+      permanentAddress: "",
+      panPic: null,
+      panNumber: "",
+      mobile: "",
+    },
+
+    // Guarantor 2
+    guarantor2: {
+      aadhaarFrontPic: null,
+      aadhaarBackPic: null,
+      aadhaarNumber: "",
+      name: "",
+      dob: new Date(),
+      address: "",
+      permanentAddress: "",
+      panPic: null,
+      panNumber: "",
+      mobile: "",
+    },
+  });
+
+  // DOB Pickers visibility
+  const [showDobPicker1, setShowDobPicker1] = useState(false);
+  const [showDobPicker2, setShowDobPicker2] = useState(false);
+
+  // ✅ Universal update handler
+  const updateFormData = (field: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // ✅ Nested guarantor update
+  const updateGuarantor = (
+    guarantorKey: "guarantor1" | "guarantor2",
+    field: string,
+    value: any
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [guarantorKey]: { ...prev[guarantorKey], [field]: value },
+    }));
+  };
+
+  // ✅ Universal image picker
+  const handleSelectImage = async (fieldPath: string) => {
+    const result = await launchImageLibrary({ mediaType: "photo", quality: 1 });
+    if (result.didCancel) return;
+    const asset = result.assets?.[0];
+    if (!asset?.uri) return;
+
+    if (fieldPath.includes(".")) {
+      const [guarantorKey, innerField] = fieldPath.split(".");
+      updateGuarantor(
+        guarantorKey as "guarantor1" | "guarantor2",
+        innerField,
+        asset.uri
+      );
+    } else {
+      updateFormData(fieldPath, asset.uri);
+    }
+  };
+
+  const ownershipOptions = [
+    { label: "Self Owned", value: "self" },
+    { label: "Company Owned", value: "company" },
+    { label: "Financed", value: "financed" },
+    { label: "Leased", value: "leased" },
+  ];
+
   const bankOptions = [
     { label: "HDFC Bank", value: "hdfc" },
     { label: "ICICI Bank", value: "icici" },
@@ -33,132 +121,85 @@ export default function KycForm3() {
     { label: "Axis Bank", value: "axis" },
     { label: "Other", value: "other" },
   ];
-    const ownershipOptions = [
-    { label: "Self Owned", value: "self" },
-    { label: "Company Owned", value: "company" },
-    { label: "Financed", value: "financed" },
-    { label: "Leased", value: "leased" },
-  ];
-
-   const [nocDoc, setNocDoc] = useState(""); 
-
-  const [accountNo, setAccountNo] = useState("");
-  const [ifsc, setIfsc] = useState("");
-  const [blankChequePic, setBlankChequePic] = useState(null);
-
-
-  const [guarantorAadharFrontPic1,setGuarantorAadharFrontPic1] = useState(null)
-  const [guarantorAadharBackPic1,setGuarantorAadharBackPic1] = useState(null)
-  const [guarantorAadharNumber1,setGuarantorAadharNumber1] = useState('')
-  const [guarantoName1,setGuarantorName1] = useState('')
-  const [guarantorDOB1,setGuarantorDOB1] = useState(new Date())
-  const [guarantorAddress1,setGuarantorAddress1] = useState('')
-  const [guarantorPermanentAddress1,setGuarantorPermanentAddress1] = useState('')
-  const [guarantorPanPic1,setGuarantorPanPic1] = useState(null)
-  const [guarantorPanNumber1,setGuarantorPanNumber1] = useState('')
-  const [guarantorMobile1,setGuarantorMobile1] = useState('')
-
-
-
-  const [guarantorAadharFrontPic2,setGuarantorAadharFrontPic2] = useState(null)
-  const [guarantorAadharBackPic2,setGuarantorAadharBackPic2] = useState(null)
-  const [guarantorAadharNumber2,setGuarantorAadharNumber2] = useState('')
-  const [guarantoName2,setGuarantorName2] = useState('')
-  const [guarantorDOB2,setGuarantorDOB2] = useState(new Date())
-  const [guarantorAddress2,setGuarantorAddress2] = useState('')
-  const [guarantorPermanentAddress2,setGuarantorPermanentAddress2] = useState('')
-  const [guarantorPanPic2,setGuarantorPanPic2] = useState(null)
-  const [guarantorPanNumber2,setGuarantorPanNumber2] = useState('')
-  const [guarantorMobile2,setGuarantorMobile2] = useState('')
-
-  const pickImage = async (setter) => {
-    const res = await launchImageLibrary({ mediaType: "photo", quality: 1 });
-    if (res.assets && res.assets.length > 0) setter(res.assets[0].uri);
-  };
 
   const onSave = () => {
-    // TODO: validations + API submit
-    // navigation?.navigate("SomeNextRoute")
+    console.log("✅ Final Form Data:", formData);
   };
+
+  // ✅ Reusable Upload Component
+  const UploadBox = ({ uri, label, onPress }: any) => (
+    <Pressable style={styles.uploadBox} onPress={onPress}>
+      {uri ? (
+        <Image source={{ uri }} style={styles.uploadImage} />
+      ) : (
+        <View style={styles.uploadContent}>
+          <Image
+            source={require("../../assets/png/aadhar.png")}
+            style={{ width: 40, height: 40 }}
+          />
+          <Text style={{ marginTop: 6 }}>{label}</Text>
+        </View>
+      )}
+    </Pressable>
+  );
 
   return (
     <>
       <Header title="KYC Verification" />
-      <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
-                <View style={styles.rowBetween}>
+      <ScrollView keyboardShouldPersistTaps="handled">
+        {/* --- RC DETAILS --- */}
+        <View style={styles.container}>
+        <View style={[styles.rowBetween]}>
           <Text style={styles.title}>RC Details</Text>
           <Text style={styles.stepText}>3/5</Text>
         </View>
         <View style={styles.line} />
-              <View style={styles.row}>
-                <Pressable style={styles.uploadBox} onPress={() => pickImage(setRcFrontPic)}>
-                  {rcFrontPic ? (
-                    <Image source={{ uri: dlPic }} style={styles.uploadImage} />
-                  ) : (
-                    <View style={styles.row}>
-                    <Image
-                    source={require('../../assets/png/aadhar.png')}
-                    style={{
-                        width:"50",
-                        height:"50"
-                    }}
-                    />
-                    <Text>RC Pic Front</Text>
-                    </View>
-                  )}
-                </Pressable>
-                <Pressable style={styles.uploadBox} onPress={() => pickImage(setRCBackPic)}>
-                  {rcBackPic ? (
-                    <Image source={{ uri: rcBackPic }} style={styles.uploadImage} />
-                  ) : (
-                    <View style={styles.row}>
-                    <Image
-                    source={require('../../assets/png/aadhar.png')}
-                    style={{
-                        width:"50",
-                        height:"50"
-                    }}
-                    />
-                    <Text>RC Back Pic</Text>
-                    </View>
-                  )}
-                </Pressable>
 
-            
-              </View>
-              <Text style={styles.label}>RC Number</Text>
-            <TextInput
-            style={[styles.input, styles.half]}
-            placeholder="Enter Your RC Number"
-            value={rc}
-            onChangeText={setRc}
+        <View style={styles.row}>
+          <UploadBox
+            uri={formData.rcFrontPic}
+            label="RC Front"
+            onPress={() => handleSelectImage("rcFrontPic")}
           />
-   
+          <UploadBox
+            uri={formData.rcBackPic}
+            label="RC Back"
+            onPress={() => handleSelectImage("rcBackPic")}
+          />
+        </View>
 
-             <Text style={styles.label}>Vehicle Registeration Date</Text>
-            <TextInput
-            style={[styles.input, styles.half]}
-            placeholder="Enter Your Vehicle Registration Date"
-            value={rc}
-            onChangeText={setRc}
-          />
-          
-             <Text style={styles.label}>Make</Text>
-            <TextInput
-            style={[styles.input, styles.half]}
-            placeholder="Enter Your Make"
-            value={rc}
-            onChangeText={setRc}
-          />
-          
-             <Text style={styles.label}>Model</Text>
-            <TextInput
-            style={[styles.input, styles.half]}
-            placeholder="Enter Your Model"
-            value={rc}
-            onChangeText={setRc}
-          />
-              {/* Vehicle Ownership */}
+        <Text style={styles.label}>RC Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter RC Number"
+          value={formData.rcNumber}
+          onChangeText={(v) => updateFormData("rcNumber", v)}
+        />
+
+        <Text style={styles.label}>Vehicle Registration Date</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Registration Date"
+          value={formData.rcRegistrationDate}
+          onChangeText={(v) => updateFormData("rcRegistrationDate", v)}
+        />
+
+        <Text style={styles.label}>Make</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Make"
+          value={formData.rcMake}
+          onChangeText={(v) => updateFormData("rcMake", v)}
+        />
+
+        <Text style={styles.label}>Model</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Model"
+          value={formData.rcModel}
+          onChangeText={(v) => updateFormData("rcModel", v)}
+        />
+
         <Text style={styles.label}>Vehicle Ownership</Text>
         <Dropdown
           style={styles.dropdown}
@@ -168,26 +209,29 @@ export default function KycForm3() {
           labelField="label"
           valueField="value"
           placeholder="Select"
-          value={ownership}
-          onChange={(item) => setOwnership(item.value)}
+          value={formData.ownership}
+          onChange={(item) => updateFormData("ownership", item.value)}
         />
 
-    {/* NOC Documentation (optional – small doc icon at right like figma) */}
         <Text style={styles.label}>NOC Documentation</Text>
         <View style={styles.iconInputRow}>
           <TextInput
             style={[styles.input, { flex: 1 }]}
             placeholder="Enter NOC or remarks"
-            value={nocDoc}
-            onChangeText={setNocDoc}
+            value={formData.nocDoc}
+            onChangeText={(v) => updateFormData("nocDoc", v)}
           />
-          <Pressable style={styles.iconBtn} onPress={() => pickImage(() => {})}>
+          <Pressable
+            style={styles.iconBtn}
+            onPress={() => handleSelectImage("nocDocPic")}
+          >
             <Icon name="file-pdf-o" size={18} color={Colors.secondary} />
           </Pressable>
         </View>
-
-        {/* BANK INFORMATION (3/4) */}
-        <View style={[styles.rowBetween,{marginTop:30}]}>
+        </View>
+        {/* --- BANK INFORMATION --- */}
+        <View style={[styles.container,{marginVertical:20}]}>
+        <View style={[styles.rowBetween, { marginTop: 30 }]}>
           <Text style={styles.title}>Bank Information</Text>
           <Text style={styles.stepText}>4/5</Text>
         </View>
@@ -202,8 +246,8 @@ export default function KycForm3() {
           labelField="label"
           valueField="value"
           placeholder="Select"
-          value={bankName}
-          onChange={(item) => setBankName(item.value)}
+          value={formData.bankName}
+          onChange={(item) => updateFormData("bankName", item.value)}
         />
 
         <Text style={styles.label}>Account No</Text>
@@ -211,8 +255,8 @@ export default function KycForm3() {
           style={styles.input}
           placeholder="Enter Account Number"
           keyboardType="number-pad"
-          value={accountNo}
-          onChangeText={setAccountNo}
+          value={formData.accountNo}
+          onChangeText={(v) => updateFormData("accountNo", v)}
         />
 
         <Text style={styles.label}>IFSC Code</Text>
@@ -220,276 +264,232 @@ export default function KycForm3() {
           style={styles.input}
           placeholder="Enter IFSC Code"
           autoCapitalize="characters"
-          value={ifsc}
-          onChangeText={setIfsc}
+          value={formData.ifsc}
+          onChangeText={(v) => updateFormData("ifsc", v)}
         />
 
-        <View style={{ marginTop: 10 }}>
-          <View style={styles.uploadBox}>
-            <Pressable
-              style={styles.uploadInner}
-              onPress={() => pickImage(setBlankChequePic)}
-            >
-              {blankChequePic ? (
-                <Image source={{ uri: blankChequePic }} style={styles.uploadImage} />
-              ) : (
-                <View style={styles.uploadContent}>
-                  <Image
-                    source={require("../../assets/png/aadhar.png")}
-                    style={{ width: 40, height: 40 }}
-                  />
-                  <Text style={{ marginTop: 6 }}>Blank Cheque Pic</Text>
-                </View>
-              )}
-            </Pressable>
-          </View>
-        </View>
+        <UploadBox
+          uri={formData.blankChequePic}
+          label="Blank Cheque Pic"
+          onPress={() => handleSelectImage("blankChequePic")}
+        />
 
-        {/* REF INFORMATION (4/4) */}
-        <View style={[styles.rowBetween, { marginTop: 18 }]}>
-          <Text style={styles.title}>Ref. Information</Text>
-          <Text style={styles.stepText}>5/5</Text>
+        {/* --- GUARANTOR 1 --- */}
+        <View style={[styles.rowBetween, { marginTop: 30 }]}>
+          <Text style={styles.title}>Guarantor 1 Details</Text>
         </View>
         <View style={styles.line} />
- 
-      <Text style={styles.label}>Gurrantor 1  Aadhaar Details</Text>
-      <View style={styles.row}>
-        <Pressable style={styles.uploadBox} onPress={() => pickImage(setGuarantorAadharFrontPic1)}>
-          {guarantorAadharFrontPic1 ? (
-            <Image source={{ uri: guarantorAadharFrontPic1 }} style={styles.uploadImage} />
-          ) : (
-            <View style={styles.row}>
-            <Image
-            source={require('../../assets/png/aadhar.png')}
-            style={{
-                width:"40",
-                height:"40"
-            }}
-            />
-            <Text>Aadhaar Pic Front</Text>
-            </View>
-          )}
-        </Pressable>
-        <Pressable style={styles.uploadBox} onPress={() => pickImage(setGuarantorAadharBackPic1)}>
-          {guarantorAadharBackPic1 ? (
-            <Image source={{ uri: guarantorAadharBackPic1 }} style={styles.uploadImage} />
-          ) : (
-            <View style={styles.row}>
-            <Image
-            source={require('../../assets/png/aadhar.png')}
-            style={{
-                width:"40",
-                height:"40"
-            }}
-            />
-            <Text>Aadhaar Pic Back</Text>
-            </View>
-          )}
-        </Pressable>
-      </View>
 
-     {/*Aadhar No*/}
-     
-      <Text style={styles.label}>Gurrantor 1 Aadhaar No</Text>
-            <TextInput
-            style={styles.input}
-            placeholder="Enter Your Gurrantor 1 Aadhaar No."
-            value={guarantorAadharNumber1}
-            onChangeText={setGuarantorAadharNumber1}
+        <View style={styles.row}>
+          <UploadBox
+            uri={formData.guarantor1.aadhaarFrontPic}
+            label="Aadhaar Front"
+            onPress={() => handleSelectImage("guarantor1.aadhaarFrontPic")}
+          />
+          <UploadBox
+            uri={formData.guarantor1.aadhaarBackPic}
+            label="Aadhaar Back"
+            onPress={() => handleSelectImage("guarantor1.aadhaarBackPic")}
+          />
+        </View>
+
+        <Text style={styles.label}>Aadhaar No</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Aadhaar No"
+          value={formData.guarantor1.aadhaarNumber}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor1", "aadhaarNumber", v)
+          }
         />
-        <Text style={styles.label}>Gurrantor 1 Aadhaar Name</Text>
-            <TextInput
-            style={styles.input}
-            placeholder="Enter Your Name as per your Aadhar"
-            value={guarantoName1}
-            onChangeText={setGuarantorName1}
+
+        <Text style={styles.label}>Aadhaar Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Name as per Aadhaar"
+          value={formData.guarantor1.name}
+          onChangeText={(v) => updateGuarantor("guarantor1", "name", v)}
         />
-      {/* DOB */}
-      <Text style={styles.label}>Gurrantor 1 DOB</Text>
-      <Pressable style={styles.input} onPress={() => {}}>
-        <Text>{guarantorDOB1?.toDateString()}</Text>
-      </Pressable>
-    
 
-      {/* Address */}
-      <Text style={styles.label}>Gurrantor 1 Current Address</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter current address"
-        value={guarantorAddress1}
-        onChangeText={setGuarantorAddress1}
-      />
-            {/* Address */}
-      <Text style={styles.label}> Gurrantor 1 Permanent Address</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter current address"
-        value={guarantorPermanentAddress1}
-        onChangeText={setGuarantorPermanentAddress1}
-      />
-      
-       <Pressable style={styles.uploadBox} onPress={() => pickImage(setGuarantorPanPic1)}>
-          {guarantorPanPic1 ? (
-            <Image source={{ uri: guarantorPanPic1 }} style={styles.uploadImage} />
-          ) : (
-            <View style={[styles.row,{gap:0,marginHorizontal:100}]}>
-            <Image
-            source={require('../../assets/png/aadhar.png')}
-            style={{
-                width:"40",
-                height:"40"
-            }}
-            />
-            <Text>PAN Pic</Text>
-            </View>
-          )}
+        <Text style={styles.label}>DOB</Text>
+        <Pressable
+          style={styles.input}
+          onPress={() => setShowDobPicker1(true)}
+        >
+          <Text>{formData.guarantor1.dob?.toDateString()}</Text>
         </Pressable>
-
-          <Text style={styles.label}> Gurrantor 1 PAN Number</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter Gurantor 1 PAN Number"
-        value={guarantorPanNumber1}
-        onChangeText={setGuarantorPanNumber1}
-      />
-          <Text style={styles.label}> Gurrantor 1 Mobile Number</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter Gurantor 1 Mobile Number "
-        value={guarantorMobile1}
-        onChangeText={setGuarantorMobile1}
-      />
-
-
-
-
- <Text style={styles.label}>Gurrantor 2  Aadhaar Details</Text>
-      <View style={styles.row}>
-        <Pressable style={styles.uploadBox} onPress={() => pickImage(setGuarantorAadharFrontPic2)}>
-          {guarantorAadharFrontPic2 ? (
-            <Image source={{ uri: guarantorAadharFrontPic2 }} style={styles.uploadImage} />
-          ) : (
-            <View style={styles.row}>
-            <Image
-            source={require('../../assets/png/aadhar.png')}
-            style={{
-                width:"40",
-                height:"40"
+        {showDobPicker1 && (
+          <DateTimePicker
+            value={formData.guarantor1.dob || new Date()}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowDobPicker1(false);
+              if (selectedDate)
+                updateGuarantor("guarantor1", "dob", selectedDate);
             }}
-            />
-            <Text>Aadhaar Pic Front</Text>
-            </View>
-          )}
-        </Pressable>
-        <Pressable style={styles.uploadBox} onPress={() => pickImage(setGuarantorAadharBackPic1)}>
-          {guarantorAadharBackPic1 ? (
-            <Image source={{ uri: guarantorAadharBackPic1 }} style={styles.uploadImage} />
-          ) : (
-            <View style={styles.row}>
-            <Image
-            source={require('../../assets/png/aadhar.png')}
-            style={{
-                width:"40",
-                height:"40"
-            }}
-            />
-            <Text>Aadhaar Pic Back</Text>
-            </View>
-          )}
-        </Pressable>
-      </View>
+          />
+        )}
 
-     {/*Aadhar No*/}
-     
-      <Text style={styles.label}>Gurrantor 2 Aadhaar No</Text>
-            <TextInput
-            style={styles.input}
-            placeholder="Enter Your Gurrantor 2 Aadhaar No."
-            value={guarantorAadharNumber2}
-            onChangeText={setGuarantorAadharNumber2}
+        <Text style={styles.label}>Current Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Current Address"
+          value={formData.guarantor1.address}
+          onChangeText={(v) => updateGuarantor("guarantor1", "address", v)}
         />
-        <Text style={styles.label}>Gurrantor 2 Aadhaar Name</Text>
-            <TextInput
-            style={styles.input}
-            placeholder="Enter Your Name as per your Aadhar"
-            value={guarantoName2}
-            onChangeText={setGuarantorName2}
+
+        <Text style={styles.label}>Permanent Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Permanent Address"
+          value={formData.guarantor1.permanentAddress}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor1", "permanentAddress", v)
+          }
         />
-      {/* DOB */}
-      <Text style={styles.label}>Gurrantor 2 DOB</Text>
-      <Pressable style={styles.input} onPress={() => {}}>
-        <Text>{guarantorDOB2?.toDateString()}</Text>
-      </Pressable>
-    
 
-      {/* Address */}
-      <Text style={styles.label}>Gurrantor 2 Current Address</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter current address"
-        value={guarantorAddress2}
-        onChangeText={setGuarantorAddress2}
-      />
-            {/* Address */}
-      <Text style={styles.label}> Gurrantor 2 Permanent Address</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter current address"
-        value={guarantorPermanentAddress2}
-        onChangeText={setGuarantorPermanentAddress2}
-      />
-      
-       <Pressable style={styles.uploadBox} onPress={() => pickImage(setGuarantorPanPic2)}>
-          {guarantorPanPic2 ? (
-            <Image source={{ uri: guarantorPanPic2 }} style={styles.uploadImage} />
-          ) : (
-            <View style={[styles.row,{gap:0,marginHorizontal:100}]}>
-            <Image
-            source={require('../../assets/png/aadhar.png')}
-            style={{
-                width:"40",
-                height:"40"
-            }}
-            />
-            <Text>PAN Pic</Text>
-            </View>
-          )}
+        <UploadBox
+          uri={formData.guarantor1.panPic}
+          label="PAN Pic"
+          onPress={() => handleSelectImage("guarantor1.panPic")}
+        />
+
+        <Text style={styles.label}>PAN Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter PAN Number"
+          value={formData.guarantor1.panNumber}
+          onChangeText={(v) => updateGuarantor("guarantor1", "panNumber", v)}
+        />
+
+        <Text style={styles.label}>Mobile Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Mobile"
+          value={formData.guarantor1.mobile}
+          onChangeText={(v) => updateGuarantor("guarantor1", "mobile", v)}
+        />
+
+        {/* --- GUARANTOR 2 --- */}
+        <View style={[styles.rowBetween, { marginTop: 30 }]}>
+          <Text style={styles.title}>Guarantor 2 Details</Text>
+        </View>
+        <View style={styles.line} />
+
+        <View style={styles.row}>
+          <UploadBox
+            uri={formData.guarantor2.aadhaarFrontPic}
+            label="Aadhaar Front"
+            onPress={() => handleSelectImage("guarantor2.aadhaarFrontPic")}
+          />
+          <UploadBox
+            uri={formData.guarantor2.aadhaarBackPic}
+            label="Aadhaar Back"
+            onPress={() => handleSelectImage("guarantor2.aadhaarBackPic")}
+          />
+        </View>
+
+        <Text style={styles.label}>Aadhaar No</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Aadhaar No"
+          value={formData.guarantor2.aadhaarNumber}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "aadhaarNumber", v)
+          }
+        />
+
+        <Text style={styles.label}>Aadhaar Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Name as per Aadhaar"
+          value={formData.guarantor2.name}
+          onChangeText={(v) => updateGuarantor("guarantor2", "name", v)}
+        />
+
+        <Text style={styles.label}>DOB</Text>
+        <Pressable
+          style={styles.input}
+          onPress={() => setShowDobPicker2(true)}
+        >
+          <Text>{formData.guarantor2.dob?.toDateString()}</Text>
         </Pressable>
+        {showDobPicker2 && (
+          <DateTimePicker
+            value={formData.guarantor2.dob || new Date()}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowDobPicker2(false);
+              if (selectedDate)
+                updateGuarantor("guarantor2", "dob", selectedDate);
+            }}
+          />
+        )}
 
-          <Text style={styles.label}> Gurrantor 2 PAN Number</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter Gurantor 2 PAN Number"
-        value={guarantorPanNumber2}
-        onChangeText={setGuarantorPanNumber2}
-      />
-          <Text style={styles.label}> Gurrantor 2 Mobile Number</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter Gurantor 2 Mobile Number "
-        value={guarantorMobile2}
-        onChangeText={setGuarantorMobile2}
-      />
+        <Text style={styles.label}>Current Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Current Address"
+          value={formData.guarantor2.address}
+          onChangeText={(v) => updateGuarantor("guarantor2", "address", v)}
+        />
 
+        <Text style={styles.label}>Permanent Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Permanent Address"
+          value={formData.guarantor2.permanentAddress}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "permanentAddress", v)
+          }
+        />
 
+        <UploadBox
+          uri={formData.guarantor2.panPic}
+          label="PAN Pic"
+          onPress={() => handleSelectImage("guarantor2.panPic")}
+        />
 
-        {/* footer buttons */}
+        <Text style={styles.label}>PAN Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter PAN Number"
+          value={formData.guarantor2.panNumber}
+          onChangeText={(v) => updateGuarantor("guarantor2", "panNumber", v)}
+        />
+
+        <Text style={styles.label}>Mobile Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Mobile"
+          value={formData.guarantor2.mobile}
+          onChangeText={(v) => updateGuarantor("guarantor2", "mobile", v)}
+        />
+
+        {/* Footer Buttons */}
         <View style={styles.footerRow}>
           <Pressable
             style={[styles.footerBtn, styles.backBtn]}
-            onPress={() => navigation?.goBack?.()}
+            onPress={() => navigation.goBack()}
           >
-            <Text style={[styles.footerText, { color: Colors.secondary }]}>Back</Text>
+            <Text style={[styles.footerText, { color: Colors.secondary }]}>
+              Back
+            </Text>
           </Pressable>
-          <Pressable style={[styles.footerBtn, styles.saveBtn]} onPress={onSave}>
+          <Pressable
+            style={[styles.footerBtn, styles.saveBtn]}
+            onPress={onSave}
+          >
             <Text style={[styles.footerText, { color: "#fff" }]}>Save</Text>
           </Pressable>
+        </View>
         </View>
       </ScrollView>
     </>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
@@ -503,14 +503,22 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 3,
   },
-  rowBetween: { flexDirection: "row", justifyContent: "space-between", alignItems: "center",marginVertical:10 },
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 10,
+  },
   title: { fontSize: 18, fontWeight: "500" },
   stepText: { color: Colors.secondary, fontSize: 14 },
   line: { borderWidth: 0.5, marginVertical: 10, borderColor: "#0D69C4" },
-
   label: { marginTop: 15, fontSize: 16, fontWeight: "400" },
-  row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 5},
-
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 5,
+  },
   dropdown: {
     height: 50,
     borderColor: "#ccc",
@@ -521,7 +529,6 @@ const styles = StyleSheet.create({
   },
   placeholderStyle: { color: "gray", fontSize: 14 },
   selectedTextStyle: { fontSize: 14 },
-
   input: {
     borderBottomWidth: 1,
     borderColor: "#ccc",
@@ -529,15 +536,17 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 5,
   },
-
   uploadBox: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
     marginTop: 6,
+    flex: 1,
   },
-    iconInputRow: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 5 },
-      iconBtn: {
+  uploadContent: { alignItems: "center", justifyContent: "center" },
+  uploadImage: { width: "100%", height: 72, borderRadius: 8 },
+  iconInputRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  iconBtn: {
     height: 44,
     width: 44,
     borderRadius: 8,
@@ -547,15 +556,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft: 10,
   },
-
-    half: { flex: 1},
-  uploadInner: { height: 72, alignItems: "center", justifyContent: "center", borderRadius: 8 },
-  uploadContent: { alignItems: "center", justifyContent: "center" },
-  uploadImage: { width: "100%", height: 72, borderRadius: 8 },
-
-  footerRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 24, marginBottom: 8 },
-  footerBtn: { flex: 1, height: 46, borderRadius: 24, alignItems: "center", justifyContent: "center" },
-  backBtn: { borderWidth: 1, borderColor: Colors.secondary, marginRight: 12, backgroundColor: "#fff" },
+  footerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  footerBtn: {
+    flex: 1,
+    height: 46,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  backBtn: {
+    borderWidth: 1,
+    borderColor: Colors.secondary,
+    marginRight: 12,
+    backgroundColor: "#fff",
+  },
   saveBtn: { backgroundColor: Colors.secondary, marginLeft: 12 },
   footerText: { fontSize: 16, fontWeight: "600" },
 });
