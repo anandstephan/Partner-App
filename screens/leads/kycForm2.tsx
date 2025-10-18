@@ -18,7 +18,7 @@ import Colors from "../../constants/color";
 import Header from "../../commonComponents/Header";
 import { useNavigation } from "@react-navigation/native";
 
-export default function kycForm2() {
+export default function KycForm2() {
 
   const navigation = useNavigation()
   // dropdowns

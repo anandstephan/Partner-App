@@ -6,6 +6,10 @@ require Pod::Executable.execute_command('node', ['-p',
   )', __dir__]).strip
 
 platform :ios, min_ios_version_supported
+
+# ✅ Force Xcode & Pods to use correct Node binary
+ENV['NODE_BINARY'] = '/Users/anandstephan/.nvm/versions/node/v22.20.0/bin/node'
+
 prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
@@ -19,17 +23,29 @@ target 'PartnerApp' do
 
   use_react_native!(
     :path => config[:reactNativePath],
-    # An absolute path to your application root.
+    :hermes_enabled => false,   # 👈 disable Hermes while testing
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  # ---- Post Install Hook ----
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
     )
+
+    # ✅ Patch every build phase to use correct Node path
+    installer.pods_project.targets.each do |target|
+      target.shell_script_build_phases.each do |phase|
+        if phase.shell_script.include?('react-native-xcode.sh') ||
+           phase.shell_script.include?('react_native_pods_utils/script_phases.sh') ||
+           phase.name.include?('Hermes') ||
+           phase.name.include?('ReactCodegen')
+
+          phase.shell_script = "export NODE_BINARY=/Users/anandstephan/.nvm/versions/node/v22.20.0/bin/node\n" + phase.shell_script
+        end
+      end
+    end
   end
 end

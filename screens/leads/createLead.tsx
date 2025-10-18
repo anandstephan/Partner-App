@@ -11,6 +11,7 @@ import {
 
 import Entypo from 'react-native-vector-icons/Entypo'
 import Header from '../../commonComponents/Header';
+import { RenderDropdown } from '../../utilites/renderDropdown';
 const CreateLead = () => {
     const navigation = useNavigation()
   const [formData, setFormData] = useState({
@@ -90,7 +91,13 @@ const CreateLead = () => {
         {/* Lead Source */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Lead Source</Text>
-          {renderDropdown('leadSource', 'Select the Source of lead', leadSources, formData.leadSource)}
+         <RenderDropdown
+            field="leadSource"
+            placeholder="Select the Source of lead"
+            options={leadSources}
+            currentValue={formData.leadSource}
+            onSelect={(field, value) => setFormData({ ...formData, [field]: value })}
+          />
         </View>
 
         {/* Personal Info */}
@@ -168,18 +175,37 @@ const CreateLead = () => {
           <View style={styles.row}>
             <View style={styles.halfWidth}>
               <Text style={styles.label}>Type</Text>
-              {renderDropdown('vehicleType', '', vehicleTypes, formData.vehicleType)}
+              <RenderDropdown
+                field="vehicleType"
+                placeholder="Vehicle Type"
+                options={vehicleTypes}
+                currentValue={formData.vehicleType}
+                onSelect={(field, value) => setFormData({ ...formData, [field]: value })}
+              />
             </View>
             <View style={styles.halfWidth}>
               <Text style={styles.label}>DL Status</Text>
-              {renderDropdown('dlStatus', '', dlStatuses, formData.dlStatus)}
+              <RenderDropdown
+              field='dlStatus'
+              placeholder='DL Status'
+              options={dlStatuses}
+              currentValue={formData.dlStatus}
+              onSelect={(field, value) => setFormData({ ...formData, [field]: value })}
+              />
             </View>
           </View>
 
           <View style={styles.row}>
             <View style={styles.halfWidth}>
               <Text style={styles.label}>Loan Status</Text>
-              {renderDropdown('loanStatus', '', loanStatuses, formData.loanStatus)}
+              <RenderDropdown
+                field="loanStatus"
+                placeholder="Loan Status"
+                options={loanStatuses}
+                currentValue={formData.loanStatus}
+                onSelect={(field, value) => setFormData({ ...formData, [field]: value })}
+              />
+
             </View>
             <View style={styles.halfWidth}>
               <Text style={styles.label}>Loan No</Text>
@@ -359,6 +385,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
+    borderWidth:2,
+
+
   },
   dropdownItemText: {
     fontSize: 16,
