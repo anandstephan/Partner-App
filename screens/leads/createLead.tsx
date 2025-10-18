@@ -7,13 +7,18 @@ import {
   StyleSheet,
   ScrollView,
   Pressable,
+  Alert,
 } from 'react-native';
 
 import Entypo from 'react-native-vector-icons/Entypo'
 import Header from '../../commonComponents/Header';
 import { RenderDropdown } from '../../utilites/renderDropdown';
+import { useCreateLead } from '../../features/createLead/useCreateLead';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { useUpload } from '../../features/upload/useUpload';
 const CreateLead = () => {
     const navigation = useNavigation()
+   
   const [formData, setFormData] = useState({
     leadSource: '',
     firstName: '',
@@ -29,13 +34,6 @@ const CreateLead = () => {
     segment: 'Current'
   });
 
-  const [dropdowns, setDropdowns] = useState({
-    leadSource: false,
-    vehicleType: false,
-    dlStatus: false,
-    loanStatus: false
-  });
-
   const leadSources = ['Online', 'Referral', 'Walk-in', 'Phone Call', 'Social Media'];
   const vehicleTypes = ['Car', 'Bike', 'Truck', 'Bus', 'Auto'];
   const dlStatuses = ['Valid', 'Expired', 'Applied', 'Not Applied'];
@@ -44,50 +42,62 @@ const CreateLead = () => {
   const updateFormData = (field:string, value:string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+    const { mutate, isPending, error, isError } = useCreateLead();
+    const { mutate:upload} = useUpload()
 
-  const toggleDropdown = (field:string) => {
-    setDropdowns(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
+      const handleSelectImage = async () => {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 0.8,
+      });
+
+    if (result.didCancel) return;
+
+    const asset = result.assets?.[0];
+    if (!asset?.uri) return;
+
+    const file = {
+      uri: asset.uri,
+      name: asset.fileName || 'photo.jpg',
+      type: asset.type || 'image/jpeg',
+    };
+    
+    const payload = {
+      file,
+      category:"selfieWithCustomer",
+      appName:"employeeApp"
+
+    }
+      upload(payload, {
+              onSuccess: () => Alert.alert('✅ Lead Created Successfully!'),
+              onError: (err) => {
+                Alert.alert("Error",err.message)
+                console.log("Error",err)
+              }
+            })
+
   };
 
-  const selectDropdownValue = (field:string, value:string) => {
-    updateFormData(field, value);
-    setDropdowns(prev => ({ ...prev, [field]: false }));
-  };
 
-  const renderDropdown = (field:string, placeholder:string, options:string, currentValue:string) => (
-    <View style={styles.dropdownContainer}>
-      <Pressable
-        style={styles.dropdown}
-        onPress={() => toggleDropdown(field)}
-      >
-        <Text style={[styles.dropdownText, !currentValue && styles.placeholderText]}>
-          {currentValue || placeholder}
-        </Text>
-        <Text style={styles.dropdownArrow}>▼</Text>
-      </Pressable>
-      {dropdowns[field] && (
-        <View style={styles.dropdownList}>
-          {options.map((option, index) => (
-            <Pressable
-              key={index}
-              style={styles.dropdownItem}
-              onPress={() => selectDropdownValue(field, option)}
-            >
-              <Text style={styles.dropdownItemText}>{option}</Text>
-            </Pressable>
-          ))}
-        </View>
-      )}
-    </View>
-  );
+  const handleAddLead = () =>{
+ 
+          mutate(
+            formData,
+            {
+              onSuccess: () => Alert.alert('✅ Lead Created Successfully!'),
+              onError: (err) => {
+                Alert.alert("Error",err.message)
+                console.log("Error",err)
+              }
+            }
+          );
+  }
 
   return (
     <> 
       <Header title="Create Lead"/>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* <Text>{JSON.stringify(formData)}</Text> */}
         {/* Lead Source */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Lead Source</Text>
@@ -247,7 +257,7 @@ const CreateLead = () => {
 
         {/* Selfie with Customer */}
         <View style={styles.section}>
-          <Pressable style={styles.selfieButton}>
+          <Pressable style={styles.selfieButton} onPress={handleSelectImage}>
             <Entypo name="camera" size={25}/>
             <Text style={styles.selfieText}>Selfie with Customer</Text>
           </Pressable>
@@ -266,10 +276,10 @@ const CreateLead = () => {
 
         {/* Save & Submit Buttons */}
         <View style={styles.buttonRow}>
-          <Pressable style={[styles.actionButton, { backgroundColor: "#00BCD4" }]}>
+          <Pressable style={[styles.actionButton, { backgroundColor: "#00BCD4" }]} onPress={()=>console.log("jjj")}>
             <Text style={styles.actionButtonText}>Save</Text>
           </Pressable>
-          <Pressable style={[styles.actionButton, { backgroundColor: "#00BCD4" }]}>
+          <Pressable style={[styles.actionButton, { backgroundColor: "#00BCD4" }]} onPress={handleAddLead}>
             <Text style={styles.actionButtonText}>Submit</Text>
           </Pressable>
         </View>

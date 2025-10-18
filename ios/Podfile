@@ -23,7 +23,7 @@ target 'PartnerApp' do
 
   use_react_native!(
     :path => config[:reactNativePath],
-    :hermes_enabled => false,   # 👈 disable Hermes while testing
+    :hermes_enabled => true,   # 👈 disable Hermes while testing
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 

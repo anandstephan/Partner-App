@@ -3,10 +3,10 @@ import { LeadDetails } from './type.ts';
 
 
 
-export const createTicket = async (payload:LeadDetails): Promise<TicketResponse> => {
-  console.log(payload)
-  const response = await apiClient.post('/api/lead/employee',payload);
-  console.log("+++++",response)
+export const createLead = async (payload:LeadDetails): Promise<void> => {
+
+  const response = await apiClient.post('/api/lead',payload);
+ 
   return response.data;
 };
 
