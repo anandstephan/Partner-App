@@ -6,7 +6,7 @@ import {
   TextInput,
   StyleSheet,
   FlatList,
-  TouchableOpacity,
+  Pressable,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -80,7 +80,7 @@ const Payment = () => {
       {/* Tabs */}
       <View style={styles.tabRow}>
         {tabs.map((tab) => (
-          <TouchableOpacity
+          <Pressable
             key={tab}
             style={[
               styles.tab,
@@ -96,7 +96,7 @@ const Payment = () => {
             >
               {tab}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         ))}
       </View>
 

@@ -1,4 +1,5 @@
-import { StyleSheet,View,Text } from "react-native"
+import { useNavigation } from "@react-navigation/native";
+import { StyleSheet,View,Text, Pressable } from "react-native"
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 interface Props{
@@ -10,7 +11,9 @@ interface Props{
     city:string;
 }
 const PaymentCard = (item:Props) =>{
-return  <View style={styles.card}>
+  const navigation = useNavigation()
+return  <Pressable onPress={()=>navigation.navigate('emidetail')}>
+<View style={styles.card}>
       <Ionicons
         name={item.gender === "male" ? "person-circle" : "woman"}
         size={40}
@@ -30,6 +33,7 @@ return  <View style={styles.card}>
         </View>
       </View>
     </View>
+    </Pressable>
 }
 
 export default PaymentCard
