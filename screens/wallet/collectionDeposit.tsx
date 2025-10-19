@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { act, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -11,10 +11,12 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Header from "../../commonComponents/Header";
+import MoneyBag from "../../assets/jsx/MoneyBag";
+import Deposit from "../../assets/jsx/Deposit";
 
 const CollectionDeposit = () => {
   const [activeTab, setActiveTab] = useState("New Collection");
-
+  console.log("active",activeTab)
   const tabs = ["New Collection", "Deposit", "History"];
 
   const data = [
@@ -71,6 +73,10 @@ const CollectionDeposit = () => {
     </View>
   );
 
+  let icon =         <MoneyBag/>
+  if(activeTab === 'Deposit'){
+    icon = <Deposit/>
+  }
   return (
     <>
     {/* Header */}
@@ -78,17 +84,18 @@ const CollectionDeposit = () => {
     <View style={styles.container}>
       {/* Top Card */}
       <View style={styles.topCard}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Ionicons name="cash-outline" size={40} color="#000" />
+        
+          {icon}
           <View style={{ marginLeft: 10 }}>
-            <Text style={styles.topText}>In-Hand</Text>
+            <Text style={styles.topText}>{activeTab === 'Deposit' ? 'Balance' : activeTab === 'Deposit' ? 'Year' : 'In-Hand'}</Text>
             <Text style={styles.topAmount}>₹ 50,000</Text>
           </View>
-        </View>
         <View>
-          <Text style={styles.topText}>Today</Text>
+          <Text style={styles.topText}>{activeTab === 'Deposit' ? 'Deposited' :activeTab === 'Deposit' ?'Month'  : 'Today'}</Text>
           <Text style={styles.topAmount}>₹ 5,000</Text>
         </View>
+      <View/>
+      <View/>
       </View>
 
       {/* Tabs */}
