@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   card: {
-    backgroundColor: "#F2F2F2", // light gray container like in figma
+    backgroundColor: "#D9D9D9", // light gray container like in figma
     borderRadius: 16,
     paddingVertical: 10,
     paddingHorizontal: 14,
@@ -74,6 +74,8 @@ const styles = StyleSheet.create({
   },
   fieldBox: {
     marginBottom: 12,
+    borderBottomWidth:1,
+    borderColor:"gray"
   },
   label: {
     fontSize: 13,
