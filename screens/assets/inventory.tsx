@@ -3,12 +3,14 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TextInput,
   FlatList,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 import Header from "../../commonComponents/Header";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 
 const distributors = [
   {
@@ -33,28 +35,38 @@ const distributors = [
 
 const Inventory = () => {
   const [search, setSearch] = useState("");
+  const navigation = useNavigation()
 
   const filteredData = distributors.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const renderCard = ({ item }: any) => (
+    <Pressable onPress={()=>navigation.navigate('availableAsset')}>
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{item.title}</Text>
       </View>
+      <View style={{flexDirection:"row",justifyContent:"space-between",alignItems:'center'}}>
+      <View>
       <Text style={styles.text}>Partner ID: {item.partnerId}</Text>
       <Text style={styles.text}>Name: {item.name}</Text>
       <Text style={styles.text}>📞 {item.phone}</Text>
       <Text style={styles.text}>📍 {item.city}</Text>
-
+      </View>
       <View style={styles.stockRow}>
-        <Text style={[styles.stockBox, { color: "blue" }]}>🟦 {item.stock.blue}</Text>
-        <Text style={[styles.stockBox, { color: "gray" }]}>⬜ {item.stock.gray}</Text>
+        <View style={styles.row}>
         <Text style={[styles.stockBox, { color: "red" }]}>🟥 {item.stock.red}</Text>
         <Text style={[styles.stockBox, { color: "orange" }]}>🟨 {item.stock.yellow}</Text>
+        </View>
+        <View style={styles.row}>
+        <Text style={[styles.stockBox, { color: "blue" }]}>🟦 {item.stock.blue}</Text>
+        <Text style={[styles.stockBox, { color: "gray" }]}>⬜ {item.stock.gray}</Text>
+      </View>
+      </View>
       </View>
     </View>
+    </Pressable>
   );
 
   return (
@@ -122,7 +134,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   text: { fontSize: 14, marginBottom: 4 },
-  stockRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 8 },
+  stockRow: { justifyContent: "space-between", marginTop: 8 },
   stockBox: { fontWeight: "600" },
   bottomNav: {
     flexDirection: "row",
@@ -137,6 +149,7 @@ const styles = StyleSheet.create({
   },
   navItem: { alignItems: "center" },
   navText: { fontSize: 12, color: "#333" },
+  row:{flexDirection:"row",justifyContent:'space-between',alignItems:'center',marginVertical:10}
 });
 
 export default Inventory;
