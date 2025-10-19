@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
 Pressable,
 TextInput
@@ -11,6 +10,7 @@ TextInput
 import Icon from "react-native-vector-icons/Feather";
 import Header from "../../commonComponents/Header";
 import Colors from "../../constants/color"; // adjust path if needed
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PersonalInformation() {
   const user = {

@@ -6,6 +6,7 @@ import ProductAssign from './productAssign';
 import RequestForm from './requestForm';
 import Inventory from './inventory';
 import Eagle from './Eagle';
+import ProductAssignForm from './productAssingForm';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,6 +18,7 @@ return <Stack.Navigator screenOptions={{headerShown:false}}>
     <Stack.Screen name="requestForm" component={RequestForm}/>
     <Stack.Screen name="inventory" component={Inventory}/>
     <Stack.Screen name="eagle" component={Eagle}/>
+    <Stack.Screen name="productAssignForm" component={ProductAssignForm}/>
     
 
 </Stack.Navigator>

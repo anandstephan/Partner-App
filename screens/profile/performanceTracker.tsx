@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
 } from "react-native";
 import {
@@ -14,6 +13,7 @@ import {
 } from "react-native-gifted-charts";
 import Header from "../../commonComponents/Header";
 import Colors from "../../constants/color"; // optional if you have color constants
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PerformanceTracker() {
   const [activeTab, setActiveTab] = useState<"Daily" | "Weekly" | "Monthly">("Daily");

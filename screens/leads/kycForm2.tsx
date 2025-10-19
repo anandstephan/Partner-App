@@ -15,10 +15,11 @@ import Colors from "../../constants/color";
 import Header from "../../commonComponents/Header";
 import { useNavigation } from "@react-navigation/native";
 import { AudioRecorder } from "../../utilites/AudioRecorder";
+import useLocation from "../../hooks/useLocation";
 
 export default function KycForm2() {
   const navigation = useNavigation();
-
+  const location = useLocation()
   // ✅ Single form state
   const [formData, setFormData] = useState({
     ownership: null,
@@ -164,7 +165,11 @@ export default function KycForm2() {
         </Pressable>
 
         {/* Location */}
-        <Text style={styles.label}>Location</Text>
+        <Pressable onPress={()=>{
+         console.log(location)
+        }}>
+        <Text style={styles.label}>Get a Location</Text>
+        </Pressable>
         <View style={styles.row}>
           <TextInput
             style={[styles.input, styles.half]}

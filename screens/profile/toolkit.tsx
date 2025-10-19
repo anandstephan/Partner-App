@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Image,
@@ -11,6 +10,7 @@ import {
 import Icon from "react-native-vector-icons/Feather";
 import Header from "../../commonComponents/Header";
 import Colors from "../../constants/color"; // optional if you use color constants
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Toolkit() {
   return (

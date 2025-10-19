@@ -1,7 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import {
-  SafeAreaView,
   View,
   Text,
   TextInput,

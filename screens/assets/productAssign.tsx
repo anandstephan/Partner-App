@@ -5,13 +5,13 @@ import {
   StyleSheet,
   FlatList,
   TextInput,
-  SafeAreaView,
   Pressable,
   Image,
 } from "react-native";
 import Header from "../../commonComponents/Header";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Card from "./components/card";
+import { useNavigation } from "@react-navigation/native";
 
 const dummyData = [
   {
@@ -49,6 +49,7 @@ const dummyData = [
 ];
 
 const ProductAssign = () => {
+  const navigation = useNavigation()
   const [search, setSearch] = useState("");
 
   const filteredData = dummyData.filter(
