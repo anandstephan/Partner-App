@@ -14,6 +14,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import Colors from "../../constants/color";
 import Header from "../../commonComponents/Header";
 import { useNavigation } from "@react-navigation/native";
+import { AudioRecorder } from "../../utilites/AudioRecorder";
 
 export default function KycForm2() {
   const navigation = useNavigation();
@@ -64,6 +65,8 @@ export default function KycForm2() {
     navigation.navigate("kycForm3");
   };
 
+
+
   return (
     <>
       <Header title="KYC Verification" />
@@ -83,7 +86,7 @@ export default function KycForm2() {
           value={formData.permanentAddress}
           onChangeText={(v) => updateFormData("permanentAddress", v)}
         />
-
+        <AudioRecorder/>
         {/* Ownership Dropdown */}
         <Text style={styles.label}>House Ownership</Text>
         <Dropdown

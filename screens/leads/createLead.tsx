@@ -61,7 +61,7 @@ const CreateLead = () => {
       name: asset.fileName || 'photo.jpg',
       type: asset.type || 'image/jpeg',
     };
-    
+
     const payload = {
       file,
       category:"selfieWithCustomer",
