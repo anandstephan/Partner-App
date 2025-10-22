@@ -10,10 +10,16 @@ import {
   Image,
   Pressable,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import Header from '../../commonComponents/Header';
 import { useNavigation } from '@react-navigation/native';
 import ActionAlert from '../../commonComponents/ActionAlert';
+import { useLead } from '../../features/leads/useLead';
+import { PaginationDots } from './components/paginationDots';
+import { LeadRow, TableHeader } from './components/leadRow';
+import { ProgressBar } from './components/progressBar';
+import { Lead } from '../../features/leads/type';
 
 const { width } = Dimensions.get('window');
 
@@ -21,7 +27,14 @@ const Leads = () => {
     const navigation = useNavigation()
   const [searchText, setSearchText] = useState('');
   const [modalVisible,setModalVisible] = useState(false)
-console.log("===>",modalVisible)
+  const {data,isLoading} = useLead()
+  console.log(data.data)
+  if(isLoading){
+    return <View style={{flex:1,justifyContent:"center",alignItems:'center'}}>
+      <ActivityIndicator size={'large'}/>
+    </View>
+  }
+
   const leads = [
     {
       id: 1,
@@ -89,67 +102,9 @@ console.log("===>",modalVisible)
     },
   ];
 
-  const BackIcon = () => <Text style={styles.backIcon}>‹</Text>;
 
   const SearchIcon = () => <Text style={styles.searchIcon}>🔍</Text>;
 
-  const ProgressBar = ({ progress }) => (
-    <View style={styles.progressBarContainer}>
-      <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
-    </View>
-  );
-
-  const StatusBadge = ({ status, color }) => (
-    <View style={[styles.statusBadge, { backgroundColor: `${color}20` }]}>
-      <Text style={[styles.statusText, { color }]}>{status}</Text>
-    </View>
-  );
-
-  const TableHeader = () => (
-    <View style={styles.tableHeader}>
-     <Text style={[styles.headerText, styles.nameColumn]}>#</Text>
-      <Text style={[styles.headerText, styles.nameColumn]}>Lead Name</Text>
-      <Text style={[styles.headerText, styles.idColumn]}>Lead ID</Text>
-      <Text style={[styles.headerText, styles.dateColumn]}>Add Date</Text>
-      <Text style={[styles.headerText, styles.statusColumn]}>Status</Text>
-    </View>
-  );
-
-  const LeadRow = ({ lead }) => (
-    <View style={styles.tableRow}>
-      <View style={[styles.nameColumn, { flex: 1 }]}>
-        <Text style={styles.leadNumber}>{lead.id}</Text>
-      </View>
-
-      <View style={styles.nameColumn}>
-        <Text style={styles.leadName}>{lead.name}</Text>
-      </View>
-      <Text style={[styles.cellText, styles.idColumn]}>{lead.leadId}</Text>
-      <Text style={[styles.cellText, styles.dateColumn]}>{lead.date}</Text>
-       <Pressable onPress={()=>setModalVisible(!modalVisible)}>
-      <View style={[styles.statusColumn]}>
-       
-        <StatusBadge status={lead.status} color={lead.statusColor} />
-  
-      </View>
-            </Pressable>
-    </View>
-  );
-
-  const PaginationDots = () => (
-    <View style={styles.paginationContainer}>
-      <Text style={styles.paginationText}>Total: 122</Text>
-      <View style={styles.dotsContainer}>
-        <View style={[styles.dot, styles.activeDot]} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-      </View>
-    </View>
-  );
 
   return (
     <>
@@ -213,8 +168,8 @@ console.log("===>",modalVisible)
             height={width}
           />
           {/* Lead Rows */}
-          {leads.map(lead => (
-            <LeadRow key={lead.id} lead={lead} />
+          {data?.data.map((lead:Lead,idx:number) => (
+            <LeadRow key={lead.id} lead={lead} idx={idx} />
           ))}
 
           {/* Pagination */}
@@ -301,17 +256,7 @@ const styles = StyleSheet.create({
     color: '#212529',
     marginBottom: 10,
   },
-  progressBarContainer: {
-    height: 2,
-    backgroundColor: '#e9ecef',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: '#000000',
-    borderRadius: 3,
-  },
+
   searchSection: {
     paddingHorizontal: 20,
     paddingVertical: 15,
@@ -352,95 +297,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#4fc3f7',
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    marginBottom: 15,
-  },
-  headerText: {
-    color: '#ffffff',
-    fontSize: 12,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  nameColumn: {
-    flex: 2,
-    textAlign: 'left',
-  },
-  idColumn: {
-    flex: 2,
-    textAlign: 'center',
-  },
-  dateColumn: {
-    flex: 2,
-    textAlign: 'center',
-  },
-  statusColumn: {
-    flex: 2,
-    alignItems: 'center',
 
-  },
 
-  tableRow: {
-    flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f3f4',
-    alignItems: 'center',
-  },
-  leadName: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#212529',
-  },
-  leadNumber: {
-    fontSize: 11,
-    color: '#6c757d',
-    marginTop: 2,
-  },
-  cellText: {
-    fontSize: 11,
-    color: '#6c757d',
-    textAlign: 'center',
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: 'center',
-  },
-  statusText: {
-    fontSize: 10,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  paginationContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  paginationText: {
-    fontSize: 12,
-    color: '#6c757d',
-    marginBottom: 10,
-  },
-  dotsContainer: {
-    flexDirection: 'row',
-    gap: 5,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#dee2e6',
-  },
-  activeDot: {
-    backgroundColor: '#4fc3f7',
-  },
+
+
   circle: {
      width: 20,
     height: 20,

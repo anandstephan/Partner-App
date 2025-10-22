@@ -11,10 +11,10 @@ return <View style={styles.container}>
         </View>
         <View style={styles.rowContainer}>
         <Pressable style={styles.btnContainer}>
-            <Text>Employee login</Text>
+            <Text style={{color:"#FFF"}}>Employee login</Text>
         </Pressable>
         <Pressable style={[styles.btnContainer,{backgroundColor:Colors.primary}]}>
-            <Text>Partner login</Text>
+            <Text style={{color:"#FFF"}}>Partner login</Text>
         </Pressable>
         </View>
         <View style={styles.lowerContainer}>
@@ -39,7 +39,7 @@ export default Login
 
 const styles = StyleSheet.create({
     container:{
-            marginVertical:'45%',
+            // marginVertical:'20%',
             justifyContent:'center',
             alignItems:"center",
             backgroundColor:Colors.appBackground
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
         alignItems:'center',
     },
     lowerContainer:{
-        borderWidth:1,
+        borderWidth:0.4,
         width:Dimensions.get('window').width/1.2,
         borderRadius:20,
         backgroundColor:Colors.white,
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
         margin:10
     },
     input:{
-        backgroundColor:"red",
+        backgroundColor:"#F7F7F7",
         padding:10,
         margin:10
     }
