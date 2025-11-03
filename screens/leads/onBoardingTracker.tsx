@@ -12,16 +12,16 @@ import Colors from "../../constants/color";
 import Header from "../../commonComponents/Header";
 
 export default function OnboardingTracker() {
-  // dropdowns
   const [paymentFrequency, setPaymentFrequency] = useState(null);
+  const [paymentMode, setPaymentMode] = useState(null);
+  const [couponAppliedOn, setCouponAppliedOn] = useState(null);
+
   const frequencyOptions = [
     { label: "Daily", value: "daily" },
     { label: "Weekly", value: "weekly" },
     { label: "Monthly", value: "monthly" },
     { label: "Bi-Monthly (15 days)", value: "bi-monthly" },
   ];
-
-  const [paymentMode, setPaymentMode] = useState(null);
   const paymentModes = [
     { label: "Cash", value: "cash" },
     { label: "Cheque", value: "cheque" },
@@ -31,240 +31,247 @@ export default function OnboardingTracker() {
     { label: "Google Pay", value: "gpay" },
     { label: "UPI", value: "upi" },
   ];
-
-  const [couponAppliedOn, setCouponAppliedOn] = useState(null);
   const couponOptions = [
     { label: "Down Payment", value: "down" },
     { label: "EMI", value: "emi" },
   ];
 
-  // text fields
-  const [schemeName, setSchemeName] = useState("");
-  const [downPayment, setDownPayment] = useState("");
-  const [loanAmount, setLoanAmount] = useState("");
-  const [emiAmount, setEmiAmount] = useState("");
-  const [tenure, setTenure] = useState("");
-  const [couponCode, setCouponCode] = useState("");
-  const [couponValue, setCouponValue] = useState("");
-  const [payableEmi, setPayableEmi] = useState("");
-  const [digitalReceipt, setDigitalReceipt] = useState("");
-  const [transactionId, setTransactionId] = useState("");
+  const [form, setForm] = useState({
+    schemeName: "",
+    downPayment: "",
+    loanAmount: "",
+    emiAmount: "",
+    tenure: "",
+    couponCode: "",
+    couponValue: "",
+  });
+  const update = (k: string, v: string) => setForm({ ...form, [k]: v });
 
-  const onSubmit = () => {
-    const payload = {
+  const submit = () => {
+    console.log({
+      ...form,
       paymentFrequency,
-      schemeName,
-      downPayment,
-      loanAmount,
-      emiAmount,
-      tenure,
       paymentMode,
       couponAppliedOn,
-      couponCode,
-      couponValue,
-      payableEmi,
-      digitalReceipt,
-      transactionId,
-    };
-    console.log("Form Data:", payload);
-    // TODO: call API or navigate
-    // navigation.navigate("SuccessScreen");
+    });
   };
 
   return (
     <>
       <Header title="Onboarding" />
-      <ScrollView style={styles.container}>
-        <View style={styles.rowBetween}>
-          <Text style={styles.title}>Onboarding</Text>
-          <Text style={styles.stepText}>3/4</Text>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+        <View style={styles.section}>
+          <View style={styles.rowBetween}>
+            <Text style={styles.heading}>Onboarding</Text>
+            <Text style={styles.step}>3/4</Text>
+          </View>
+          <View style={styles.blueLine} />
+
+          <Text style={[styles.label,{
+             borderBottomWidth: 1,
+    borderRightWidth:0.5,
+    borderLeftWidth:0.4,
+    borderColor: "#E1E1E1",
+    marginHorizontal:10,
+
+          }]}>Payment Frequency</Text>
+          {/* <Dropdown
+            style={styles.input}
+            placeholderStyle={styles.placeholder}
+            selectedTextStyle={styles.value}
+            data={frequencyOptions}
+            labelField="label"
+            valueField="value"
+            placeholder="Select"
+            value={paymentFrequency}
+            onChange={(i) => setPaymentFrequency(i.value)}
+          /> */}
+
+          {/* <Text style={styles.label}>Scheme Name</Text> */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter scheme name"
+            value={form.schemeName}
+            onChangeText={(t) => update("schemeName", t)}
+          />
+
+          {/* <Text style={styles.label}>Down Payment</Text> */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter down payment"
+            keyboardType="numeric"
+            value={form.downPayment}
+            onChangeText={(t) => update("downPayment", t)}
+          />
+
+          {/* <Text style={styles.label}>Loan Amount</Text> */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter loan amount"
+            keyboardType="numeric"
+            value={form.loanAmount}
+            onChangeText={(t) => update("loanAmount", t)}
+          />
+
+          {/* <Text style={styles.label}>EMI Amount</Text> */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter EMI amount"
+            keyboardType="numeric"
+            value={form.emiAmount}
+            onChangeText={(t) => update("emiAmount", t)}
+          />
+
+          {/* <Text style={styles.label}>Tenure</Text> */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter tenure (in months)"
+            keyboardType="numeric"
+            value={form.tenure}
+            onChangeText={(t) => update("tenure", t)}
+          />
+
+          <Text style={styles.label}>Payment Mode</Text>
+          {/* <Dropdown
+            style={styles.input}
+            placeholderStyle={styles.placeholder}
+            selectedTextStyle={styles.value}
+            data={paymentModes}
+            labelField="label"
+            valueField="value"
+            placeholder="Select"
+            value={paymentMode}
+            onChange={(i) => setPaymentMode(i.value)}
+          />
+
+          {/* <Text style={styles.label}>Coupon Applied On</Text> */}
+          <Dropdown
+            style={styles.input}
+            placeholderStyle={styles.placeholder}
+            selectedTextStyle={styles.value}
+            data={couponOptions}
+            labelField="label"
+            valueField="value"
+            placeholder="Select"
+            value={couponAppliedOn}
+            onChange={(i) => setCouponAppliedOn(i.value)}
+          /> 
+
+          {/* <Text style={styles.label}>Coupon Code</Text> */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter coupon code"
+            value={form.couponCode}
+            onChangeText={(t) => update("couponCode", t)}
+          />
+
+          {/* <Text style={styles.label}>Coupon Value</Text> */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter coupon value"
+            keyboardType="numeric"
+            value={form.couponValue}
+            onChangeText={(t) => update("couponValue", t)}
+          />
+
+            <TextInput
+            style={styles.input}
+            placeholder="Payable DP Final"
+            keyboardType="numeric"
+            value={form.couponValue}
+            onChangeText={(t) => update("couponValue", t)}
+          />
+            <TextInput
+            style={styles.input}
+            placeholder="Payable EMI Final"
+            keyboardType="numeric"
+            value={form.couponValue}
+            onChangeText={(t) => update("couponValue", t)}
+          />
+
+     <TextInput
+            style={styles.input}
+            placeholder="Digital Recipet"
+            keyboardType="numeric"
+            value={form.couponValue}
+            onChangeText={(t) => update("couponValue", t)}
+          />
+     <TextInput
+            style={styles.input}
+            placeholder="Transaction ID"
+            keyboardType="numeric"
+            value={form.couponValue}
+            onChangeText={(t) => update("couponValue", t)}
+          />
+
+          <Pressable style={styles.btn} onPress={submit}>
+            <Text style={styles.btnText}>Submit</Text>
+          </Pressable>
         </View>
-        <View style={styles.line} />
-
-        {/* Payment Frequency */}
-        <Text style={styles.label}>Payment Frequency</Text>
-        <Dropdown
-          style={styles.dropdown}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          data={frequencyOptions}
-          labelField="label"
-          valueField="value"
-          placeholder="Select"
-          value={paymentFrequency}
-          onChange={(item) => setPaymentFrequency(item.value)}
-        />
-
-        <Text style={styles.label}>Scheme Name</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter scheme name"
-          value={schemeName}
-          onChangeText={setSchemeName}
-        />
-
-        <Text style={styles.label}>Down Payment</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter down payment"
-          keyboardType="numeric"
-          value={downPayment}
-          onChangeText={setDownPayment}
-        />
-
-        <Text style={styles.label}>Loan Amount</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter loan amount"
-          keyboardType="numeric"
-          value={loanAmount}
-          onChangeText={setLoanAmount}
-        />
-
-        <Text style={styles.label}>EMI Amount</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter EMI amount"
-          keyboardType="numeric"
-          value={emiAmount}
-          onChangeText={setEmiAmount}
-        />
-
-        <Text style={styles.label}>Tenure</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter tenure (in months)"
-          keyboardType="numeric"
-          value={tenure}
-          onChangeText={setTenure}
-        />
-
-        {/* Payment Mode */}
-        <Text style={styles.label}>Payment Mode</Text>
-        <Dropdown
-          style={styles.dropdown}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          data={paymentModes}
-          labelField="label"
-          valueField="value"
-          placeholder="Select"
-          value={paymentMode}
-          onChange={(item) => setPaymentMode(item.value)}
-        />
-
-        {/* Coupon */}
-        <Text style={styles.label}>Coupon Applied On</Text>
-        <Dropdown
-          style={styles.dropdown}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          data={couponOptions}
-          labelField="label"
-          valueField="value"
-          placeholder="Select"
-          value={couponAppliedOn}
-          onChange={(item) => setCouponAppliedOn(item.value)}
-        />
-
-        <Text style={styles.label}>Coupon Code</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter coupon code"
-          value={couponCode}
-          onChangeText={setCouponCode}
-        />
-
-        <Text style={styles.label}>Coupon Value</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter coupon value"
-          keyboardType="numeric"
-          value={couponValue}
-          onChangeText={setCouponValue}
-        />
-
-        <Text style={styles.label}>Payable EMI (Per)</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter payable EMI"
-          keyboardType="numeric"
-          value={payableEmi}
-          onChangeText={setPayableEmi}
-        />
-
-        <Text style={styles.label}>Digital Receipt</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter receipt no."
-          value={digitalReceipt}
-          onChangeText={setDigitalReceipt}
-        />
-
-        <Text style={styles.label}>Transaction ID</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter transaction ID"
-          value={transactionId}
-          onChangeText={setTransactionId}
-        />
-
-        {/* Submit */}
-        <Pressable style={styles.submitButton} onPress={onSubmit}>
-          <Text style={styles.submitText}>Submit</Text>
-        </Pressable>
       </ScrollView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1, backgroundColor: "#F2F2F2"},
+
+  section: {
     backgroundColor: "#fff",
-    marginHorizontal: 20,
-    paddingVertical: 15,
-    padding: 10,
-    borderRadius: 10,
-    // iOS shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-
-    // Android elevation
-    elevation: 3,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    // borderWidth:2,
+    marginHorizontal:20
   },
-  rowBetween: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  title: { fontSize: 18, fontWeight: "500" },
-  stepText: { color: Colors.secondary, fontSize: 14 },
-  line: { borderWidth: 0.5, marginVertical: 10, borderColor: "#0D69C4" },
-  label: { marginTop: 15, fontSize: 16, fontWeight: "400" },
-
-  dropdown: {
-    height: 50,
-    borderColor: "#ccc",
-    borderBottomWidth: 1.5,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginTop: 5,
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  placeholderStyle: { color: "gray", fontSize: 14 },
-  selectedTextStyle: { fontSize: 14 },
+  heading: { fontSize: 18, fontWeight: "600", color: "#000" },
+  step: { fontSize: 14, color: "#0D69C4", fontWeight: "500" },
+  blueLine: {
+    height: 1,
+    backgroundColor: "#0D69C4",
+    marginTop: 4,
+    marginBottom: 8,
+  },
 
+  label: {
+    marginTop: 14,
+    marginBottom: 2,
+    color: "#222",
+    fontSize: 14,
+    fontWeight: "500",
+  },
   input: {
+    height: 44,
     borderBottomWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    marginTop: 5,
+    borderRightWidth:0.5,
+    borderLeftWidth:0.4,
+    borderRadius: 2,
+    borderColor: "#E1E1E1",
+    justifyContent: "center",
+    fontSize: 14,
+    marginHorizontal:10,
+    marginVertical:10,
+     shadowColor: "#000",          // iOS shadow color
+  shadowOffset: { width: 0, height: 2 }, // small downward shadow
+  shadowOpacity: 0.1,           // light, subtle shadow
+  shadowRadius: 4,              // blur
+  elevation: 3,  
   },
-  submitButton: {
-    marginTop: 30,
-    backgroundColor: Colors.secondary,
-    padding: 15,
+  placeholder: { color: "#999", fontSize: 14 },
+  value: { color: "#000", fontSize: 14 },
+
+  btn: {
+    backgroundColor: "#0D69C4",
+    paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
-    justifyContent: "center",
+    marginVertical: 30,
   },
-  submitText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  btnText: { color: "#fff", fontWeight: "600", fontSize: 16 },
 });

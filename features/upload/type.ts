@@ -5,7 +5,7 @@ export type UploadResponse = {
 
 export interface RNFile {
   uri: string;
-  name: string;
+  fileName: string;
   type: string;
 }
 

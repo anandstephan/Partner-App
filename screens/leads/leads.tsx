@@ -27,80 +27,16 @@ const Leads = () => {
     const navigation = useNavigation()
   const [searchText, setSearchText] = useState('');
   const [modalVisible,setModalVisible] = useState(false)
+  const [leadInfo,setLeadInfo] = useState('')
   const {data,isLoading} = useLead()
-  console.log(data.data)
+  console.log(data,"HHHH")
   if(isLoading){
     return <View style={{flex:1,justifyContent:"center",alignItems:'center'}}>
       <ActivityIndicator size={'large'}/>
     </View>
   }
 
-  const leads = [
-    {
-      id: 1,
-      name: 'Ravi Singh',
-      leadId: 'DF731526',
-      date: '12/12/2024',
-      status: 'Hot lead',
-      statusColor: '#ff9800',
-    },
-    {
-      id: 2,
-      name: 'Amit Kumar',
-      leadId: 'DF731568',
-      date: '12/12/2024',
-      status: 'Click here',
-      statusColor: '#4caf50',
-    },
-    {
-      id: 3,
-      name: 'Shiraj Singh',
-      leadId: 'DF731555',
-      date: '12/12/2024',
-      status: 'Hot lead',
-      statusColor: '#ff9800',
-    },
-    {
-      id: 4,
-      name: 'Kranti Kumar',
-      leadId: 'DF731564',
-      date: '12/12/2024',
-      status: 'Hot lead',
-      statusColor: '#ff9800',
-    },
-    {
-      id: 5,
-      name: 'Ashish Singh',
-      leadId: 'DF731565',
-      date: '12/12/2024',
-      status: 'Click here',
-      statusColor: '#4caf50',
-    },
-    {
-      id: 6,
-      name: 'Raja Ram',
-      leadId: 'DF731565',
-      date: '12/12/2024',
-      status: 'Click here',
-      statusColor: '#4caf50',
-    },
-    {
-      id: 7,
-      name: 'Shivam',
-      leadId: 'DF731565',
-      date: '12/12/2024',
-      status: 'Rejected',
-      statusColor: '#f44336',
-    },
-    {
-      id: 8,
-      name: 'Sama Singh',
-      leadId: 'DF731565',
-      date: '12/12/2024',
-      status: 'Rejected',
-      statusColor: '#f44336',
-    },
-  ];
+
 
 
   const SearchIcon = () => <Text style={styles.searchIcon}>🔍</Text>;
@@ -108,6 +44,9 @@ const Leads = () => {
 
   return (
     <>
+
+
+      <ActionAlert showModal={modalVisible} setModalVisible={setModalVisible} leadInfo={leadInfo}/>
       <StatusBar backgroundColor="#f8f9fa" barStyle="dark-content" />
 
       {/* Header */}
@@ -169,7 +108,7 @@ const Leads = () => {
           />
           {/* Lead Rows */}
           {data?.data.map((lead:Lead,idx:number) => (
-            <LeadRow key={lead.id} lead={lead} idx={idx} />
+            <LeadRow key={idx} lead={lead} idx={idx} setModalVisible={setModalVisible} setLeadInfo={setLeadInfo}  />
           ))}
 
           {/* Pagination */}
@@ -183,7 +122,7 @@ const Leads = () => {
         </Pressable>
         </View>
       </ScrollView>
-        <ActionAlert showModal={modalVisible} setModalVisible={setModalVisible}/>
+
     </>
   );
 };

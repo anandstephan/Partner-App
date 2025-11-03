@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -16,28 +16,81 @@ import { RenderDropdown } from '../../utilites/renderDropdown';
 import { useCreateLead } from '../../features/createLead/useCreateLead';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useUpload } from '../../features/upload/useUpload';
+import { useAllState } from '../../hooks/useAllState';
+import { useCity } from '../../hooks/useCity';
+import { getCluster } from '../../features/stateAndCity/stateAndCity';
 const CreateLead = () => {
     const navigation = useNavigation()
-   
-  const [formData, setFormData] = useState({
-    leadSource: '',
-    firstName: '',
-    lastName: '',
-    fatherMotherName: '',
-    mobileNo: '',
-    city: '',
-    state: '',
-    vehicleType: '',
-    dlStatus: '',
-    loanStatus: '',
-    loanNo: '',
-    segment: 'Current'
-  });
+  const { data: states, isLoading } = useAllState();
+
+     const { mutate: fetchCities }  = useCity()
+     const [formData, setFormData] = useState({
+          leadSource: '',
+          firstName: '',
+          lastName: '',
+          fatherMotherName: '',
+          mobile: '',
+          alternateNumber: '1234567890',
+          dlStatus: '',
+          selfieWithCustomer: 'https://plus.unsplash.com/premium_photo-1673240367277-e1d394465b56?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bW91bnRhaW5zfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900',
+          state: '',
+          stateId: '',
+          city: '',
+          cityId: '',
+          clusterId: '',
+          productType: '',
+          vehicleType: '',
+          existingVehicleLoanStatus: '',
+          existingVehicleLoanNo: '',
+          leadStatus: '',
+          loanStatus: '',
+          loanId: '',
+          segmentCurrent: 'Current',
+          segmentProposed: '',
+          remarks: '',
+          loanNo: '', // keeping since it was in your 2nd object too
+          segment: 'Current' // keeping original for UI form usage
+      });
+
+
+      const [allCities,setAllCities] = useState([])
 
   const leadSources = ['Online', 'Referral', 'Walk-in', 'Phone Call', 'Social Media'];
   const vehicleTypes = ['Car', 'Bike', 'Truck', 'Bus', 'Auto'];
   const dlStatuses = ['Valid', 'Expired', 'Applied', 'Not Applied'];
   const loanStatuses = ['Approved', 'Pending', 'Rejected', 'Not Applied'];
+
+
+  useEffect(()=>{
+     function getAllCitiesCrosspondenceToState(){
+      if(formData.state.length!==0){
+            const chosedState = states?.filter(state => state.name == formData.state)[0]
+            setFormData(prev => ({ ...prev, ['stateId']: chosedState._id }))
+             fetchCities({name:chosedState.name,pinCode:chosedState.code,stateId:chosedState._id}, {
+      onSuccess: (res) => {
+        setAllCities(res)
+      },
+    })
+      }
+    }
+    getAllCitiesCrosspondenceToState()
+  },[formData.state])
+
+  useEffect(()=>{
+    function getClusterFn(){
+    if(formData.city.length!==0){
+                  const chosedCity = allCities?.filter(city => city.name == formData.city)[0]
+                  console.log("ChosedCity",chosedCity)
+                  setFormData(prev => ({ ...prev, ['cityId']: chosedCity._id }))
+                 getCluster({stateId:formData.stateId,cityId:chosedCity._id}) 
+    }
+    }
+    getClusterFn()
+
+
+
+  },[formData.city])
+
 
   const updateFormData = (field:string, value:string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -80,7 +133,8 @@ const CreateLead = () => {
 
 
   const handleAddLead = () =>{
- 
+    console.log(formData,"FFFF")
+    // return
           mutate(
             formData,
             {
@@ -149,8 +203,8 @@ const CreateLead = () => {
             <Text style={styles.label}>Mobile No</Text>
             <TextInput
               style={styles.input}
-              value={formData.mobileNo}
-              onChangeText={(value) => updateFormData('mobileNo', value)}
+              value={formData.mobile}
+              onChangeText={(value) => updateFormData('mobile', value)}
               placeholder=""
               keyboardType="phone-pad"
             />
@@ -159,20 +213,34 @@ const CreateLead = () => {
           <View style={styles.row}>
             <View style={styles.halfWidth}>
               <Text style={styles.label}>City</Text>
-              <TextInput
+              {/* <TextInput
                 style={styles.input}
                 value={formData.city}
                 onChangeText={(value) => updateFormData('city', value)}
                 placeholder=""
+              /> */}
+              <RenderDropdown
+                field='city'
+                placeholder='City'
+                options={allCities.map(item => item.name) || []}
+                   currentValue={formData.city}
+              onSelect={ (field, value) => {
+                setFormData({ ...formData, [field]: value })
+
+              }}
               />
             </View>
             <View style={styles.halfWidth}>
               <Text style={styles.label}>State</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.state}
-                onChangeText={(value) => updateFormData('state', value)}
-                placeholder=""
+              <RenderDropdown
+              field='state'
+              placeholder='State'
+              options={states?.map(item => item.name) || []}
+              currentValue={formData.state}
+              onSelect={ (field, value) => {
+                setFormData({ ...formData, [field]: value })
+
+              }}
               />
             </View>
           </View>

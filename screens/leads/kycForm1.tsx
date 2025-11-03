@@ -13,18 +13,22 @@ import { Dropdown } from "react-native-element-dropdown";
 import { launchImageLibrary } from "react-native-image-picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import Colors from "../../constants/color";
 import Header from "../../commonComponents/Header";
 import { useUpload } from "../../features/upload/useUpload";
+import { uploadToS3 } from "../../features/upload/uploadService";
+// import { uploadService } from "../../features/upload/uploadService";
 
 export default function KycForm1() {
   const navigation = useNavigation();
-  const { mutate: upload } = useUpload();
+  const {params:{leadInfo}} = useRoute()
+  // console.log("LeadInfo",leadInfo)
+  const mutation = useUpload();
 
   // ✅ Single unified form state
   const [formData, setFormData] = useState({
-    fname: "",
+    fname: ""+leadInfo.firstName,
     lname: "",
     smartphoneUser: null,
     aadharNumber: "",
@@ -63,7 +67,7 @@ export default function KycForm1() {
       mediaType: "photo",
       quality: 0.8,
     });
-
+    console.log("Result", result);
     if (result.didCancel) return;
     const asset = result.assets?.[0];
     if (!asset?.uri) return;
@@ -73,26 +77,30 @@ export default function KycForm1() {
       name: asset.fileName || "photo.jpg",
       type: asset.type || "image/jpeg",
     };
-
-    updateFormData(field, asset.uri);
-
-    upload(
-      { file, category: field, appName: "employeeApp" },
-      {
-        onSuccess: () => Alert.alert("✅ Image Uploaded Successfully!"),
-        onError: (err: any) => {
-          Alert.alert("❌ Upload Error", err.message || "Something went wrong");
-          console.log("Error", err);
-        },
-      }
-    );
+    
+      updateFormData(field, asset.uri);
+    // mutation.mutate(
+    //   { file, category: field, appName: "employeeApp" },
+    //   {
+    //     onSuccess: () => Alert.alert("✅ Image Uploaded Successfully!"),
+    //     onError: (err: any) => {
+    //       Alert.alert("❌ Upload Error", err.message || "Something went wrong");
+    //       console.log("Error", err);
+    //     },
+    //   }
+    // );
+   
+     const test = result.assets[0]
+    const newres = await uploadToS3({file:test,category:field,appName:"employeeApp"})
+    console.log(newres) 
+    
   };
 
   return (
     <>
       <Header title="KYC Verification" />
       <ScrollView style={styles.container}>
-        <Text style={styles.title}>Ravi Singh</Text>
+        <Text style={styles.title}>{formData.fname}</Text>
         <View style={styles.line} />
         <View style={styles.row}>
           <Text style={styles.subtitle}>Personal Information</Text>
@@ -101,6 +109,7 @@ export default function KycForm1() {
         <View style={styles.line} />
 
         {/* Selfie */}
+        
         <Pressable
           style={{ justifyContent: "center", alignItems: "center" }}
           onPress={() => handleSelectImage("selfie")}
@@ -226,14 +235,14 @@ export default function KycForm1() {
           <Text>{formData.dob.toDateString()}</Text>
         </Pressable>
         <View style={{marginVertical:10}}>
-        <DateTimePicker
+        {/* <DateTimePicker
           value={formData.dob}
           mode="date"
           display="default"
           onChange={(event, date) => {
-            if (date) updateFormData("dob", date);
+            // if (date) updateFormData("dob", date);
           }}
-        />
+        /> */}
         </View>
 
         {/* Address */}

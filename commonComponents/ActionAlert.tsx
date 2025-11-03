@@ -7,13 +7,14 @@ import Cancel from "../assets/jsx/Cancel";
 import { useNavigation } from "@react-navigation/native";
 
 interface modalProp{
+  leadInfo:string;
   showModal:boolean;
   setModalVisible:Function
 }
 
 
-export default function ActionAlert({showModal,setModalVisible}:modalProp) {
-  console.log("showModal",showModal)
+export default function ActionAlert({showModal,setModalVisible,leadInfo}:modalProp) {
+
   const navigation = useNavigation()
 
   return (
@@ -47,7 +48,7 @@ export default function ActionAlert({showModal,setModalVisible}:modalProp) {
             <Entypo name="check" size={35} color={Colors.white} />
             </View>
             <Pressable onPress={()=>{
-              navigation.navigate('kycForm1')
+              navigation.navigate('kycForm1',{leadInfo})
               setModalVisible(false)
             }}>
             <View style={styles.btnContainer}>

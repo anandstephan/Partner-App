@@ -4,6 +4,13 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 import { Lead } from "../../../features/leads/type";
 import { StatusBadge } from "./statusBagde";
 
+interface ParticularLead{
+    lead:Lead;
+    idx:number;
+    setModalVisible:Function;
+    setLeadInfo:Function
+}
+
 export const TableHeader = () => (
   <View style={styles.tableHeader}>
     <Text style={[styles.headerText, styles.serialColumn]}>#</Text>
@@ -14,7 +21,7 @@ export const TableHeader = () => (
   </View>
 );
 
-export const LeadRow = ({ lead, idx }) => {
+export const LeadRow = ({ lead, idx,setModalVisible,setLeadInfo }:ParticularLead) => {
   return (
     <View style={styles.tableRow}>
       <Text style={[styles.cellText, styles.serialColumn]}>#{idx + 1}</Text>
@@ -23,7 +30,10 @@ export const LeadRow = ({ lead, idx }) => {
       <Text style={[styles.cellText, styles.dateColumn]}>
         {new Date(lead.createdAt).toISOString().split("T")[0]}
       </Text>
-      <Pressable>
+      <Pressable onPress={()=>{
+        setModalVisible(prev =>!prev)
+        setLeadInfo(lead)
+      }}>
         <View style={[styles.statusColumn, { alignItems: "center" }]}>
           <StatusBadge status={lead.leadStatus} />
         </View>
