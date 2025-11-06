@@ -13,31 +13,37 @@ import { launchImageLibrary } from "react-native-image-picker";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Colors from "../../constants/color";
 import Header from "../../commonComponents/Header";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { AudioRecorder } from "../../utilites/AudioRecorder";
 import useLocation from "../../hooks/useLocation";
+import { useKyc1 } from "../../features/kyc/useKyc";
 
 export default function KycForm2() {
   const navigation = useNavigation();
   const location = useLocation()
+
+    const {params} = useRoute()
+ 
   // ✅ Single form state
   const [formData, setFormData] = useState({
-    ownership: null,
+    houseOwnership: null,
     permanentAddress: "",
-    nocDoc: "",
-    bill: "",
-    dlNo: "",
-    rcNo: "",
-    vehAge: "",
+    rentAgreementOrNOC: "",
+    electricityBill: "",
+    waterBill:"",
+    panNo: "",
     lat: "",
     lng: "",
-    dlFrontPic: null,
-    dlBackPic: null,
+    dlFrontPhoto: null,
+    dlBackPhoto: null,
     rcPic: null,
-    housePic: null,
-    localityPic: null,
-    selfiePic: null,
+    housePhoto: null,
+    localityPhotos: null,
+    selfie: null,
   });
+
+
+  const { mutate } = useKyc1();
 
   // ✅ Universal update function
   const updateFormData = (field: string, value: any) => {
@@ -63,7 +69,13 @@ export default function KycForm2() {
 
   const onNext = () => {
     console.log("✅ Form Data:", formData);
-    navigation.navigate("kycForm3");
+    const newData = {
+      ...formData,
+      ...params
+    }
+    console.log("new",JSON.stringify(newData))
+    mutate(newData)
+    navigation.navigate("kycForm3",newData);
   };
 
 
@@ -73,6 +85,7 @@ export default function KycForm2() {
       <Header title="KYC Verification" />
       <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
         {/* Top title row */}
+        {/* <Text>{JSON.stringify(formData)}</Text> */}
         <View style={styles.headerRow}>
           <Text style={styles.title}>Address</Text>
           <Text style={styles.stepText}>2/5</Text>
@@ -88,7 +101,7 @@ export default function KycForm2() {
           onChangeText={(v) => updateFormData("permanentAddress", v)}
         />
         <AudioRecorder/>
-        {/* Ownership Dropdown */}
+        {/* houseOwnership Dropdown */}
         <Text style={styles.label}>House Ownership</Text>
         <Dropdown
           style={styles.dropdown}
@@ -98,8 +111,8 @@ export default function KycForm2() {
           labelField="label"
           valueField="value"
           placeholder="Select"
-          value={formData.ownership}
-          onChange={(item) => updateFormData("ownership", item.value)}
+          value={formData.houseOwnership}
+          onChange={(item) => updateFormData("houseOwnership", item.value)}
         />
 
         {/* NOC Documentation */}
@@ -108,8 +121,8 @@ export default function KycForm2() {
           <TextInput
             style={[styles.input, { flex: 1 }]}
             placeholder="Enter NOC or remarks"
-            value={formData.nocDoc}
-            onChangeText={(v) => updateFormData("nocDoc", v)}
+            value={formData.rentAgreementOrNOC}
+            onChangeText={(v) => updateFormData("rentAgreementOrNOC", v)}
           />
           <Pressable style={styles.iconBtn} onPress={() => handleSelectImage("nocDocPic")}>
             <Icon name="file-pdf-o" size={18} color={Colors.secondary} />
@@ -117,23 +130,30 @@ export default function KycForm2() {
         </View>
 
         {/* Bill */}
-        <Text style={styles.label}>Electricity/Water Bill</Text>
+        <Text style={styles.label}>Electricity Bill</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Bill Number"
           keyboardType="number-pad"
-          value={formData.bill}
-          onChangeText={(v) => updateFormData("bill", v)}
+          value={formData.electricityBill}
+          onChangeText={(v) => updateFormData("electricityBill", v)}
         />
-
+        <Text style={styles.label}>Water Bill</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Bill Number"
+          keyboardType="number-pad"
+          value={formData.waterBill}
+          onChangeText={(v) => updateFormData("waterBill", v)}
+        />
         {/* House Pic */}
         <Text style={styles.label}>Choose House Pic</Text>
         <Pressable
           style={styles.uploadBox}
-          onPress={() => handleSelectImage("housePic")}
+          onPress={() => handleSelectImage("housePhoto")}
         >
-          {formData.housePic ? (
-            <Image source={{ uri: formData.housePic }} style={styles.uploadImage} />
+          {formData.housePhoto ? (
+            <Image source={{ uri: formData.housePhoto }} style={styles.uploadImage} />
           ) : (
             <View style={styles.uploadContent}>
               <Image
@@ -149,10 +169,10 @@ export default function KycForm2() {
         <Text style={styles.label}>Selfie with Customer</Text>
         <Pressable
           style={styles.uploadBox}
-          onPress={() => handleSelectImage("selfiePic")}
+          onPress={() => handleSelectImage("selfie")}
         >
-          {formData.selfiePic ? (
-            <Image source={{ uri: formData.selfiePic }} style={styles.uploadImage} />
+          {formData.selfie ? (
+            <Image source={{ uri: formData.selfie }} style={styles.uploadImage} />
           ) : (
             <View style={styles.uploadContent}>
               <Image
@@ -176,14 +196,14 @@ export default function KycForm2() {
             placeholder="Latitude"
             keyboardType="decimal-pad"
             value={formData.lat}
-            onChangeText={(v) => updateFormData("lat", v)}
+            onChangeText={(v) => updateFormData("lat", location.lat)}
           />
           <TextInput
             style={[styles.input, styles.half]}
             placeholder="Longitude"
             keyboardType="decimal-pad"
             value={formData.lng}
-            onChangeText={(v) => updateFormData("lng", v)}
+            onChangeText={(v) => updateFormData("lng", location.lng)}
           />
         </View>
 
@@ -191,10 +211,10 @@ export default function KycForm2() {
         <Text style={styles.label}>Choose Locality Pic</Text>
         <Pressable
           style={styles.uploadBox}
-          onPress={() => handleSelectImage("localityPic")}
+          onPress={() => handleSelectImage("localityPhotos")}
         >
-          {formData.localityPic ? (
-            <Image source={{ uri: formData.localityPic }} style={styles.uploadImage} />
+          {formData.localityPhotos ? (
+            <Image source={{ uri: formData.localityPhotos }} style={styles.uploadImage} />
           ) : (
             <View style={styles.uploadContent}>
               <Image
@@ -230,8 +250,8 @@ export default function KycForm2() {
           style={styles.input}
           placeholder="Enter PAN Number"
           autoCapitalize="characters"
-          value={formData.rcNo}
-          onChangeText={(v) => updateFormData("rcNo", v)}
+          value={formData.panNo}
+          onChangeText={(v) => updateFormData("panNo", v)}
         />
 
         {/* DL Details */}
@@ -239,10 +259,10 @@ export default function KycForm2() {
         <View style={styles.row}>
           <Pressable
             style={styles.uploadBox}
-            onPress={() => handleSelectImage("dlFrontPic")}
+            onPress={() => handleSelectImage("dlFrontPhoto")}
           >
-            {formData.dlFrontPic ? (
-              <Image source={{ uri: formData.dlFrontPic }} style={styles.uploadImage} />
+            {formData.dlFrontPhoto ? (
+              <Image source={{ uri: formData.dlFrontPhoto }} style={styles.uploadImage} />
             ) : (
               <View style={styles.row}>
                 <Image
@@ -256,10 +276,10 @@ export default function KycForm2() {
 
           <Pressable
             style={styles.uploadBox}
-            onPress={() => handleSelectImage("dlBackPic")}
+            onPress={() => handleSelectImage("dlBackPhoto")}
           >
-            {formData.dlBackPic ? (
-              <Image source={{ uri: formData.dlBackPic }} style={styles.uploadImage} />
+            {formData.dlBackPhoto ? (
+              <Image source={{ uri: formData.dlBackPhoto }} style={styles.uploadImage} />
             ) : (
               <View style={styles.row}>
                 <Image

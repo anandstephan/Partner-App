@@ -14,8 +14,12 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context"; // ✅ replaced SafeAreaView
 import Header from "../../commonComponents/Header";
+import { useProductAssign } from "../../features/productAssign/useProductAssign";
 
 export default function ProductAssignForm() {
+
+      const { mutate, isPending, error, isError } = useProductAssign();
+
   const [rickshawId, setRickshawId] = useState("");
   const [batteryId, setBatteryId] = useState("");
   const [chargerId, setChargerId] = useState("");
@@ -51,16 +55,20 @@ export default function ProductAssignForm() {
       rickshawId,
       batteryId,
       chargerId,
-      handoverDate: handoverDate?.toDateString() || "",
+      batteryPhoto:"",
+      chargerPhoto:"",
+      batteryHandoverDate:"",
+      chargerHandoverDate:"",
+      batteryWarrantyTenure: batteryWarranty,
+      chargerWarrantyTenure: chargerWarranty,
       emiStartDate: emiStartDate?.toDateString() || "",
-      batteryWarranty,
-      chargerWarranty,
       cardHandover,
       brandingMaterial,
     };
 
     console.log("🧾 Form Data:", formData);
-    Alert.alert("✅ Success", "Product assigned successfully!");
+
+    // Alert.alert("✅ Success", "Product assigned successfully!");
   };
 
   return (
@@ -69,12 +77,12 @@ export default function ProductAssignForm() {
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* ---- Product IDs ---- */}
         <View style={styles.card}>
-          <InputWithIcon
+          {/* <InputWithIcon
             icon={require("../../assets/png/aadhar.png")}
             label="E-Rickshaw ID"
             value={rickshawId}
             onChange={setRickshawId}
-          />
+          /> */}
           <InputWithIcon
             icon={require("../../assets/png/aadhar.png")}
             label="Battery ID"
@@ -90,16 +98,21 @@ export default function ProductAssignForm() {
   
 
         {/* ---- Dates ---- */}
-          <DateField
-            label="Assets Handover Date"
-            value={handoverDate}
-            onPress={() => setShowPicker({ type: "handover", visible: true })}
+          <Text style={styles.label}>Assets handover Date</Text>
+          <DateTimePicker
+          value={handoverDate || new Date()}
+          display="default"
+          mode="date"
+          onChange={(event,date)=>setHandoverDate(date)}
           />
-          <DateField
-            label="EMI Start Date"
-            value={emiStartDate}
-            onPress={() => setShowPicker({ type: "emi", visible: true })}
+         <Text style={styles.label}>EMI Date</Text>
+          <DateTimePicker
+          value={handoverDate || new Date()}
+          display="default"
+          mode="date"
+          onChange={(event,date)=>setEmiStartDate(date)}
           />
+      
 
         {/* ---- Warranty ---- */}
           <InputField
@@ -159,13 +172,19 @@ const InputWithIcon = ({
   value: string;
   onChange: (t: string) => void;
 }) => (
-  <View style={styles.inputRowCard}>
+  <Pressable onPress={() => onChange("AB#45")}>
+  <View style={styles.inputRowCard} >
   
+    {value.length!==0 ?  <Text>{value}</Text>:
+    <>
     <Image source={icon} style={styles.iconImage} />
     <Text style={styles.iconInput}>
       {label}
       </Text>
+      </>
+      }
   </View>
+  </Pressable>
 );
 
 const InputField = ({

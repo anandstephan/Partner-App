@@ -37,7 +37,7 @@ const CreateLead = () => {
           stateId: '',
           city: '',
           cityId: '',
-          clusterId: '',
+          clusterId: "6907144175642f6d5c69b6f7",
           productType: '',
           vehicleType: '',
           existingVehicleLoanStatus: '',
@@ -83,6 +83,9 @@ const CreateLead = () => {
                   console.log("ChosedCity",chosedCity)
                   setFormData(prev => ({ ...prev, ['cityId']: chosedCity._id }))
                  getCluster({stateId:formData.stateId,cityId:chosedCity._id}) 
+                 .then(res =>{
+                  //  setFormData(prev => ({ ...prev, ['clusterId']: res[0]?._id }))
+                 })
     }
     }
     getClusterFn()
@@ -121,6 +124,7 @@ const CreateLead = () => {
       appName:"employeeApp"
 
     }
+    return
       upload(payload, {
               onSuccess: () => Alert.alert('✅ Lead Created Successfully!'),
               onError: (err) => {
@@ -306,7 +310,7 @@ const CreateLead = () => {
               <Text style={styles.label}>Current</Text>
               <TextInput
                 style={styles.input}
-                value={formData.segment === "Current" ? formData.segment : ""}
+                value={formData.segment}
                 onChangeText={(value) => updateFormData("segment", value)}
                 placeholder=""
               />
@@ -315,7 +319,7 @@ const CreateLead = () => {
               <Text style={styles.label}>Proposed</Text>
               <TextInput
                 style={styles.input}
-                value={formData.segment === "Proposed" ? formData.segment : ""}
+                value={formData.segment }
                 onChangeText={(value) => updateFormData("segment", value)}
                 placeholder=""
               />

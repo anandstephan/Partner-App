@@ -28,16 +28,16 @@ export default function KycForm1() {
 
   // ✅ Single unified form state
   const [formData, setFormData] = useState({
-    fname: ""+leadInfo.firstName,
-    lname: "",
-    smartphoneUser: null,
-    aadharNumber: "",
+    firstName: ""+leadInfo.firstName,
+    lastName: "",
+    smartPhoneUser: null,
+    aadhaarNo: "",
     gender: null,
-    maritalStatus: null,
+    marritalStatus: null,
     dob: new Date(),
-    aadhaarFront: null,
-    aadhaarBack: null,
-    adharAddress: "",
+    aadhaarFrontPhoto: null,
+    aadhaarBackPhoto: null,
+    addressAsPerAadhaar: "",
   });
 
   // ✅ Universal update function
@@ -62,7 +62,7 @@ export default function KycForm1() {
   ];
 
   // ✅ Image Picker + Upload
-  const handleSelectImage = async (field: "aadhaarFront" | "aadhaarBack" | "selfie") => {
+  const handleSelectImage = async (field: "aadhaarFrontPhoto" | "aadhaarBackPhoto" | "selfie") => {
     const result = await launchImageLibrary({
       mediaType: "photo",
       quality: 0.8,
@@ -100,7 +100,7 @@ export default function KycForm1() {
     <>
       <Header title="KYC Verification" />
       <ScrollView style={styles.container}>
-        <Text style={styles.title}>{formData.fname}</Text>
+        <Text style={styles.title}>{formData.firstName}</Text>
         <View style={styles.line} />
         <View style={styles.row}>
           <Text style={styles.subtitle}>Personal Information</Text>
@@ -144,8 +144,8 @@ export default function KycForm1() {
           labelField="label"
           valueField="value"
           placeholder="Select"
-          value={formData.maritalStatus}
-          onChange={(item) => updateFormData("maritalStatus", item.value)}
+          value={formData.marritalStatus}
+          onChange={(item) => updateFormData("marritalStatus", item.value)}
         />
 
         {/* Smart Phone User */}
@@ -158,8 +158,8 @@ export default function KycForm1() {
           labelField="label"
           valueField="value"
           placeholder="Select"
-          value={formData.smartphoneUser}
-          onChange={(item) => updateFormData("smartphoneUser", item.value)}
+          value={formData.smartPhoneUser}
+          onChange={(item) => updateFormData("smartPhoneUser", item.value)}
         />
 
         {/* Aadhaar Upload */}
@@ -168,11 +168,11 @@ export default function KycForm1() {
           {/* Aadhaar Front */}
           <Pressable
             style={styles.uploadBox}
-            onPress={() => handleSelectImage("aadhaarFront")}
+            onPress={() => handleSelectImage("aadhaarFrontPhoto")}
           >
-            {formData.aadhaarFront ? (
+            {formData.aadhaarFrontPhoto ? (
               <Image
-                source={{ uri: formData.aadhaarFront }}
+                source={{ uri: formData.aadhaarFrontPhoto }}
                 style={styles.uploadImage}
               />
             ) : (
@@ -189,11 +189,11 @@ export default function KycForm1() {
           {/* Aadhaar Back */}
           <Pressable
             style={styles.uploadBox}
-            onPress={() => handleSelectImage("aadhaarBack")}
+            onPress={() => handleSelectImage("aadhaarBackPhoto")}
           >
-            {formData.aadhaarBack ? (
+            {formData.aadhaarBackPhoto ? (
               <Image
-                source={{ uri: formData.aadhaarBack }}
+                source={{ uri: formData.aadhaarBackPhoto }}
                 style={styles.uploadImage}
               />
             ) : (
@@ -213,8 +213,8 @@ export default function KycForm1() {
         <TextInput
           style={styles.input}
           placeholder="Enter Your Aadhar Number"
-          value={formData.aadharNumber}
-          onChangeText={(val) => updateFormData("aadharNumber", val)}
+          value={formData.aadhaarNo}
+          onChangeText={(val) => updateFormData("aadhaarNo", val)}
         />
 
         {/* Aadhaar Name */}
@@ -222,27 +222,23 @@ export default function KycForm1() {
         <TextInput
           style={styles.input}
           placeholder="Enter Your Name as per Aadhar"
-          value={formData.lname}
-          onChangeText={(val) => updateFormData("lname", val)}
+          value={formData.lastName}
+          onChangeText={(val) => updateFormData("lastName", val)}
         />
 
         {/* DOB */}
         <Text style={styles.label}>DOB</Text>
-        <Pressable
-          style={styles.input}
-          onPress={() => updateFormData("showDatePicker", true)}
-        >
+
           <Text>{formData.dob.toDateString()}</Text>
-        </Pressable>
         <View style={{marginVertical:10}}>
-        {/* <DateTimePicker
+        <DateTimePicker
           value={formData.dob}
           mode="date"
           display="default"
           onChange={(event, date) => {
-            // if (date) updateFormData("dob", date);
+            if (date) updateFormData("dob", date);
           }}
-        /> */}
+        />
         </View>
 
         {/* Address */}
@@ -250,14 +246,21 @@ export default function KycForm1() {
         <TextInput
           style={styles.input}
           placeholder="Enter Aadhaar address"
-          value={formData.adharAddress}
-          onChangeText={(val) => updateFormData("adharAddress", val)}
+          value={formData.addressAsPerAadhaar}
+          onChangeText={(val) => updateFormData("addressAsPerAadhaar", val)}
         />
-
+        {/* <Text>{JSON.stringify(formData)}</Text> */}
+          {/* <Text>{JSON.stringify(leadInfo._id)}</Text> */}
         {/* Submit */}
         <Pressable
           style={styles.submitButton}
-          onPress={() => navigation.navigate("kycForm2")}
+          onPress={() => {
+            const data = {
+              ...formData,
+              leadId: leadInfo._id,
+            }
+            navigation.navigate("kycForm2",data)
+          }}
         >
           <Text style={styles.submitText}>Next</Text>
         </Pressable>

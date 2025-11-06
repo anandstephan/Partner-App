@@ -18,10 +18,8 @@ export const uploadToS3 = async (file:any) => {
       "https://backendverse.digivoltt.com/api/others/api/s3/upload",
       formData,
       {
-        transformRequest: (data) => data, // prevents axios from serializing FormData
         headers: {
-          Accept: "application/json",
-          // ⚠️ Do NOT set Content-Type manually in React Native — axios will set proper multipart boundaries
+      'Content-Type': 'multipart/form-data',
         },
       }
     );

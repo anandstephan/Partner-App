@@ -2576,6 +2576,34 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - RNLocalize (3.6.0):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - RNPermissions (5.4.2):
     - boost
     - DoubleConversion
@@ -2983,6 +3011,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -3159,6 +3188,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/datetimepicker"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNLocalize:
+    :path: "../node_modules/react-native-localize"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
   RNReanimated:
@@ -3254,6 +3285,7 @@ SPEC CHECKSUMS:
   ReactCommon: 394c6b92765cf6d211c2c3f7f6bc601dffb316a6
   RNDateTimePicker: 113004837aad399a525cd391ac70b7951219ff2f
   RNGestureHandler: 3a73f098d74712952870e948b3d9cf7b6cae9961
+  RNLocalize: ccce7d4abfbd268a9c47c9089ef6a8d587e9a1e6
   RNPermissions: 56d8a958b1d8cf7f4c30a732619b7b6b6b92bfda
   RNReanimated: d39bf1990c5f3e9efee9ec54c0470622c09a5b82
   RNScreens: db22525a8ed56bb87ab038b8f03a050bf40e6ed8

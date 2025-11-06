@@ -14,56 +14,61 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Colors from "../../constants/color";
 import Header from "../../commonComponents/Header";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { useFinalKyc, useKyc2 } from "../../features/kyc/useKyc";
 
 export default function KycForm3() {
   const navigation = useNavigation();
+  const {params} = useRoute();
+ const{mutate} = useKyc2();
+  const {mutate:submitkyc} = useFinalKyc()
 
+
+  console.log("====>",params.leadId)
   // ✅ Unified form state
   const [formData, setFormData] = useState({
     // RC Details
-    rcFrontPic: null,
-    rcBackPic: null,
-    rcNumber: "",
-    rcRegistrationDate: "",
-    rcMake: "",
-    rcModel: "",
-    ownership: null,
-    nocDoc: "",
+    rcFrontPhoto: null,
+    rcBackPhoto: null,
+    rcNo: "",
+    vehicleRegistrationDate: "",
+    vehicleMake: "",
+    vehicleModel: "",
+    vehicleOwnership: null,
+    vehicleNOCDocument: "",
     nocDocPic: null,
 
     // Bank Info
     bankName: null,
     accountNo: "",
-    ifsc: "",
-    blankChequePic: null,
+    ifscCode: "",
+    chequePhoto: null,
 
     // Guarantor 1
-    guarantor1: {
-      aadhaarFrontPic: null,
-      aadhaarBackPic: null,
-      aadhaarNumber: "",
-      name: "",
-      dob: new Date(),
-      address: "",
-      permanentAddress: "",
-      panPic: null,
-      panNumber: "",
-      mobile: "",
-    },
+  guarantor1: {
+  refOneNameAsPerAadhaar: "Suresh Kumar",
+  refOneMobileNo: "9876543210",
+  refOneAadhaarPANPhoto: [
+    "https://example.com/uploads/ref1_aadhaar.jpg",
+    "https://example.com/uploads/ref1_pan.jpg"
+  ],
+  refOneAadhaarNo: "1234 5678 9012",
+  refOnePanNo: "ABCDE1234F",
+  refOneDOB: "1985-07-10",
+  refOneAddressAsPerAadhaar: "B-25, Sector 5, Dwarka, Delhi",
+  refOnePermanentAddress: "B-25, Sector 5, Dwarka, Delhi"
+  },
 
     // Guarantor 2
-    guarantor2: {
-      aadhaarFrontPic: null,
-      aadhaarBackPic: null,
-      aadhaarNumber: "",
-      name: "",
-      dob: new Date(),
-      address: "",
-      permanentAddress: "",
-      panPic: null,
-      panNumber: "",
-      mobile: "",
+  guarantor2: {
+      refTwoNameAsPerAadhaar: "",
+      refTwoMobileNo: "",
+      refTwoAadhaarPANPhoto: [],
+      refTwoAadhaarNo: "",
+      refTwoPanNo: "",
+      refTwoDOB: "",
+      refTwoAddressAsPerAadhaar: "",
+      refTwoPermanentAddress: "",
     },
   });
 
@@ -124,6 +129,8 @@ export default function KycForm3() {
 
   const onSave = () => {
     console.log("✅ Final Form Data:", formData);
+    mutate({leadId:params.leadId,payload:formData})
+
   };
 
   // ✅ Reusable Upload Component
@@ -157,14 +164,14 @@ export default function KycForm3() {
 
         <View style={styles.row}>
           <UploadBox
-            uri={formData.rcFrontPic}
+            uri={formData.rcFrontPhoto}
             label="RC Front"
-            onPress={() => handleSelectImage("rcFrontPic")}
+            onPress={() => handleSelectImage("rcFrontPhoto")}
           />
           <UploadBox
-            uri={formData.rcBackPic}
+            uri={formData.rcBackPhoto}
             label="RC Back"
-            onPress={() => handleSelectImage("rcBackPic")}
+            onPress={() => handleSelectImage("rcBackPhoto")}
           />
         </View>
 
@@ -172,32 +179,32 @@ export default function KycForm3() {
         <TextInput
           style={styles.input}
           placeholder="Enter RC Number"
-          value={formData.rcNumber}
-          onChangeText={(v) => updateFormData("rcNumber", v)}
+          value={formData.rcNo}
+          onChangeText={(v) => updateFormData("rcNo", v)}
         />
 
         <Text style={styles.label}>Vehicle Registration Date</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Registration Date"
-          value={formData.rcRegistrationDate}
-          onChangeText={(v) => updateFormData("rcRegistrationDate", v)}
+          value={formData.vehicleRegistrationDate}
+          onChangeText={(v) => updateFormData("vehicleRegistrationDate", v)}
         />
 
         <Text style={styles.label}>Make</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Make"
-          value={formData.rcMake}
-          onChangeText={(v) => updateFormData("rcMake", v)}
+          value={formData.vehicleMake}
+          onChangeText={(v) => updateFormData("vehicleMake", v)}
         />
 
         <Text style={styles.label}>Model</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Model"
-          value={formData.rcModel}
-          onChangeText={(v) => updateFormData("rcModel", v)}
+          value={formData.vehicleModel}
+          onChangeText={(v) => updateFormData("vehicleModel", v)}
         />
 
         <Text style={styles.label}>Vehicle Ownership</Text>
@@ -209,8 +216,8 @@ export default function KycForm3() {
           labelField="label"
           valueField="value"
           placeholder="Select"
-          value={formData.ownership}
-          onChange={(item) => updateFormData("ownership", item.value)}
+          value={formData.vehicleOwnership}
+          onChange={(item) => updateFormData("vehicleOwnership", item.value)}
         />
 
         <Text style={styles.label}>NOC Documentation</Text>
@@ -218,8 +225,8 @@ export default function KycForm3() {
           <TextInput
             style={[styles.input, { flex: 1 }]}
             placeholder="Enter NOC or remarks"
-            value={formData.nocDoc}
-            onChangeText={(v) => updateFormData("nocDoc", v)}
+            value={formData.vehicleNOCDocument}
+            onChangeText={(v) => updateFormData("vehicleNOCDocument", v)}
           />
           <Pressable
             style={styles.iconBtn}
@@ -228,6 +235,12 @@ export default function KycForm3() {
             <Icon name="file-pdf-o" size={18} color={Colors.secondary} />
           </Pressable>
         </View>
+            <Pressable
+            style={[styles.footerBtn, styles.saveBtn,{marginVertical:20}]}
+            onPress={onSave}
+          >
+            <Text style={[styles.footerText, { color: "#fff" }]}>Submit</Text>
+          </Pressable>
         </View>
         {/* --- BANK INFORMATION --- */}
         <View style={[styles.container,{marginVertical:20}]}>
@@ -264,19 +277,28 @@ export default function KycForm3() {
           style={styles.input}
           placeholder="Enter IFSC Code"
           autoCapitalize="characters"
-          value={formData.ifsc}
-          onChangeText={(v) => updateFormData("ifsc", v)}
+          value={formData.ifscCode}
+          onChangeText={(v) => updateFormData("ifscCode", v)}
         />
 
         <UploadBox
-          uri={formData.blankChequePic}
+          uri={formData.chequePhoto}
           label="Blank Cheque Pic"
-          onPress={() => handleSelectImage("blankChequePic")}
+          onPress={() => handleSelectImage("chequePhoto")}
         />
+      <Pressable
+            style={[styles.footerBtn, styles.saveBtn,{marginVertical:20}]}
+            onPress={onSave}
+          >
+            <Text style={[styles.footerText, { color: "#fff" }]}>Submit</Text>
+          </Pressable>
+          </View>
 
         {/* --- GUARANTOR 1 --- */}
+        <View style={[styles.container,{marginVertical:20}]}>
         <View style={[styles.rowBetween, { marginTop: 30 }]}>
           <Text style={styles.title}>Guarantor 1 Details</Text>
+          <Text style={styles.stepText}>5/5</Text>
         </View>
         <View style={styles.line} />
 
@@ -373,100 +395,120 @@ export default function KycForm3() {
 
         {/* --- GUARANTOR 2 --- */}
         <View style={[styles.rowBetween, { marginTop: 30 }]}>
-          <Text style={styles.title}>Guarantor 2 Details</Text>
-        </View>
+  <Text style={styles.title}>Guarantor 2 Details</Text>
+        `</View>
         <View style={styles.line} />
 
-        <View style={styles.row}>
-          <UploadBox
-            uri={formData.guarantor2.aadhaarFrontPic}
-            label="Aadhaar Front"
-            onPress={() => handleSelectImage("guarantor2.aadhaarFrontPic")}
-          />
-          <UploadBox
-            uri={formData.guarantor2.aadhaarBackPic}
-            label="Aadhaar Back"
-            onPress={() => handleSelectImage("guarantor2.aadhaarBackPic")}
-          />
-        </View>
-
-        <Text style={styles.label}>Aadhaar No</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Aadhaar No"
-          value={formData.guarantor2.aadhaarNumber}
-          onChangeText={(v) =>
-            updateGuarantor("guarantor2", "aadhaarNumber", v)
-          }
-        />
-
-        <Text style={styles.label}>Aadhaar Name</Text>
+        <Text style={styles.label}>Name as per Aadhaar</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Name as per Aadhaar"
-          value={formData.guarantor2.name}
-          onChangeText={(v) => updateGuarantor("guarantor2", "name", v)}
-        />
-
-        <Text style={styles.label}>DOB</Text>
-        <Pressable
-          style={styles.input}
-          onPress={() => setShowDobPicker2(true)}
-        >
-          <Text>{formData.guarantor2.dob?.toDateString()}</Text>
-        </Pressable>
-        {showDobPicker2 && (
-          <DateTimePicker
-            value={formData.guarantor2.dob || new Date()}
-            mode="date"
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowDobPicker2(false);
-              if (selectedDate)
-                updateGuarantor("guarantor2", "dob", selectedDate);
-            }}
-          />
-        )}
-
-        <Text style={styles.label}>Current Address</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Current Address"
-          value={formData.guarantor2.address}
-          onChangeText={(v) => updateGuarantor("guarantor2", "address", v)}
-        />
-
-        <Text style={styles.label}>Permanent Address</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Permanent Address"
-          value={formData.guarantor2.permanentAddress}
+          value={formData.guarantor2.refTwoNameAsPerAadhaar}
           onChangeText={(v) =>
-            updateGuarantor("guarantor2", "permanentAddress", v)
+            updateGuarantor("guarantor2", "refTwoNameAsPerAadhaar", v)
           }
         />
 
-        <UploadBox
-          uri={formData.guarantor2.panPic}
-          label="PAN Pic"
-          onPress={() => handleSelectImage("guarantor2.panPic")}
+        <Text style={styles.label}>Mobile Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Mobile Number"
+          keyboardType="number-pad"
+          value={formData.guarantor2.refTwoMobileNo}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "refTwoMobileNo", v)
+          }
+        />
+
+        <View style={styles.row}>
+          <UploadBox
+            uri={formData.guarantor2.refTwoAadhaarPANPhoto?.[0]}
+            label="Aadhaar Photo"
+            onPress={() =>
+              handleSelectImage("guarantor2.refTwoAadhaarPANPhoto[0]")
+            }
+          />
+          <UploadBox
+            uri={formData.guarantor2.refTwoAadhaarPANPhoto?.[1]}
+            label="PAN Photo"
+            onPress={() =>
+              handleSelectImage("guarantor2.refTwoAadhaarPANPhoto[1]")
+            }
+          />
+        </View>
+
+        <Text style={styles.label}>Aadhaar Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Aadhaar Number"
+          value={formData.guarantor2.refTwoAadhaarNo}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "refTwoAadhaarNo", v)
+          }
         />
 
         <Text style={styles.label}>PAN Number</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter PAN Number"
-          value={formData.guarantor2.panNumber}
-          onChangeText={(v) => updateGuarantor("guarantor2", "panNumber", v)}
+          value={formData.guarantor2.refTwoPanNo}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "refTwoPanNo", v)
+          }
         />
 
-        <Text style={styles.label}>Mobile Number</Text>
+        <Text style={styles.label}>Date of Birth</Text>
+        <Pressable
+          style={styles.input}
+          onPress={() => setShowDobPicker2(true)}
+        >
+          <Text>
+            {formData.guarantor2.refTwoDOB
+              ? new Date(formData.guarantor2.refTwoDOB).toDateString()
+              : "Select DOB"}
+          </Text>
+        </Pressable>
+        {showDobPicker2 && (
+          <DateTimePicker
+            value={
+              formData.guarantor2.refTwoDOB
+                ? new Date(formData.guarantor2.refTwoDOB)
+                : new Date()
+            }
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowDobPicker2(false);
+              if (selectedDate)
+                updateGuarantor(
+                  "guarantor2",
+                  "refTwoDOB",
+                  selectedDate.toISOString().split("T")[0]
+                );
+            }}
+          />
+        )}
+
+        <Text style={styles.label}>Address (As per Aadhaar)</Text>
         <TextInput
           style={styles.input}
-          placeholder="Enter Mobile"
-          value={formData.guarantor2.mobile}
-          onChangeText={(v) => updateGuarantor("guarantor2", "mobile", v)}
+          placeholder="Enter Aadhaar Address"
+          value={formData.guarantor2.refTwoAddressAsPerAadhaar}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "refTwoAddressAsPerAadhaar", v)
+          }
         />
+
+        <Text style={styles.label}>Permanent Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Permanent Address"
+          value={formData.guarantor2.refTwoPermanentAddress}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "refTwoPermanentAddress", v)
+          }
+        />
+`
 
         {/* Footer Buttons */}
         <View style={styles.footerRow}>
@@ -480,7 +522,9 @@ export default function KycForm3() {
           </Pressable>
           <Pressable
             style={[styles.footerBtn, styles.saveBtn]}
-            onPress={onSave}
+            onPress={() => {
+                  submitkyc({leadId:params.leadId,payload:formData})
+            }}
           >
             <Text style={[styles.footerText, { color: "#fff" }]}>Save</Text>
           </Pressable>

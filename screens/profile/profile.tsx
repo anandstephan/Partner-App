@@ -11,6 +11,8 @@
   import Icon from "react-native-vector-icons/Feather";
   import { NativeStackNavigationProp } from "@react-navigation/native-stack";
   import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { toggleLoggedIn } from "../../store/slices/authSlice";
 
   // 👇 Define navigation types (customize routes as per your stack)
   type RootStackParamList = {
@@ -32,6 +34,7 @@
   }
 
   const ProfileScreen: React.FC = () => {
+    const dispatch = useDispatch()
     const navigation = useNavigation<ProfileScreenNavigationProp>();
 
     const menuItems: MenuItem[] = [
@@ -69,7 +72,13 @@
             <Pressable
               key={index}
               style={styles.menuItem}
-              onPress={() => navigation.navigate(item.route)}
+              onPress={() => {
+                if(item.title === 'Logout'){
+                    dispatch(toggleLoggedIn())
+                }else{
+                  navigation.navigate(item.route)
+                }
+              }}
             >
               <View style={styles.menuLeft}>
                 <Icon name={item.icon} size={18} color="#444" />
