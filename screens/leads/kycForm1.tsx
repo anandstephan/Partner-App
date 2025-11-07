@@ -23,25 +23,34 @@ import { uploadToS3 } from "../../features/upload/uploadService";
 export default function KycForm1() {
   const navigation = useNavigation();
   const {params:{leadInfo}} = useRoute()
-  // console.log("LeadInfo",leadInfo)
+  console.log("LeadInfo",leadInfo)
   const mutation = useUpload();
 
   // ✅ Single unified form state
   const [formData, setFormData] = useState({
     firstName: ""+leadInfo.firstName,
-    lastName: "",
+    lastName: "last"+leadInfo.lastName,
     smartPhoneUser: null,
     aadhaarNo: "",
+    nameAsPerAadhaar:"",
     gender: null,
     marritalStatus: null,
     dob: new Date(),
     aadhaarFrontPhoto: null,
     aadhaarBackPhoto: null,
     addressAsPerAadhaar: "",
+    selfie:"https://example.com/uploads/selfie.jpg",
   });
 
   // ✅ Universal update function
   const updateFormData = (field: string, value: any) => {
+    if(field==='smartPhoneUser'){
+      if(value === 'yes'){
+        value = true
+      }else{
+        value = false
+      }
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -222,8 +231,8 @@ export default function KycForm1() {
         <TextInput
           style={styles.input}
           placeholder="Enter Your Name as per Aadhar"
-          value={formData.lastName}
-          onChangeText={(val) => updateFormData("lastName", val)}
+          value={formData.nameAsPerAadhaares}
+          onChangeText={(val) => updateFormData("nameAsPerAadhaar", val)}
         />
 
         {/* DOB */}

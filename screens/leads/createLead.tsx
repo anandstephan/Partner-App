@@ -31,15 +31,16 @@ const CreateLead = () => {
           fatherMotherName: '',
           mobile: '',
           alternateNumber: '1234567890',
-          dlStatus: '',
+          dlStatus: 'available',
           selfieWithCustomer: 'https://plus.unsplash.com/premium_photo-1673240367277-e1d394465b56?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bW91bnRhaW5zfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900',
           state: '',
           stateId: '',
           city: '',
           cityId: '',
           clusterId: "6907144175642f6d5c69b6f7",
-          productType: '',
-          vehicleType: '',
+          cluster:"",
+          productType: 'battery',
+          vehicleType: '3w_cargo',
           existingVehicleLoanStatus: '',
           existingVehicleLoanNo: '',
           leadStatus: '',
@@ -54,6 +55,7 @@ const CreateLead = () => {
 
 
       const [allCities,setAllCities] = useState([])
+      const [allCluster,setAllClusters] = useState([])
 
   const leadSources = ['Online', 'Referral', 'Walk-in', 'Phone Call', 'Social Media'];
   const vehicleTypes = ['Car', 'Bike', 'Truck', 'Bus', 'Auto'];
@@ -84,6 +86,7 @@ const CreateLead = () => {
                   setFormData(prev => ({ ...prev, ['cityId']: chosedCity._id }))
                  getCluster({stateId:formData.stateId,cityId:chosedCity._id}) 
                  .then(res =>{
+                  setAllClusters(res)
                   //  setFormData(prev => ({ ...prev, ['clusterId']: res[0]?._id }))
                  })
     }
@@ -137,12 +140,28 @@ const CreateLead = () => {
 
 
   const handleAddLead = () =>{
-    console.log(formData,"FFFF")
+    console.log(JSON.stringify(formData),"FFFF");
+    [
+      "vehicleType",
+      "existingVehicleLoanStatus",
+      "existingVehicleLoanNo",
+      "leadStatus",
+      "loanStatus",
+      "loanId",
+      "segmentCurrent",
+      "segmentProposed"
+    ].forEach(key => delete formData[key]);
+    formData.dlStatus = "available"
+    console.log(JSON.stringify(formData),"PPPP");
+    
     // return
           mutate(
             formData,
             {
-              onSuccess: () => Alert.alert('✅ Lead Created Successfully!'),
+              onSuccess: () => {
+                Alert.alert('✅ Lead Created Successfully!')
+                navigation.goBack()
+              },
               onError: (err) => {
                 Alert.alert("Error",err.message)
                 console.log("Error",err)
@@ -215,25 +234,7 @@ const CreateLead = () => {
           </View>
 
           <View style={styles.row}>
-            <View style={styles.halfWidth}>
-              <Text style={styles.label}>City</Text>
-              {/* <TextInput
-                style={styles.input}
-                value={formData.city}
-                onChangeText={(value) => updateFormData('city', value)}
-                placeholder=""
-              /> */}
-              <RenderDropdown
-                field='city'
-                placeholder='City'
-                options={allCities.map(item => item.name) || []}
-                   currentValue={formData.city}
-              onSelect={ (field, value) => {
-                setFormData({ ...formData, [field]: value })
-
-              }}
-              />
-            </View>
+         
             <View style={styles.halfWidth}>
               <Text style={styles.label}>State</Text>
               <RenderDropdown
@@ -247,7 +248,33 @@ const CreateLead = () => {
               }}
               />
             </View>
+               <View style={styles.halfWidth}>
+              <Text style={styles.label}>City</Text>
+              <RenderDropdown
+                field='city'
+                placeholder='City'
+                options={allCities.map(item => item.name) || []}
+                   currentValue={formData.city}
+              onSelect={ (field, value) => {
+                setFormData({ ...formData, [field]: value })
+
+              }}
+              />
+            </View>
           </View>
+            <View style={{}}>
+              <Text style={styles.label}>Cluster</Text>
+              <RenderDropdown
+                field='cluster'
+                placeholder='Cluster'
+                options={allCluster.map(item => item.name) || []}
+                  currentValue={formData.cluster}
+              onSelect={ (field, value) => {
+                setFormData({ ...formData, [field]: value })
+
+              }}
+              />
+            </View>
         </View>
 
         {/* Vehicle Related */}

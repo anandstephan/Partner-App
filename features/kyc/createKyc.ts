@@ -15,11 +15,11 @@ export const createKyc = async (payload:KYC1): Promise<void> => {
 }
 
 
-export const createKyc1 = async (leadId:string,payload:KYC2): Promise<void> => {
-   // console.log("payload22",payload,leadId)
+export const createKyc1 = async (kycId:string,payload:KYC2): Promise<void> => {
+   console.log("payload22",payload,kycId)
    try {
     
-   const response = await apiClient.put('/api/kyc/'+leadId,payload);
+   const response = await apiClient.patch('/api/kyc/'+kycId,payload);
   
    return response.data;     
    } catch (error) {
@@ -27,11 +27,11 @@ export const createKyc1 = async (leadId:string,payload:KYC2): Promise<void> => {
    }
 }
 
-export const createKyc2 = async (leadId:string,payload:ReferenceDetails): Promise<void> => {
-   console.log("payload22",payload,leadId)
+export const createKyc2 = async (kycId:string,payload:ReferenceDetails): Promise<void> => {
+   console.log("payload22",payload,kycId)
    try {
     
-   const response = await apiClient.put('/api/kyc2/'+leadId+"/submit",payload);
+   const response = await apiClient.put('/api/kyc/'+kycId+"/submit",payload);
   
    return response.data;     
    } catch (error) {

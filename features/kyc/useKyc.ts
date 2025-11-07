@@ -38,8 +38,8 @@ export const useFinalKyc = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: ({ leadId, payload }: { leadId: string; payload: ReferenceDetails }) =>
-      createKyc2(leadId, payload),
+    mutationFn: ({ kycId, payload }: { kycId: string; payload: ReferenceDetails }) =>
+      createKyc2(kycId, payload),
 
     onSuccess: () => {
       queryClient.invalidateQueries(['finalkyc']);

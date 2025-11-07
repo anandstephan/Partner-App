@@ -20,7 +20,7 @@ import Fonts from "../../constants/font";
 import { useLogin } from "../../features/login/useLogin";
 import { useDispatch } from "react-redux";
 import { toggleLoggedIn } from "../../store/slices/authSlice";
-
+import Storage from "../../utilites/storage";
 const Login = () => {
   const dispatch = useDispatch()
 
@@ -50,6 +50,8 @@ const Login = () => {
                   {
                     onSuccess: (res) => {
                       dispatch(toggleLoggedIn())
+                      // console.log("Login Res",res.token)
+                      Storage.setItem("token",res?.token) 
                     },
                     onError: (err) => {
                       Alert.alert("Error",err.message)

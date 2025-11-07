@@ -7,6 +7,7 @@ import {
   TextInput,
   Pressable,
   Image,
+  Alert,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { launchImageLibrary } from "react-native-image-picker";
@@ -128,8 +129,18 @@ export default function KycForm3() {
   ];
 
   const onSave = () => {
-    console.log("✅ Final Form Data:", formData);
-    mutate({leadId:params.leadId,payload:formData})
+    console.log("✅ Final Form Data:", JSON.stringify(formData) );
+    mutate({leadId:params.leadId,payload:formData},     {
+                        onSuccess: () => {
+                          Alert.alert('✅ KYC Updated Successfully!')
+                          // navigation.navigate("kycForm3",newData);  
+                          // navigation.goBack()
+                        },
+                        onError: (err) => {
+                          Alert.alert("Error",err.message)
+                          console.log("Error",err)
+                        }
+                      })
 
   };
 

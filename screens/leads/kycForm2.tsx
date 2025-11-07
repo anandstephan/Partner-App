@@ -7,6 +7,7 @@ import {
   TextInput,
   Pressable,
   Image,
+  Alert,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { launchImageLibrary } from "react-native-image-picker";
@@ -36,10 +37,10 @@ export default function KycForm2() {
     lng: "",
     dlFrontPhoto: null,
     dlBackPhoto: null,
-    rcPic: null,
+    panFrontPhoto: null,
     housePhoto: null,
     localityPhotos: null,
-    selfie: null,
+    selfieWithDriver: null,
   });
 
 
@@ -68,14 +69,41 @@ export default function KycForm2() {
   };
 
   const onNext = () => {
+    try {
     console.log("✅ Form Data:", formData);
     const newData = {
       ...formData,
       ...params
     }
-    console.log("new",JSON.stringify(newData))
-    mutate(newData)
-    navigation.navigate("kycForm3",newData);
+
+    newData['latLng'] = {
+    "lat": 28.7041,
+    "lng": 77.1025
+  }
+    delete newData.lat;
+    delete newData.lng;
+    newData['localityPhotos'] = [newData['localityPhotos']]
+        console.log("new",JSON.stringify(newData))
+           navigation.navigate("kycForm3",newData);  
+        return;
+    mutate(newData,
+              {
+                    onSuccess: () => {
+                      Alert.alert('✅ KYC Created Successfully!')
+                      navigation.navigate("kycForm3",newData);  
+                      // navigation.goBack()
+                    },
+                    onError: (err) => {
+                      Alert.alert("Error",err.message)
+                      console.log("Error",err)
+                    }
+                  }
+    )
+    
+    } catch (error) {
+      console.log("Error",error)
+    }
+
   };
 
 
@@ -165,21 +193,21 @@ export default function KycForm2() {
           )}
         </Pressable>
 
-        {/* Selfie with Customer */}
-        <Text style={styles.label}>Selfie with Customer</Text>
+        {/* selfieWithDriver with Customer */}
+        <Text style={styles.label}>Selfie with Driver</Text>
         <Pressable
           style={styles.uploadBox}
-          onPress={() => handleSelectImage("selfie")}
+          onPress={() => handleSelectImage("selfieWithDriver")}
         >
-          {formData.selfie ? (
-            <Image source={{ uri: formData.selfie }} style={styles.uploadImage} />
+          {formData.selfieWithDriver ? (
+            <Image source={{ uri: formData.selfieWithDriver }} style={styles.uploadImage} />
           ) : (
             <View style={styles.uploadContent}>
               <Image
                 source={require("../../assets/png/aadhar.png")}
                 style={{ width: 40, height: 40 }}
               />
-              <Text style={{ marginTop: 6 }}>Selfie</Text>
+              <Text style={{ marginTop: 6 }}>Selfie With Driver</Text>
             </View>
           )}
         </Pressable>
@@ -230,10 +258,10 @@ export default function KycForm2() {
         <Text style={styles.label}>Choose PAN Front Pic</Text>
         <Pressable
           style={styles.uploadBox}
-          onPress={() => handleSelectImage("rcPic")}
+          onPress={() => handleSelectImage("panFrontPhoto")}
         >
-          {formData.rcPic ? (
-            <Image source={{ uri: formData.rcPic }} style={styles.uploadImage} />
+          {formData.panFrontPhoto ? (
+            <Image source={{ uri: formData.panFrontPhoto }} style={styles.uploadImage} />
           ) : (
             <View style={styles.uploadContent}>
               <Image
