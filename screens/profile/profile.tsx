@@ -13,6 +13,7 @@
   import { useNavigation } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import { toggleLoggedIn } from "../../store/slices/authSlice";
+import Storage from "../../utilites/storage";
 
   // 👇 Define navigation types (customize routes as per your stack)
   type RootStackParamList = {
@@ -74,7 +75,15 @@ import { toggleLoggedIn } from "../../store/slices/authSlice";
               style={styles.menuItem}
               onPress={() => {
                 if(item.title === 'Logout'){
-                    dispatch(toggleLoggedIn())
+                  async function logout(){
+                    await  Storage.clearAll()
+                  }
+                  logout().then(() => {
+                    console.log("logout")
+                    dispatch(toggleLoggedIn())                    
+                  })
+
+                  
                 }else{
                   navigation.navigate(item.route)
                 }

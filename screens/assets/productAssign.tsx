@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import Header from "../../commonComponents/Header";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Card from "./components/card";
 import { useNavigation } from "@react-navigation/native";
+import { useLead } from "../../features/leads/useLead";
 
 const dummyData = [
   {
@@ -51,6 +52,9 @@ const dummyData = [
 const ProductAssign = () => {
   const navigation = useNavigation()
   const [search, setSearch] = useState("");
+  const {data,isLoading} = useLead()
+
+
 
   const filteredData = dummyData.filter(
     (item) =>
@@ -58,10 +62,11 @@ const ProductAssign = () => {
       item.phone.includes(search)
   );
 
-  const renderItem = ({ item }: any) => (
-    <Card item={item}/>
+  const renderItem = ({ item }: any) => {
+
+   return <Card item={item}/>
   
-  );
+  };
 
   return (
       <>
@@ -81,7 +86,7 @@ const ProductAssign = () => {
 
       {/* List */}
       <FlatList
-        data={filteredData}
+        data={data?.data}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}

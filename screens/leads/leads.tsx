@@ -29,7 +29,7 @@ const Leads = () => {
   const [modalVisible,setModalVisible] = useState(false)
   const [leadInfo,setLeadInfo] = useState('')
   const {data,isLoading} = useLead()
-  console.log(data,"HHHH")
+
   if(isLoading){
     return <View style={{flex:1,justifyContent:"center",alignItems:'center'}}>
       <ActivityIndicator size={'large'}/>
@@ -107,7 +107,7 @@ const Leads = () => {
             height={width}
           />
           {/* Lead Rows */}
-          {data?.data.map((lead:Lead,idx:number) => (
+          {data?.data?.map((lead:Lead,idx:number) => (
             <LeadRow key={idx} lead={lead} idx={idx} setModalVisible={setModalVisible} setLeadInfo={setLeadInfo}  />
           ))}
 

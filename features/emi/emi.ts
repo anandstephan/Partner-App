@@ -1,16 +1,15 @@
 import apiClient from '../../api/apiClient.ts';
-import { LeadArray } from './type.ts';
+import { EmiData } from './type.ts';
 
 
 
-export const getLeads = async (): Promise<LeadArray> => {
+export const getEmis = async (): Promise<EmiData> => {
 
   try {
-    const response = await apiClient.get('/api/lead');
+    const response = await apiClient.get('/api/emi/');
 
-    return response.data;
+    return response.data.data;
   } catch (error: any) {
-    console.log("error fetching leads:", error.message);
     if (error.response) {
       console.log("error response:", error.response.data);
     }

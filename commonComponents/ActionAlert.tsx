@@ -48,7 +48,8 @@ export default function ActionAlert({showModal,setModalVisible,leadInfo}:modalPr
             <Entypo name="check" size={35} color={Colors.white} />
             </View>
             <Pressable onPress={()=>{
-              navigation.navigate('kycForm1',{leadInfo})
+              // navigation.navigate('kycForm1',{leadInfo})
+              navigation.navigate('onBoarding',{leadInfo})
               setModalVisible(false)
             }}>
             <View style={styles.btnContainer}>

@@ -15,59 +15,52 @@ import Icon from "react-native-vector-icons/Feather";
 import { SafeAreaView } from "react-native-safe-area-context"; // ✅ replaced SafeAreaView
 import Header from "../../commonComponents/Header";
 import { useProductAssign } from "../../features/productAssign/useProductAssign";
+import { useRoute } from "@react-navigation/native";
 
 export default function ProductAssignForm() {
 
       const { mutate, isPending, error, isError } = useProductAssign();
 
-  const [rickshawId, setRickshawId] = useState("");
-  const [batteryId, setBatteryId] = useState("");
-  const [chargerId, setChargerId] = useState("");
+  const {params} = useRoute()
+  const [batteryId, setBatteryId] = useState("343@");
+  const [chargerId, setChargerId] = useState("87E");
 
-  const [handoverDate, setHandoverDate] = useState<Date | null>(null);
+  const [BatteryhandoverDate, setBatteryHandoverDate] = useState<Date | null>(null);
+  const [ChargerhandoverDate, setChargerHandoverDate] = useState<Date | null>(null);
   const [emiStartDate, setEmiStartDate] = useState<Date | null>(null);
-  const [showPicker, setShowPicker] = useState<{ type: string; visible: boolean }>({
-    type: "",
-    visible: false,
-  });
+ 
 
   const [batteryWarranty, setBatteryWarranty] = useState("");
   const [chargerWarranty, setChargerWarranty] = useState("");
 
-  const [cardHandover, setCardHandover] = useState<"Yes" | "No" | null>(null);
   const [brandingMaterial, setBrandingMaterial] = useState<"Yes" | "No" | null>(null);
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    if (selectedDate) {
-      if (showPicker.type === "handover") setHandoverDate(selectedDate);
-      else if (showPicker.type === "emi") setEmiStartDate(selectedDate);
-    }
-    setShowPicker({ type: "", visible: false });
-  };
 
-  const handleSubmit = () => {
-    if (!rickshawId || !batteryId || !chargerId) {
-      Alert.alert("Incomplete", "Please fill all product IDs before submitting.");
-      return;
-    }
-
+  const handleSubmit = () => {  
     const formData = {
-      rickshawId,
+      leadId: params?.leadId,
       batteryId,
       chargerId,
-      batteryPhoto:"",
-      chargerPhoto:"",
-      batteryHandoverDate:"",
-      chargerHandoverDate:"",
+      batteryPhoto:"https://plus.unsplash.com/premium_photo-1672115680958-54438df0ab82?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bW91bnRhaW5zfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900",
+      chargerPhoto:"https://plus.unsplash.com/premium_photo-1672115680958-54438df0ab82?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bW91bnRhaW5zfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900",
+      batteryHandoverDate:BatteryhandoverDate || "",
+      chargerHandoverDate:ChargerhandoverDate || "",
       batteryWarrantyTenure: batteryWarranty,
       chargerWarrantyTenure: chargerWarranty,
-      emiStartDate: emiStartDate?.toDateString() || "",
-      cardHandover,
+      emiStartDate: emiStartDate || "",
       brandingMaterial,
     };
 
-    console.log("🧾 Form Data:", formData);
+    console.log("🧾 Form Data:", JSON.stringify(formData));
 
+      mutate(formData,{
+        onSuccess: (res) => {
+          console.log(res)
+          Alert.alert('✅ Product Assigned Successfully!')
+          // navigation.navigate("kycForm3",newData);  
+          // navigation.goBack()
+        }
+      });
     // Alert.alert("✅ Success", "Product assigned successfully!");
   };
 
@@ -77,12 +70,6 @@ export default function ProductAssignForm() {
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* ---- Product IDs ---- */}
         <View style={styles.card}>
-          {/* <InputWithIcon
-            icon={require("../../assets/png/aadhar.png")}
-            label="E-Rickshaw ID"
-            value={rickshawId}
-            onChange={setRickshawId}
-          /> */}
           <InputWithIcon
             icon={require("../../assets/png/aadhar.png")}
             label="Battery ID"
@@ -98,16 +85,25 @@ export default function ProductAssignForm() {
   
 
         {/* ---- Dates ---- */}
-          <Text style={styles.label}>Assets handover Date</Text>
+          <Text style={styles.label}>Battery handover Date</Text>
           <DateTimePicker
-          value={handoverDate || new Date()}
+          value={BatteryhandoverDate || new Date()}
           display="default"
           mode="date"
-          onChange={(event,date)=>setHandoverDate(date)}
+          onChange={(event,date)=>{
+              setBatteryHandoverDate(date)
+          }}
+          />
+          <Text style={styles.label}>Charger handover Date</Text>
+          <DateTimePicker
+          value={ChargerhandoverDate || new Date()}
+          display="default"
+          mode="date"
+          onChange={(event,date)=>setChargerHandoverDate(date)}
           />
          <Text style={styles.label}>EMI Date</Text>
           <DateTimePicker
-          value={handoverDate || new Date()}
+          value={emiStartDate || new Date()}
           display="default"
           mode="date"
           onChange={(event,date)=>setEmiStartDate(date)}
@@ -127,17 +123,6 @@ export default function ProductAssignForm() {
           />
       
 
-        {/* ---- Radio Options ---- */}
-          <RadioGroup
-            label="Physical Warranty Card Handover"
-            selected={cardHandover}
-            onSelect={setCardHandover}
-          />
-          <RadioGroup
-            label="Branding Material"
-            selected={brandingMaterial}
-            onSelect={setBrandingMaterial}
-          />
      
 
         {/* ---- Submit Button ---- */}
@@ -145,14 +130,6 @@ export default function ProductAssignForm() {
           <Text style={styles.submitText}>Submit</Text>
         </Pressable>
 
-        {showPicker.visible && (
-          <DateTimePicker
-            value={new Date()}
-            mode="date"
-            display={Platform.OS === "ios" ? "inline" : "default"}
-            onChange={handleDateChange}
-          />
-        )}
           </View>
       </ScrollView>
     </SafeAreaView>

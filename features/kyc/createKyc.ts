@@ -31,7 +31,7 @@ export const createKyc2 = async (kycId:string,payload:ReferenceDetails): Promise
    console.log("payload22",payload,kycId)
    try {
     
-   const response = await apiClient.put('/api/kyc/'+kycId+"/submit",payload);
+   const response = await apiClient.post('/api/kyc/'+kycId+"/submit",payload);
   
    return response.data;     
    } catch (error) {

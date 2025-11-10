@@ -22,8 +22,8 @@ export const useKyc2 = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: ({ leadId, payload }: { leadId: string; payload: KYC2 }) =>
-      createKyc1(leadId, payload),
+    mutationFn: ({ kycId, payload }: { kycId: string; payload: KYC2 }) =>
+      createKyc1(kycId, payload),
 
     onSuccess: () => {
       queryClient.invalidateQueries(['kyc2']);

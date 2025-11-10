@@ -7,8 +7,12 @@ import SwipeCard from './components/SwipeCard';
 import Header from './components/Header';
 import Colors from '../../constants/color';
 import PerformanceCard from './components/PerformanceCard';
+import { useEMIHomePage, useHomeLeadSummary } from '../../features/home/useHome';
 
 const Home: React.FC = () => {
+  const {data} = useEMIHomePage()
+  const {data:leadSummary} = useHomeLeadSummary()
+  console.log("____",data)
     return (
         <SafeAreaView>
           <Header/>
@@ -20,9 +24,9 @@ const Home: React.FC = () => {
         totalLeads={12}
         subtitle="Today"
         stages={[
-          { label: "Leads", value: 50 },
-          { label: "KYC", value: 30 },
-          { label: "Onboarding", value: 20 },
+          { label: "Leads", value: leadSummary?.totalLeadCount },
+          { label: "KYC", value: leadSummary?.kycDoneLeadCount },
+          { label: "Onboarding", value:leadSummary?.onboardedLeadCount },
         ]}
       />
         <TrackerCard
@@ -30,9 +34,9 @@ const Home: React.FC = () => {
         totalLeads={15}
         subtitle="June 25'"
         stages={[
-          { label: "Upcoming", value: 10 },
-          { label: "Due", value: 3 },
-          { label: "OverDue", value: 2 },
+          { label: "Upcoming", value: data?.upcomingSevenDaysCount },
+          { label: "Due", value: data?.dueEmisCount },
+          { label: "OverDue", value: data?.overdueCount },
         ]}
       />
 

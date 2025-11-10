@@ -4,7 +4,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const Card = ({item}:any) =>{
   const navigation = useNavigation()
-return     <Pressable onPress={()=>navigation.navigate('productAssignForm')}>
+return     <Pressable onPress={()=>navigation.navigate('productAssignForm',{leadId:item.leadId})}>
         <View style={styles.card}>
       <View style={styles.headerRow}>
         <Text style={styles.liCode}>{item.liCode}</Text>
@@ -15,15 +15,15 @@ return     <Pressable onPress={()=>navigation.navigate('productAssignForm')}>
           style={styles.avatar}
         />
         <View style={{ flex: 1, marginLeft: 22 }}>
-          <Text style={styles.name}>Name: {item.name}</Text>
+          <Text style={styles.name}>Name: {item.firstName}</Text>
           <View style={{flexDirection:"row",justifyContent:"space-between",alignItems:"center"}}>
           <View style={styles.infoRow}>
             <Icon name="phone-outline" size={16} color="#555" />
-            <Text style={styles.infoText}>{item.phone}</Text>
+            <Text style={styles.infoText}>{item.mobile}</Text>
           </View>
           <View style={styles.infoRow}>
             <Icon name="calendar-outline" size={16} color="#555" />
-            <Text style={styles.infoText}>{item.date}</Text>
+            <Text style={styles.infoText}>{ new Date(item.createdAt).toDateString()}</Text>
           </View>
         
         <View style={styles.infoRow}>

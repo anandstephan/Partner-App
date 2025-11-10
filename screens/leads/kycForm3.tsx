@@ -25,7 +25,7 @@ export default function KycForm3() {
   const {mutate:submitkyc} = useFinalKyc()
 
 
-  console.log("====>",params.leadId)
+  console.log("====>",params.kycId)
   // ✅ Unified form state
   const [formData, setFormData] = useState({
     // RC Details
@@ -130,7 +130,10 @@ export default function KycForm3() {
 
   const onSave = () => {
     console.log("✅ Final Form Data:", JSON.stringify(formData) );
-    mutate({leadId:params.leadId,payload:formData},     {
+
+
+
+    mutate({kycId:params.kycId,payload:formData},     {
                         onSuccess: () => {
                           Alert.alert('✅ KYC Updated Successfully!')
                           // navigation.navigate("kycForm3",newData);  
@@ -195,11 +198,19 @@ export default function KycForm3() {
         />
 
         <Text style={styles.label}>Vehicle Registration Date</Text>
-        <TextInput
+        {/* <TextInput
           style={styles.input}
           placeholder="Enter Registration Date"
           value={formData.vehicleRegistrationDate}
           onChangeText={(v) => updateFormData("vehicleRegistrationDate", v)}
+        /> */}
+         <DateTimePicker
+          value={formData.vehicleRegistrationDate || new Date()}
+          mode="date"
+          display="default"
+          onChange={(event, date) => {
+            if (date) updateFormData("vehicleRegistrationDate", date);
+          }}
         />
 
         <Text style={styles.label}>Make</Text>
@@ -315,14 +326,14 @@ export default function KycForm3() {
 
         <View style={styles.row}>
           <UploadBox
-            uri={formData.guarantor1.aadhaarFrontPic}
+            uri={formData.guarantor1.refOneAadhaarPANPhoto}
             label="Aadhaar Front"
-            onPress={() => handleSelectImage("guarantor1.aadhaarFrontPic")}
+            onPress={() => handleSelectImage("guarantor1.aadhaarFrontPic.refOneAadhaarPANPhoto")}
           />
           <UploadBox
-            uri={formData.guarantor1.aadhaarBackPic}
+            uri={formData.guarantor1}
             label="Aadhaar Back"
-            onPress={() => handleSelectImage("guarantor1.aadhaarBackPic")}
+            onPress={() => handleSelectImage("guarantor1.aadhaarBackPic.refOneAadhaarPANPhoto")}
           />
         </View>
 
@@ -330,9 +341,9 @@ export default function KycForm3() {
         <TextInput
           style={styles.input}
           placeholder="Enter Aadhaar No"
-          value={formData.guarantor1.aadhaarNumber}
+          value={formData.guarantor1.refOneAadhaarNo}
           onChangeText={(v) =>
-            updateGuarantor("guarantor1", "aadhaarNumber", v)
+            updateGuarantor("guarantor1", "refOneAadhaarNo", v)
           }
         />
 
@@ -340,8 +351,8 @@ export default function KycForm3() {
         <TextInput
           style={styles.input}
           placeholder="Enter Name as per Aadhaar"
-          value={formData.guarantor1.name}
-          onChangeText={(v) => updateGuarantor("guarantor1", "name", v)}
+          value={formData.guarantor1.refOneNameAsPerAadhaar}
+          onChangeText={(v) => updateGuarantor("guarantor1", "refOneNameAsPerAadhaar", v)}
         />
 
         <Text style={styles.label}>DOB</Text>
@@ -349,17 +360,17 @@ export default function KycForm3() {
           style={styles.input}
           onPress={() => setShowDobPicker1(true)}
         >
-          <Text>{formData.guarantor1.dob?.toDateString()}</Text>
+          <Text>{formData.guarantor1.refOneDOB.toString()}</Text>
         </Pressable>
         {showDobPicker1 && (
           <DateTimePicker
-            value={formData.guarantor1.dob || new Date()}
+            value={formData.guarantor1.refOneDOB.toString() || new Date()}
             mode="date"
             display="default"
             onChange={(event, selectedDate) => {
               setShowDobPicker1(false);
               if (selectedDate)
-                updateGuarantor("guarantor1", "dob", selectedDate);
+                updateGuarantor("guarantor1", "refOneDOB", selectedDate);
             }}
           />
         )}
@@ -368,40 +379,40 @@ export default function KycForm3() {
         <TextInput
           style={styles.input}
           placeholder="Enter Current Address"
-          value={formData.guarantor1.address}
-          onChangeText={(v) => updateGuarantor("guarantor1", "address", v)}
+          value={formData.guarantor1.refOneAddressAsPerAadhaar}
+          onChangeText={(v) => updateGuarantor("guarantor1", "refOneAddressAsPerAadhaar", v)}
         />
 
         <Text style={styles.label}>Permanent Address</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Permanent Address"
-          value={formData.guarantor1.permanentAddress}
+          value={formData.guarantor1.refOnePermanentAddress}
           onChangeText={(v) =>
-            updateGuarantor("guarantor1", "permanentAddress", v)
+            updateGuarantor("guarantor1", "refOnePermanentAddress", v)
           }
         />
 
         <UploadBox
-          uri={formData.guarantor1.panPic}
+          uri={formData.guarantor1.refOneAadhaarPANPhoto}
           label="PAN Pic"
-          onPress={() => handleSelectImage("guarantor1.panPic")}
+          onPress={() => handleSelectImage("guarantor1.refOneAadhaarPANPhoto")}
         />
 
         <Text style={styles.label}>PAN Number</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter PAN Number"
-          value={formData.guarantor1.panNumber}
-          onChangeText={(v) => updateGuarantor("guarantor1", "panNumber", v)}
+          value={formData.guarantor1.refOnePanNo}
+          onChangeText={(v) => updateGuarantor("guarantor1", "refOnePanNo", v)}
         />
 
         <Text style={styles.label}>Mobile Number</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Mobile"
-          value={formData.guarantor1.mobile}
-          onChangeText={(v) => updateGuarantor("guarantor1", "mobile", v)}
+          value={formData.guarantor1.refOneMobileNo}
+          onChangeText={(v) => updateGuarantor("guarantor1", "refOneMobileNo", v)}
         />
 
         {/* --- GUARANTOR 2 --- */}
@@ -534,7 +545,49 @@ export default function KycForm3() {
           <Pressable
             style={[styles.footerBtn, styles.saveBtn]}
             onPress={() => {
-                  submitkyc({leadId:params.leadId,payload:formData})
+                const filteredData = {...formData.guarantor2,...formData.guarantor1}
+                // const removeKeys = [
+                //   "refTwoAadhaarPANPhoto[0]",
+                //   "refTwoAadhaarPANPhoto[1]",
+                //   "aadhaarFrontPic",
+                //   "aadhaarBackPic",
+                //   "aadhaarNumber",
+                //   "name",
+                //   "address",
+                //   "permanentAddress",
+                //   "panPic",
+                //   "panNumber",
+                //   "mobile"
+                // ];
+                // removeKeys.forEach((key) => {
+                //   delete filteredData[key];
+                // });
+
+                delete filteredData['refTwoAadhaarPANPhoto[0]']
+                delete filteredData['refTwoAadhaarPANPhoto[1]']
+                delete filteredData['aadhaarFrontPic']
+                delete filteredData['aadhaarBackPic']
+                delete filteredData['aadhaarNumber']
+                delete filteredData['name']
+                delete filteredData['address']
+                delete filteredData['permanentAddress']
+                delete filteredData['panPic']
+                delete filteredData['panNumber']
+                delete filteredData['mobile']
+
+                console.log("filteredData",JSON.stringify(filteredData))
+                // return;
+                  submitkyc({kycId:params.kycId,payload:filteredData},{
+                        onSuccess: () => {
+                          Alert.alert('✅ Guarantor Detail Updated Successfully!')
+                          // navigation.navigate("kycForm3",newData);  
+                          // navigation.goBack()
+                        },
+                        onError: (err) => {
+                          Alert.alert("Error",err.message)
+                          console.log("Error",err)
+                        }
+                      })
             }}
           >
             <Text style={[styles.footerText, { color: "#fff" }]}>Save</Text>

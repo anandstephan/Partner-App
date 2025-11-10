@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -10,8 +10,41 @@ import {
 import { Dropdown } from "react-native-element-dropdown";
 import Colors from "../../constants/color";
 import Header from "../../commonComponents/Header";
+import { useRoute } from "@react-navigation/native";
+import { useEmi } from "../../features/emi/useEmi";
+import { useDealerByParams, useRole } from "../../features/role/useRole";
 
 export default function OnboardingTracker() {
+ 
+  const {params} = useRoute()
+  const {data,isLoading} = useEmi()
+  let [filteredData,setFilteredData] = useState([])
+  const {data:roleData} = useRole()
+  const dealerId =  useMemo(() => roleData?.[1]?._id, [roleData])
+  console.log("role",dealerId)
+
+const dealerParamsReady =
+  !!params?.leadInfo?.stateId &&
+  !!params?.leadInfo?.cityId &&
+  !!params?.leadInfo?.clusterId &&
+  !!dealerId;
+
+const { data: dealerData } = useDealerByParams(
+  dealerParamsReady
+    ? {
+        stateId: params.leadInfo.stateId,
+        cityId: params.leadInfo.cityId,
+        clusterId: params.leadInfo.clusterId,
+        role: dealerId,
+      }
+    : undefined // prevent unnecessary re-fetch
+);  
+
+  console.log("role",dealerData)
+
+  
+  
+  // console.log("+++++",filteredData.filter(item => item?.emiSchemeId?.schemeName).map(item => item.emiSchemeId.schemeName))
   const [paymentFrequency, setPaymentFrequency] = useState(null);
   const [paymentMode, setPaymentMode] = useState(null);
   const [couponAppliedOn, setCouponAppliedOn] = useState(null);
@@ -22,6 +55,19 @@ export default function OnboardingTracker() {
     { label: "Monthly", value: "monthly" },
     { label: "Bi-Monthly (15 days)", value: "bi-monthly" },
   ];
+
+  const productTypesOptions = [
+    {
+      label:"Vehicle",value:"vehicle",
+    },
+    {
+
+      label:"battery",value:"battery",
+    },
+    {
+      label:"Vehicle + Battery",value:"vehicle+battery",
+    }
+  ]
   const paymentModes = [
     { label: "Cash", value: "cash" },
     { label: "Cheque", value: "cheque" },
@@ -46,7 +92,10 @@ export default function OnboardingTracker() {
     couponValue: "",
   });
   const update = (k: string, v: string) => setForm({ ...form, [k]: v });
-
+  const [showdownpayment, setShowdownpayment] = useState(null);
+  const [showloanAmount,setShowLoanAmount] = useState(null)
+  const [showemiAmount,setShowEmiAmount] = useState(null)
+  const [showtenure,setShowTenure] = useState(null)
   const submit = () => {
     console.log({
       ...form,
@@ -56,52 +105,113 @@ export default function OnboardingTracker() {
     });
   };
 
+  useEffect(()=>{
+    if(data && data.length>0){
+    // console.log("data23",data)
+    //  filteredData = data.filter(item =>item.clusterId === params.leadInfo.clusterId && item.stateId === params.leadInfo?.stateId &&item.cityId === params.leadInfo?.cityId);
+        setFilteredData(data?.filter(item =>item.clusterId === "68ec0ade5706fd0d7cab7639" && item.stateId === "68ec06c6ad33264418ee029b" &&item.cityId === "68ec09f8f0bfd624900ca88e"))      
+    }
+
+  },[data])
+
   return (
     <>
       <Header title="Onboarding" />
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
         <View style={styles.section}>
           <View style={styles.rowBetween}>
-            <Text style={styles.heading}>Onboarding</Text>
-            <Text style={styles.step}>3/4</Text>
+            {/* <Text style={styles.heading}>Onboarding</Text> */}
+            {/* <Text style={styles.step}>3/4</Text> */}
           </View>
           <View style={styles.blueLine} />
+          <Dropdown
+          style={styles.input}
+          placeholderStyle={styles.placeholder}
+          selectedTextStyle={styles.value}
+            labelField="label"
+            valueField="value"
+            placeholder="Dealer Name"
+            data={dealerData?.filter(item => item).map(item => ({
+              label:item.name,
+              value:item._id
+            }))}
+          />
+          <Dropdown
+            style={styles.input}
+            placeholderStyle={styles.placeholder}
+            selectedTextStyle={styles.value}
+            data={filteredData?.filter(item => item?.emiSchemeId?.schemeName).map(item => ({
+            label: item?.emiSchemeId.schemeName,
+            value: item?.emiSchemeId._id,
+          }))}
+            labelField="label"
+            valueField="value"
+            placeholder="EMI Scheme Name"
+            onChange={(selectedScheme) =>{
+              filteredData.forEach(item => {
+                if(item?.emiSchemeId?._id === selectedScheme.value){
+                    setShowdownpayment(item.emiSchemeId.downPayment)
+                    setShowLoanAmount(item.emiSchemeId.loanAmount)
+                    setShowEmiAmount(item.emiSchemeId.emiAmount)
+                    setShowTenure(item.emiSchemeId.tenure)
+                }
+              })
 
-          <Text style={[styles.label,{
+            } 
+          }
+          />  
+
+          {/* <Text style={[styles.label,{
              borderBottomWidth: 1,
     borderRightWidth:0.5,
     borderLeftWidth:0.4,
     borderColor: "#E1E1E1",
     marginHorizontal:10,
 
-          }]}>Payment Frequency</Text>
-          {/* <Dropdown
+          }]}>Payment Frequency2</Text> */}
+          <Dropdown
+            style={styles.input}
+            placeholderStyle={styles.placeholder}
+            selectedTextStyle={styles.value}
+            data={productTypesOptions}
+            labelField="label"
+            valueField="value"
+            placeholder="Product Type"
+            value={productTypesOptions}
+            onChange={(value) => {  
+              console.log(value)
+              setFilteredData(filteredData.filter(item => item?.emiSchemeId?.productType === value.value))
+            }}
+          />
+
+          <Dropdown
             style={styles.input}
             placeholderStyle={styles.placeholder}
             selectedTextStyle={styles.value}
             data={frequencyOptions}
             labelField="label"
             valueField="value"
-            placeholder="Select"
-            value={paymentFrequency}
+            placeholder="Payment Frequency"
+            // value={paymentFrequency}
             onChange={(i) => setPaymentFrequency(i.value)}
-          /> */}
+          />
+
 
           {/* <Text style={styles.label}>Scheme Name</Text> */}
-          <TextInput
+          
+          {/* <TextInput
             style={styles.input}
             placeholder="Enter scheme name"
             value={form.schemeName}
             onChangeText={(t) => update("schemeName", t)}
-          />
+          /> */}
 
           {/* <Text style={styles.label}>Down Payment</Text> */}
           <TextInput
             style={styles.input}
             placeholder="Enter down payment"
             keyboardType="numeric"
-            value={form.downPayment}
-            onChangeText={(t) => update("downPayment", t)}
+            value={showdownpayment}
           />
 
           {/* <Text style={styles.label}>Loan Amount</Text> */}
@@ -109,8 +219,7 @@ export default function OnboardingTracker() {
             style={styles.input}
             placeholder="Enter loan amount"
             keyboardType="numeric"
-            value={form.loanAmount}
-            onChangeText={(t) => update("loanAmount", t)}
+            value={showloanAmount}
           />
 
           {/* <Text style={styles.label}>EMI Amount</Text> */}
@@ -118,8 +227,8 @@ export default function OnboardingTracker() {
             style={styles.input}
             placeholder="Enter EMI amount"
             keyboardType="numeric"
-            value={form.emiAmount}
-            onChangeText={(t) => update("emiAmount", t)}
+            value={showemiAmount}
+
           />
 
           {/* <Text style={styles.label}>Tenure</Text> */}
@@ -127,8 +236,7 @@ export default function OnboardingTracker() {
             style={styles.input}
             placeholder="Enter tenure (in months)"
             keyboardType="numeric"
-            value={form.tenure}
-            onChangeText={(t) => update("tenure", t)}
+            value={showtenure}
           />
 
           <Text style={styles.label}>Payment Mode</Text>

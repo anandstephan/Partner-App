@@ -6,10 +6,13 @@ import Storage from "./utilites/storage"
 
 const Main = () =>{
     const state = useSelector(state => state.auth.isLoggedIn)
+
+    
     const [alreadyLoggedIn,setAlreadyLoggedIn] = useState(false)
     useEffect(() => {
           (  async function getToken() {
                 const token = await Storage.getItem("token")
+                // console.log("Token",token)
                 if(token){
                     setAlreadyLoggedIn(true)
                 }

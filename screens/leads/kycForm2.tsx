@@ -84,12 +84,14 @@ export default function KycForm2() {
     delete newData.lng;
     newData['localityPhotos'] = [newData['localityPhotos']]
         console.log("new",JSON.stringify(newData))
-           navigation.navigate("kycForm3",newData);  
-        return;
+          //  navigation.navigate("kycForm3",newData);  
+        // return;
     mutate(newData,
               {
-                    onSuccess: () => {
+                    onSuccess: (res) => {
+                      console.log("resofkyc1",res.data._id)
                       Alert.alert('✅ KYC Created Successfully!')
+                      newData['kycId'] = res.data._id
                       navigation.navigate("kycForm3",newData);  
                       // navigation.goBack()
                     },
