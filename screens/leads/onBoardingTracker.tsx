@@ -6,6 +6,7 @@ import {
   ScrollView,
   TextInput,
   Pressable,
+  Alert,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import Colors from "../../constants/color";
@@ -13,48 +14,66 @@ import Header from "../../commonComponents/Header";
 import { useRoute } from "@react-navigation/native";
 import { useEmi } from "../../features/emi/useEmi";
 import { useDealerByParams, useRole } from "../../features/role/useRole";
+import { useCreateCollection } from "../../features/collection/useCollection";
+import { useOnBoard } from "../../features/onBoarding/useOnBoard";
 
 export default function OnboardingTracker() {
- 
-  const {params} = useRoute()
-  const {data,isLoading} = useEmi()
-  let [filteredData,setFilteredData] = useState([])
-  const {data:roleData} = useRole()
-  const dealerId =  useMemo(() => roleData?.[1]?._id, [roleData])
-  console.log("role",dealerId)
+  const { params } = useRoute();
+  const { data: emiData = [] } = useEmi();
+  const { data: roleData = [] } = useRole();
 
-const dealerParamsReady =
-  !!params?.leadInfo?.stateId &&
-  !!params?.leadInfo?.cityId &&
-  !!params?.leadInfo?.clusterId &&
-  !!dealerId;
+  const dealerId = useMemo(() => roleData?.[1]?._id ?? "", [roleData]);
 
-const { data: dealerData } = useDealerByParams(
-  dealerParamsReady
-    ? {
+      const { mutate, isPending, error, isError } = useCreateCollection();
+      const {mutate:submitOnBoard} = useOnBoard()
+  const dealerParams = useMemo(() => {
+    if (
+      params?.leadInfo?.stateId &&
+      params?.leadInfo?.cityId &&
+      params?.leadInfo?.clusterId &&
+      dealerId
+    ) {
+      return {
         stateId: params.leadInfo.stateId,
         cityId: params.leadInfo.cityId,
         clusterId: params.leadInfo.clusterId,
         role: dealerId,
-      }
-    : undefined // prevent unnecessary re-fetch
-);  
+      };
+    }
+    return null;
+  }, [params, dealerId]);
 
-  console.log("role",dealerData)
+  const { data: dealerData = [] } = useDealerByParams(dealerParams ?? undefined);
 
+
+  const [selectedScheme, setSelectedScheme] = useState<any>(null);
+  const [paymentFrequency, setPaymentFrequency] = useState<string | null>(null);
+  const [couponAppliedOn, setCouponAppliedOn] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    emiSchemeId:"",
+    leadId:""+params?.leadInfo._id,
+    downPaymentAmountFinal:0,
+    emiAmountFinal:0,
+  });
+
+
+  const [selectedDealerId,setSelectedDealerId] = useState('')
+  const [selectedProductType,setSelectedProductType] = useState('')
+  const [selectedpaymentFrequency,setSelectedpaymentFrequency] = useState('')
+
+  // ✅ Memoized filtered data (no state, no re-renders)
   
-  
-  // console.log("+++++",filteredData.filter(item => item?.emiSchemeId?.schemeName).map(item => item.emiSchemeId.schemeName))
-  const [paymentFrequency, setPaymentFrequency] = useState(null);
-  const [paymentMode, setPaymentMode] = useState(null);
-  const [couponAppliedOn, setCouponAppliedOn] = useState(null);
+  const filteredData = useMemo(() => {
+    if (!emiData?.length) return [];
+    return emiData.filter(
+      (item) =>
+        item.clusterId === "68ec0ade5706fd0d7cab7639" &&
+        item.stateId === "68ec06c6ad33264418ee029b" &&
+        item.cityId === "68ec09f8f0bfd624900ca88e"
+        // && item.emiSchemeId?.dealerId === selectedDealerId && item.emiSchemeId?.productType=== selectedProductType && item.emiSchemeId?.paymentFrequency === selectedpaymentFrequency
+    );
+  }, [emiData,selectedDealerId,selectedProductType,selectedpaymentFrequency]);
 
-  const frequencyOptions = [
-    { label: "Daily", value: "daily" },
-    { label: "Weekly", value: "weekly" },
-    { label: "Monthly", value: "monthly" },
-    { label: "Bi-Monthly (15 days)", value: "bi-monthly" },
-  ];
 
   const productTypesOptions = [
     {
@@ -68,108 +87,86 @@ const { data: dealerData } = useDealerByParams(
       label:"Vehicle + Battery",value:"vehicle+battery",
     }
   ]
-  const paymentModes = [
-    { label: "Cash", value: "cash" },
-    { label: "Cheque", value: "cheque" },
-    { label: "DD", value: "dd" },
-    { label: "Credit Card", value: "credit_card" },
-    { label: "Debit Card", value: "debit_card" },
-    { label: "Google Pay", value: "gpay" },
-    { label: "UPI", value: "upi" },
-  ];
-  const couponOptions = [
-    { label: "Down Payment", value: "down" },
-    { label: "EMI", value: "emi" },
-  ];
 
-  const [form, setForm] = useState({
-    schemeName: "",
-    downPayment: "",
-    loanAmount: "",
-    emiAmount: "",
-    tenure: "",
-    couponCode: "",
-    couponValue: "",
-  });
-  const update = (k: string, v: string) => setForm({ ...form, [k]: v });
-  const [showdownpayment, setShowdownpayment] = useState(null);
-  const [showloanAmount,setShowLoanAmount] = useState(null)
-  const [showemiAmount,setShowEmiAmount] = useState(null)
-  const [showtenure,setShowTenure] = useState(null)
+  const selectedSchemeDetails = useMemo(() => {
+    if (!selectedScheme) return {};
+    const scheme = filteredData.find(
+      (item) => item?.emiSchemeId?._id === selectedScheme
+    );
+    return scheme?.emiSchemeId ?? {};
+  }, [selectedScheme, filteredData]);
+
+  const update = (k: string, v: string) => setForm((prev) => ({ ...prev, [k]: v }));
+
   const submit = () => {
+    mutate({
+         "leadId": ""+params?.leadInfo._id,
+        "collectionType": "DOWN_PAYMENT",
+        "amount": 2000,
+        "paymentMode": "cash",
+        "productType": selectedProductType,
+        "partnerType": "driver"
+    },{
+      onSuccess:(res) =>{
+        console.log("mutate",res?.data._id)
+
+    form['emiSchemeId'] = selectedScheme
+  
+    let newData = {
+       "emiSchemeId": form.emiSchemeId,
+        "leadId": form.leadId,
+        "downPaymentAmountFinal": parseInt(form.downPaymentAmountFinal),
+        "emiAmountFinal":parseInt(form.emiAmountFinal),
+        "collectionId": res.data._id
+    }
+      console.log("Form",JSON.stringify(newData))
+    submitOnBoard(newData ,{
+      onSuccess:(res) => {
+
+        Alert.alert('✅ Onboarding Updated Successfully!')
+        // navigation.goBack()
+      },
+      onError: (err) => {
+        Alert.alert("Error",err.message)
+        console.log("Error",err)
+      }
+    })
+      }
+    })
+    // form['couponAppliedOn'] = undefined
+    // delete form['couponAppliedOn']
+ 
     console.log({
       ...form,
-      paymentFrequency,
-      paymentMode,
-      couponAppliedOn,
     });
   };
-
-  useEffect(()=>{
-    if(data && data.length>0){
-    // console.log("data23",data)
-    //  filteredData = data.filter(item =>item.clusterId === params.leadInfo.clusterId && item.stateId === params.leadInfo?.stateId &&item.cityId === params.leadInfo?.cityId);
-        setFilteredData(data?.filter(item =>item.clusterId === "68ec0ade5706fd0d7cab7639" && item.stateId === "68ec06c6ad33264418ee029b" &&item.cityId === "68ec09f8f0bfd624900ca88e"))      
-    }
-
-  },[data])
 
   return (
     <>
       <Header title="Onboarding" />
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
         <View style={styles.section}>
-          <View style={styles.rowBetween}>
-            {/* <Text style={styles.heading}>Onboarding</Text> */}
-            {/* <Text style={styles.step}>3/4</Text> */}
-          </View>
-          <View style={styles.blueLine} />
-          <Dropdown
-          style={styles.input}
-          placeholderStyle={styles.placeholder}
-          selectedTextStyle={styles.value}
-            labelField="label"
-            valueField="value"
-            placeholder="Dealer Name"
-            data={dealerData?.filter(item => item).map(item => ({
-              label:item.name,
-              value:item._id
-            }))}
-          />
           <Dropdown
             style={styles.input}
             placeholderStyle={styles.placeholder}
             selectedTextStyle={styles.value}
-            data={filteredData?.filter(item => item?.emiSchemeId?.schemeName).map(item => ({
-            label: item?.emiSchemeId.schemeName,
-            value: item?.emiSchemeId._id,
-          }))}
             labelField="label"
             valueField="value"
-            placeholder="EMI Scheme Name"
-            onChange={(selectedScheme) =>{
-              filteredData.forEach(item => {
-                if(item?.emiSchemeId?._id === selectedScheme.value){
-                    setShowdownpayment(item.emiSchemeId.downPayment)
-                    setShowLoanAmount(item.emiSchemeId.loanAmount)
-                    setShowEmiAmount(item.emiSchemeId.emiAmount)
-                    setShowTenure(item.emiSchemeId.tenure)
-                }
-              })
+            placeholder="Dealer Name"
+            data={dealerData.map((item) => ({
+              label: item.name,
+              value: item._id,
+            }))}
+            onChange={(val) =>{
+              setSelectedDealerId(val.value)
+            }}
+            value={selectedDealerId}
+          />
 
-            } 
-          }
-          />  
-
-          {/* <Text style={[styles.label,{
-             borderBottomWidth: 1,
-    borderRightWidth:0.5,
-    borderLeftWidth:0.4,
-    borderColor: "#E1E1E1",
-    marginHorizontal:10,
-
-          }]}>Payment Frequency2</Text> */}
-          <Dropdown
+            <Dropdown
             style={styles.input}
             placeholderStyle={styles.placeholder}
             selectedTextStyle={styles.value}
@@ -177,10 +174,26 @@ const { data: dealerData } = useDealerByParams(
             labelField="label"
             valueField="value"
             placeholder="Product Type"
-            value={productTypesOptions}
-            onChange={(value) => {  
-              console.log(value)
-              setFilteredData(filteredData.filter(item => item?.emiSchemeId?.productType === value.value))
+            onChange={(val) =>{
+              setSelectedProductType(val.value)
+            }}
+          />
+            <Dropdown
+            style={styles.input}
+            placeholderStyle={styles.placeholder}
+            selectedTextStyle={styles.value}
+            labelField="label"
+            valueField="value"
+            placeholder="Payment Frequency"
+            data={[
+              { label: "Daily", value: "daily" },
+              { label: "Weekly", value: "weekly" },
+              { label: "Monthly", value: "monthly" },
+              { label: "Bi-Monthly (15 days)", value: "bi-monthly" },
+            ]}
+            value={paymentFrequency}
+            onChange={(val) =>{
+              setSelectedpaymentFrequency(val.value)
             }}
           />
 
@@ -188,128 +201,72 @@ const { data: dealerData } = useDealerByParams(
             style={styles.input}
             placeholderStyle={styles.placeholder}
             selectedTextStyle={styles.value}
-            data={frequencyOptions}
             labelField="label"
             valueField="value"
-            placeholder="Payment Frequency"
-            // value={paymentFrequency}
-            onChange={(i) => setPaymentFrequency(i.value)}
+            placeholder="EMI Scheme Name"
+            value={selectedScheme}
+            onChange={(i) => setSelectedScheme(i.value)}
+            data={filteredData.map((item) => ({
+              label: item?.emiSchemeId?.schemeName,
+              value: item?.emiSchemeId?._id,
+            }))}
           />
 
-
-          {/* <Text style={styles.label}>Scheme Name</Text> */}
-          
-          {/* <TextInput
-            style={styles.input}
-            placeholder="Enter scheme name"
-            value={form.schemeName}
-            onChangeText={(t) => update("schemeName", t)}
-          /> */}
-
-          {/* <Text style={styles.label}>Down Payment</Text> */}
           <TextInput
             style={styles.input}
-            placeholder="Enter down payment"
-            keyboardType="numeric"
-            value={showdownpayment}
+            placeholder="Down Payment"
+            value={selectedSchemeDetails.downPayment?.toString() ?? ""}
+            editable={false}
           />
-
-          {/* <Text style={styles.label}>Loan Amount</Text> */}
           <TextInput
             style={styles.input}
-            placeholder="Enter loan amount"
-            keyboardType="numeric"
-            value={showloanAmount}
+            placeholder="Loan Amount"
+            value={selectedSchemeDetails.loanAmount?.toString() ?? ""}
+            editable={false}
           />
-
-          {/* <Text style={styles.label}>EMI Amount</Text> */}
           <TextInput
             style={styles.input}
-            placeholder="Enter EMI amount"
-            keyboardType="numeric"
-            value={showemiAmount}
-
+            placeholder="EMI Amount"
+            value={selectedSchemeDetails.emiAmount?.toString() ?? ""}
+            editable={false}
           />
-
-          {/* <Text style={styles.label}>Tenure</Text> */}
           <TextInput
             style={styles.input}
-            placeholder="Enter tenure (in months)"
-            keyboardType="numeric"
-            value={showtenure}
+            placeholder="Tenure (months)"
+            value={selectedSchemeDetails.tenure?.toString() ?? ""}
+            editable={false}
           />
 
-          <Text style={styles.label}>Payment Mode</Text>
+
+
           {/* <Dropdown
             style={styles.input}
             placeholderStyle={styles.placeholder}
             selectedTextStyle={styles.value}
-            data={paymentModes}
             labelField="label"
             valueField="value"
-            placeholder="Select"
-            value={paymentMode}
-            onChange={(i) => setPaymentMode(i.value)}
-          />
-
-          {/* <Text style={styles.label}>Coupon Applied On</Text> */}
-          <Dropdown
-            style={styles.input}
-            placeholderStyle={styles.placeholder}
-            selectedTextStyle={styles.value}
-            data={couponOptions}
-            labelField="label"
-            valueField="value"
-            placeholder="Select"
+            placeholder="Coupon Applied On"
+            data={[
+              { label: "Down Payment", value: "down" },
+              { label: "EMI", value: "emi" },
+            ]}
             value={couponAppliedOn}
             onChange={(i) => setCouponAppliedOn(i.value)}
-          /> 
+          /> */}
 
-          {/* <Text style={styles.label}>Coupon Code</Text> */}
           <TextInput
             style={styles.input}
-            placeholder="Enter coupon code"
-            value={form.couponCode}
-            onChangeText={(t) => update("couponCode", t)}
+            placeholder="Enter Payable DP"
+            value={form.downPaymentAmountFinal}
+            onChangeText={(t) => update("downPaymentAmountFinal", t)}
           />
 
-          {/* <Text style={styles.label}>Coupon Value</Text> */}
           <TextInput
             style={styles.input}
-            placeholder="Enter coupon value"
+            placeholder="Enter Payable EMI"
             keyboardType="numeric"
-            value={form.couponValue}
-            onChangeText={(t) => update("couponValue", t)}
-          />
-
-            <TextInput
-            style={styles.input}
-            placeholder="Payable DP Final"
-            keyboardType="numeric"
-            value={form.couponValue}
-            onChangeText={(t) => update("couponValue", t)}
-          />
-            <TextInput
-            style={styles.input}
-            placeholder="Payable EMI Final"
-            keyboardType="numeric"
-            value={form.couponValue}
-            onChangeText={(t) => update("couponValue", t)}
-          />
-
-     <TextInput
-            style={styles.input}
-            placeholder="Digital Recipet"
-            keyboardType="numeric"
-            value={form.couponValue}
-            onChangeText={(t) => update("couponValue", t)}
-          />
-     <TextInput
-            style={styles.input}
-            placeholder="Transaction ID"
-            keyboardType="numeric"
-            value={form.couponValue}
-            onChangeText={(t) => update("couponValue", t)}
+            value={form.emiAmountFinal}
+            onChangeText={(t) => update("emiAmountFinal", t)}
           />
 
           <Pressable style={styles.btn} onPress={submit}>
@@ -322,58 +279,31 @@ const { data: dealerData } = useDealerByParams(
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F2F2F2"},
-
+  container: { flex: 1, backgroundColor: "#F2F2F2" },
   section: {
     backgroundColor: "#fff",
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     paddingHorizontal: 16,
     paddingTop: 12,
-    // borderWidth:2,
-    marginHorizontal:20
-  },
-  rowBetween: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  heading: { fontSize: 18, fontWeight: "600", color: "#000" },
-  step: { fontSize: 14, color: "#0D69C4", fontWeight: "500" },
-  blueLine: {
-    height: 1,
-    backgroundColor: "#0D69C4",
-    marginTop: 4,
-    marginBottom: 8,
-  },
-
-  label: {
-    marginTop: 14,
-    marginBottom: 2,
-    color: "#222",
-    fontSize: 14,
-    fontWeight: "500",
+    marginHorizontal: 20,
   },
   input: {
     height: 44,
     borderBottomWidth: 1,
-    borderRightWidth:0.5,
-    borderLeftWidth:0.4,
-    borderRadius: 2,
     borderColor: "#E1E1E1",
     justifyContent: "center",
     fontSize: 14,
-    marginHorizontal:10,
-    marginVertical:10,
-     shadowColor: "#000",          // iOS shadow color
-  shadowOffset: { width: 0, height: 2 }, // small downward shadow
-  shadowOpacity: 0.1,           // light, subtle shadow
-  shadowRadius: 4,              // blur
-  elevation: 3,  
+    marginVertical: 10,
+    marginHorizontal: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   placeholder: { color: "#999", fontSize: 14 },
   value: { color: "#000", fontSize: 14 },
-
   btn: {
     backgroundColor: "#0D69C4",
     paddingVertical: 14,

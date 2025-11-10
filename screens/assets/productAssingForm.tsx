@@ -59,7 +59,12 @@ export default function ProductAssignForm() {
           Alert.alert('✅ Product Assigned Successfully!')
           // navigation.navigate("kycForm3",newData);  
           // navigation.goBack()
+        },
+        onError: (err) => {
+          Alert.alert("Error",err.message)
+          console.log("Error",err)
         }
+        
       });
     // Alert.alert("✅ Success", "Product assigned successfully!");
   };
