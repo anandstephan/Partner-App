@@ -1,28 +1,32 @@
 import axios from "axios";
 
 export const uploadToS3 = async (file:any) => {
+  console.log("File",file)
   try {
-    // Example local file (from ImagePicker)
-    // const file = {
-    //   uri: "file:///data/user/0/com.app/cache/IMG_1234.jpg", // 👈 replace with your picked file URI
-    //   name: "Simulator_Screenshot.png",
-    //   type: "image/png", // image/jpeg or image/png
-    // };
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append('file', {
+      uri: file.uri,
+      type: file.type,
+      name: file.fileName || 'upload.jpg',
+    } as any);
+
+    
+    formData.append("category", "test2");
     formData.append("appName", "test");
-    formData.append("category", "test");
+    console.log(formData,"Formdata")
+
 
     const response = await axios.post(
-      "https://backendverse.digivoltt.com/api/others/api/s3/upload",
+      "https://backendverse.digivoltt.com/api/others/api/s3/upload",///api/driver/profile/uploadSelfie
       formData,
       {
         headers: {
-      'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       }
     );
+    console.log("response",formData)
 
     console.log("✅ Upload successful:", response.data);
     return response.data;

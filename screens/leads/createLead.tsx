@@ -8,6 +8,7 @@ import {
   ScrollView,
   Pressable,
   Alert,
+  Image,
 } from 'react-native';
 
 import Entypo from 'react-native-vector-icons/Entypo'
@@ -32,7 +33,8 @@ const CreateLead = () => {
           mobile: '',
           alternateNumber: '1234567890',
           dlStatus: 'available',
-          selfieWithCustomer: 'https://plus.unsplash.com/premium_photo-1673240367277-e1d394465b56?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bW91bnRhaW5zfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900',
+          // selfieWithCustomer: 'https://plus.unsplash.com/premium_photo-1673240367277-e1d394465b56?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bW91bnRhaW5zfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900',
+          selfieWithCustomer:null,
           state: '',
           stateId: '',
           city: '',
@@ -113,6 +115,7 @@ const CreateLead = () => {
     if (result.didCancel) return;
 
     const asset = result.assets?.[0];
+    console.log("Asset",asset)
     if (!asset?.uri) return;
 
     const file = {
@@ -121,15 +124,17 @@ const CreateLead = () => {
       type: asset.type || 'image/jpeg',
     };
 
+
     const payload = {
-      file,
+      ...file,
       category:"selfieWithCustomer",
       appName:"employeeApp"
 
     }
-    return
       upload(payload, {
-              onSuccess: () => Alert.alert('✅ Lead Created Successfully!'),
+              onSuccess: (res) => {Alert.alert('✅ Photo Updated Successfully!')
+                updateFormData("selfieWithCustomer",res.fileUrl)
+              },
               onError: (err) => {
                 Alert.alert("Error",err.message)
                 console.log("Error",err)
@@ -140,7 +145,6 @@ const CreateLead = () => {
 
 
   const handleAddLead = () =>{
-    console.log(JSON.stringify(formData),"FFFF");
     [
       "vehicleType",
       "existingVehicleLoanStatus",
@@ -356,10 +360,16 @@ const CreateLead = () => {
 
         {/* Selfie with Customer */}
         <View style={styles.section}>
-          <Pressable style={styles.selfieButton} onPress={handleSelectImage}>
+          {
+            formData.selfieWithCustomer ? <Image source={{uri: formData.selfieWithCustomer}} style={{
+              height:100,
+              // width:100
+            }}/> :  <Pressable style={styles.selfieButton} onPress={handleSelectImage}>
             <Entypo name="camera" size={25}/>
             <Text style={styles.selfieText}>Selfie with Customer</Text>
           </Pressable>
+          }
+         
         </View>
 
         {/* Remarks */}
