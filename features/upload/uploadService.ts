@@ -14,7 +14,6 @@ export const uploadToS3 = async (file:any) => {
     
     formData.append("category", "test2");
     formData.append("appName", "test");
-    console.log(formData,"Formdata")
 
 
     const response = await axios.post(

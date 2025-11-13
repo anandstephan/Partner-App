@@ -115,7 +115,6 @@ const CreateLead = () => {
     if (result.didCancel) return;
 
     const asset = result.assets?.[0];
-    console.log("Asset",asset)
     if (!asset?.uri) return;
 
     const file = {

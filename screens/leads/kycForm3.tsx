@@ -17,11 +17,13 @@ import Colors from "../../constants/color";
 import Header from "../../commonComponents/Header";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useFinalKyc, useKyc2 } from "../../features/kyc/useKyc";
+import { useUpload } from "../../features/upload/useUpload";
 
 export default function KycForm3() {
   const navigation = useNavigation();
   const {params} = useRoute();
- const{mutate} = useKyc2();
+  const{mutate} = useKyc2();
+  const { mutate:upload} = useUpload()
   const {mutate:submitkyc} = useFinalKyc()
 
 
@@ -36,7 +38,7 @@ export default function KycForm3() {
     vehicleMake: "",
     vehicleModel: "",
     vehicleOwnership: null,
-    vehicleNOCDocument: "",
+    vehicleNOCDocument: null,
     nocDocPic: null,
 
     // Bank Info
@@ -100,6 +102,26 @@ export default function KycForm3() {
     if (result.didCancel) return;
     const asset = result.assets?.[0];
     if (!asset?.uri) return;
+        const file = {
+          uri: asset.uri,
+          name: asset.fileName || "photo.jpg",
+          type: asset.type || "image/jpeg",
+        };
+        const payload = {
+          ...file,
+          category:fieldPath,
+          appName:"employeeApp"
+    
+        }
+          upload(payload, {
+                  onSuccess: (res) => {Alert.alert('✅ Photo Updated Successfully!')
+                    updateFormData(fieldPath,res.fileUrl)
+                  },
+                  onError: (err) => {
+                    Alert.alert("Error",err.message)
+                    console.log("Error",err)
+                  }
+                })
 
     if (fieldPath.includes(".")) {
       const [guarantorKey, innerField] = fieldPath.split(".");
@@ -242,19 +264,26 @@ export default function KycForm3() {
           onChange={(item) => updateFormData("vehicleOwnership", item.value)}
         />
 
-        <Text style={styles.label}>NOC Documentation</Text>
-        <View style={styles.iconInputRow}>
-          <TextInput
-            style={[styles.input, { flex: 1 }]}
-            placeholder="Enter NOC or remarks"
-            value={formData.vehicleNOCDocument}
-            onChangeText={(v) => updateFormData("vehicleNOCDocument", v)}
-          />
-          <Pressable
+        <Text style={styles.label}>NOC Documentation </Text>
+        
+    <Pressable
             style={styles.iconBtn}
-            onPress={() => handleSelectImage("nocDocPic")}
+            onPress={() => handleSelectImage("vehicleNOCDocument")}
           >
-            <Icon name="file-pdf-o" size={18} color={Colors.secondary} />
+
+            {formData.vehicleNOCDocument ? (
+                      <Image source={{ uri: formData.vehicleNOCDocument }} style={styles.uploadImage} />
+                    ) : (
+                      <View style={[styles.uploadContent,{width:200}]}>
+                        <Image
+                          source={require("../../assets/png/aadhar.png")}
+                          style={{ width: 40, height: 40 }}
+                        />
+                        <Text style={{ marginTop: 6 }}>NOC Documentation</Text>
+                      </View>
+                    )}
+      
+            {/* <Icon name="file-pdf-o" size={18} color={Colors.secondary} /> */}
           </Pressable>
         </View>
             <Pressable
@@ -263,7 +292,7 @@ export default function KycForm3() {
           >
             <Text style={[styles.footerText, { color: "#fff" }]}>Submit</Text>
           </Pressable>
-        </View>
+
         {/* --- BANK INFORMATION --- */}
         <View style={[styles.container,{marginVertical:20}]}>
         <View style={[styles.rowBetween, { marginTop: 30 }]}>
@@ -328,12 +357,12 @@ export default function KycForm3() {
           <UploadBox
             uri={formData.guarantor1.refOneAadhaarPANPhoto}
             label="Aadhaar Front"
-            onPress={() => handleSelectImage("guarantor1.aadhaarFrontPic.refOneAadhaarPANPhoto")}
+            onPress={() => handleSelectImage("guarantor1.refOneAadhaarPANPhoto")}
           />
           <UploadBox
             uri={formData.guarantor1}
             label="Aadhaar Back"
-            onPress={() => handleSelectImage("guarantor1.aadhaarBackPic.refOneAadhaarPANPhoto")}
+            onPress={() => handleSelectImage("guarantor1.refOneAadhaarPANPhoto")}
           />
         </View>
 
@@ -655,8 +684,9 @@ const styles = StyleSheet.create({
   uploadImage: { width: "100%", height: 72, borderRadius: 8 },
   iconInputRow: { flexDirection: "row", alignItems: "center", gap: 10 },
   iconBtn: {
-    height: 44,
-    width: 44,
+    // height: 44,
+    // width: 44,
+    marginVertical: 5,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",

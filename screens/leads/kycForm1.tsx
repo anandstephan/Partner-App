@@ -23,6 +23,7 @@ import { uploadToS3 } from "../../features/upload/uploadService";
 export default function KycForm1() {
   const navigation = useNavigation();
   const {params:{leadInfo}} = useRoute()
+      const { mutate:upload} = useUpload()
   console.log("LeadInfo",leadInfo)
   const mutation = useUpload();
 
@@ -87,21 +88,21 @@ export default function KycForm1() {
       type: asset.type || "image/jpeg",
     };
     
-      updateFormData(field, asset.uri);
-    // mutation.mutate(
-    //   { file, category: field, appName: "employeeApp" },
-    //   {
-    //     onSuccess: () => Alert.alert("✅ Image Uploaded Successfully!"),
-    //     onError: (err: any) => {
-    //       Alert.alert("❌ Upload Error", err.message || "Something went wrong");
-    //       console.log("Error", err);
-    //     },
-    //   }
-    // );
-   
-     const test = result.assets[0]
-    const newres = await uploadToS3({file:test,category:field,appName:"employeeApp"})
-    console.log(newres) 
+    const payload = {
+      ...file,
+      category:field,
+      appName:"employeeApp"
+
+    }
+      upload(payload, {
+              onSuccess: (res) => {Alert.alert('✅ Photo Updated Successfully!')
+                updateFormData(field,res.fileUrl)
+              },
+              onError: (err) => {
+                Alert.alert("Error",err.message)
+                console.log("Error",err)
+              }
+            })
     
   };
 
@@ -167,7 +168,7 @@ export default function KycForm1() {
           labelField="label"
           valueField="value"
           placeholder="Select"
-          value={formData.smartPhoneUser}
+          value={formData.smartPhoneUser === true ? "yes" : "no"}
           onChange={(item) => updateFormData("smartPhoneUser", item.value)}
         />
 

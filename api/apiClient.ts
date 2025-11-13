@@ -12,7 +12,7 @@ apiClient.interceptors.request.use(
     if (config.url !== '/api/driver/auth/login') {
       try {
         const token = await Storage.getItem('token');
-
+        console.log(token)
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }

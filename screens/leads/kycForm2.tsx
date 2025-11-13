@@ -18,11 +18,12 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { AudioRecorder } from "../../utilites/AudioRecorder";
 import useLocation from "../../hooks/useLocation";
 import { useKyc1 } from "../../features/kyc/useKyc";
+import { useUpload } from "../../features/upload/useUpload";
 
 export default function KycForm2() {
   const navigation = useNavigation();
   const location = useLocation()
-
+      const { mutate:upload} = useUpload()
     const {params} = useRoute()
  
   // ✅ Single form state
@@ -65,7 +66,26 @@ export default function KycForm2() {
     if (result.didCancel) return;
     const asset = result.assets?.[0];
     if (!asset?.uri) return;
-    updateFormData(field, asset.uri);
+        const file = {
+      uri: asset.uri,
+      name: asset.fileName || "photo.jpg",
+      type: asset.type || "image/jpeg",
+    };
+    const payload = {
+      ...file,
+      category:field,
+      appName:"employeeApp"
+
+    }
+      upload(payload, {
+              onSuccess: (res) => {Alert.alert('✅ Photo Updated Successfully!')
+                updateFormData(field,res.fileUrl)
+              },
+              onError: (err) => {
+                Alert.alert("Error",err.message)
+                console.log("Error",err)
+              }
+            })
   };
 
   const onNext = () => {
@@ -146,17 +166,22 @@ export default function KycForm2() {
         />
 
         {/* NOC Documentation */}
-        <Text style={styles.label}>NOC Documentation</Text>
         <View style={styles.iconInputRow}>
-          <TextInput
-            style={[styles.input, { flex: 1 }]}
-            placeholder="Enter NOC or remarks"
-            value={formData.rentAgreementOrNOC}
-            onChangeText={(v) => updateFormData("rentAgreementOrNOC", v)}
-          />
-          <Pressable style={styles.iconBtn} onPress={() => handleSelectImage("nocDocPic")}>
-            <Icon name="file-pdf-o" size={18} color={Colors.secondary} />
-          </Pressable>
+          <Pressable
+          style={[styles.uploadBox,{width:"100%"}]}
+          onPress={() => handleSelectImage("rentAgreementOrNOC")}>
+          {formData.rentAgreementOrNOC ? (
+            <Image source={{ uri: formData.rentAgreementOrNOC }} style={styles.uploadImage} />
+          ) : (
+            <View style={styles.uploadContent}>
+              <Image
+                source={require("../../assets/png/aadhar.png")}
+                style={{ width: 40, height: 40 }}
+              />
+              <Text style={{ marginTop: 6 }}>NOC Documentation</Text>
+            </View>
+          )}
+        </Pressable>
         </View>
 
         {/* Bill */}
@@ -292,7 +317,7 @@ export default function KycForm2() {
             onPress={() => handleSelectImage("dlFrontPhoto")}
           >
             {formData.dlFrontPhoto ? (
-              <Image source={{ uri: formData.dlFrontPhoto }} style={styles.uploadImage} />
+              <Image source={{ uri: formData.dlFrontPhoto }} style={[styles.uploadImage,{width:100}]} />
             ) : (
               <View style={styles.row}>
                 <Image
@@ -309,7 +334,7 @@ export default function KycForm2() {
             onPress={() => handleSelectImage("dlBackPhoto")}
           >
             {formData.dlBackPhoto ? (
-              <Image source={{ uri: formData.dlBackPhoto }} style={styles.uploadImage} />
+              <Image source={{ uri: formData.dlBackPhoto }} style={[styles.uploadImage,{width:100}]}/>
             ) : (
               <View style={styles.row}>
                 <Image

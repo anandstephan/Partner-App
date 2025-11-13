@@ -16,38 +16,45 @@ import { SafeAreaView } from "react-native-safe-area-context"; // ✅ replaced S
 import Header from "../../commonComponents/Header";
 import { useProductAssign } from "../../features/productAssign/useProductAssign";
 import { useRoute } from "@react-navigation/native";
+import { launchImageLibrary } from "react-native-image-picker";
+import { useUpload } from "../../features/upload/useUpload";
 
 export default function ProductAssignForm() {
 
       const { mutate, isPending, error, isError } = useProductAssign();
 
   const {params} = useRoute()
+    const { mutate:upload} = useUpload()
   const [batteryId, setBatteryId] = useState("343@");
   const [chargerId, setChargerId] = useState("87E");
 
-  const [BatteryhandoverDate, setBatteryHandoverDate] = useState<Date | null>(null);
-  const [ChargerhandoverDate, setChargerHandoverDate] = useState<Date | null>(null);
-  const [emiStartDate, setEmiStartDate] = useState<Date | null>(null);
+  const [BatteryhandoverDate, setBatteryHandoverDate] = useState(null);
+  const [ChargerhandoverDate, setChargerHandoverDate] = useState(null);
+  const [batteryPhoto,setBatteryPhoto] = useState(null)
+  const [chargerPhoto,setChargerPhoto] = useState(null)
+  const [emiStartDate, setEmiStartDate] = useState(null);
  
 
   const [batteryWarranty, setBatteryWarranty] = useState("");
   const [chargerWarranty, setChargerWarranty] = useState("");
 
-  const [brandingMaterial, setBrandingMaterial] = useState<"Yes" | "No" | null>(null);
+  const [brandingMaterial, setBrandingMaterial] = useState<boolean | null>(true);
 
 
   const handleSubmit = () => {  
+    console.log("Batter",BatteryhandoverDate.toUTCString())
     const formData = {
       leadId: params?.leadId,
       batteryId,
       chargerId,
-      batteryPhoto:"https://plus.unsplash.com/premium_photo-1672115680958-54438df0ab82?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bW91bnRhaW5zfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900",
-      chargerPhoto:"https://plus.unsplash.com/premium_photo-1672115680958-54438df0ab82?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bW91bnRhaW5zfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900",
-      batteryHandoverDate:BatteryhandoverDate || "",
-      chargerHandoverDate:ChargerhandoverDate || "",
-      batteryWarrantyTenure: batteryWarranty,
-      chargerWarrantyTenure: chargerWarranty,
-      emiStartDate: emiStartDate || "",
+      batteryPhoto,
+      chargerPhoto,
+      batteryHandoverDate:BatteryhandoverDate?.toUTCString(),
+      chargerHandoverDate:ChargerhandoverDate?.toUTCString(),
+      batteryWarrantyTenure: parseInt(batteryWarranty),
+      chargerWarrantyTenure: parseInt(chargerWarranty),
+      emiStartDate: emiStartDate?.toUTCString() || "",
+      emiEndDate: "2027-10-31T00:00:00.000Z",
       brandingMaterial,
     };
 
@@ -68,6 +75,37 @@ export default function ProductAssignForm() {
       });
     // Alert.alert("✅ Success", "Product assigned successfully!");
   };
+
+  const handlePic = async(field:string) =>{
+ const result = await launchImageLibrary({ mediaType: "photo", quality: 1 });
+    if (result.didCancel) return;
+    const asset = result.assets?.[0];
+    if (!asset?.uri) return;
+        const file = {
+          uri: asset.uri,
+          name: asset.fileName || "photo.jpg",
+          type: asset.type || "image/jpeg",
+        };
+        const payload = {
+          ...file,
+          category:field,
+          appName:"employeeApp"
+    
+        }
+          upload(payload, {
+                  onSuccess: (res) => {Alert.alert('✅ Photo Updated Successfully!')
+                    if(field === "battery"){
+                      setBatteryPhoto(res.fileUrl)
+                    }else{
+                      setChargerPhoto(res.fileUrl)
+                    }
+                  },
+                  onError: (err) => {
+                    Alert.alert("Error",err.message)
+                    console.log("Error",err)
+                  }
+                })
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -99,6 +137,18 @@ export default function ProductAssignForm() {
               setBatteryHandoverDate(date)
           }}
           />
+          {batteryPhoto ? 
+          <Image source={{uri:batteryPhoto}} style={{width:100,height:100}} /> : 
+            <Pressable onPress={()=>handlePic('battery')}>
+                      <View style={styles.uploadContent}>
+                        <Image
+                          source={require("../../assets/png/aadhar.png")}
+                          style={{ width: 40, height: 40 }}
+                        />
+                        <Text style={{ marginTop: 6 }}>Battery Photo</Text>
+                      </View>
+                      </Pressable>
+          }
           <Text style={styles.label}>Charger handover Date</Text>
           <DateTimePicker
           value={ChargerhandoverDate || new Date()}
@@ -106,6 +156,19 @@ export default function ProductAssignForm() {
           mode="date"
           onChange={(event,date)=>setChargerHandoverDate(date)}
           />
+
+            {chargerPhoto ? 
+          <Image source={{uri:chargerPhoto}} style={{width:100,height:100}} /> : 
+                      <Pressable onPress={()=>handlePic('charger')}>
+                      <View style={styles.uploadContent}>
+                        <Image
+                          source={require("../../assets/png/aadhar.png")}
+                          style={{ width: 40, height: 40 }}
+                        />
+                        <Text style={{ marginTop: 6 }}>Charger Photo</Text>
+                      </View>
+                      </Pressable>
+          } 
          <Text style={styles.label}>EMI Date</Text>
           <DateTimePicker
           value={emiStartDate || new Date()}
@@ -113,8 +176,6 @@ export default function ProductAssignForm() {
           mode="date"
           onChange={(event,date)=>setEmiStartDate(date)}
           />
-      
-
         {/* ---- Warranty ---- */}
           <InputField
             label="Battery Warranty Tenure"
@@ -281,7 +342,7 @@ const styles = StyleSheet.create({
    },
   iconInput: { flex: 1, fontSize: 15, color: "#000" },
   fieldBox: { marginBottom: 12 },
-  label: { fontSize: 13, color: "#666", marginBottom: 4 },
+  label: { fontSize: 13, color: "#666", marginBottom: 4,marginTop:5 },
   input: {
     backgroundColor: "#fff",
     borderRadius: 10,
@@ -326,4 +387,5 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   submitText: { color: "#fff", fontWeight: "600", fontSize: 16 },
+    uploadContent: { alignItems: "center", justifyContent: "center" },
 });
