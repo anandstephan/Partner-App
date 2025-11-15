@@ -21,6 +21,19 @@ import { useLogin } from "../../features/login/useLogin";
 import { useDispatch } from "react-redux";
 import { toggleLoggedIn } from "../../store/slices/authSlice";
 import Storage from "../../utilites/storage";
+import { RenderDropdown } from "../../utilites/renderDropdown";
+
+const data = [
+    { label: 'Item 1', value: '1' },
+    { label: 'Item 2', value: '2' },
+    { label: 'Item 3', value: '3' },
+    { label: 'Item 4', value: '4' },
+    { label: 'Item 5', value: '5' },
+    { label: 'Item 6', value: '6' },
+    { label: 'Item 7', value: '7' },
+    { label: 'Item 8', value: '8' },
+  ];
+
 const Login = () => {
   const dispatch = useDispatch()
 
@@ -50,8 +63,9 @@ const Login = () => {
                   {
                     onSuccess: (res) => {
                       dispatch(toggleLoggedIn())
-                      // console.log("Login Res",res.token)
+                      // console.log("Login Res",res)
                       Storage.setItem("token",res?.token) 
+                      Storage.setItem("id",res?.id)
                     },
                     onError: (err) => {
                       Alert.alert("Error",err.message)
@@ -133,6 +147,15 @@ const Login = () => {
               </Text>
             </Pressable>
           </View>
+
+          <RenderDropdown
+  
+            field="leadSource"
+            placeholder="Select the Source of lead"
+            options={data}
+            currentValue={""}
+            onSelect={()=>{}}
+          />
 
           {/* Form */}
           <View style={styles.formContainer}>

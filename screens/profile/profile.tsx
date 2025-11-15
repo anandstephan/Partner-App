@@ -14,6 +14,7 @@
 import { useDispatch } from "react-redux";
 import { toggleLoggedIn } from "../../store/slices/authSlice";
 import Storage from "../../utilites/storage";
+import { useUser } from "../../features/user/useUser";
 
   // 👇 Define navigation types (customize routes as per your stack)
   type RootStackParamList = {
@@ -37,7 +38,8 @@ import Storage from "../../utilites/storage";
   const ProfileScreen: React.FC = () => {
     const dispatch = useDispatch()
     const navigation = useNavigation<ProfileScreenNavigationProp>();
-
+    const {data} = useUser()
+    console.log("++++++",data)
     const menuItems: MenuItem[] = [
       { title: "Personal Information", icon: "user", route: "PersonalInfo" },
       { title: "Performance Tracker", icon: "trending-up", route: "Performance" },
@@ -63,9 +65,9 @@ import Storage from "../../utilites/storage";
             style={styles.avatar}
           />
           <View style={styles.profileInfo}>
-            <Text style={styles.name}>Vishu Kumar_DV1149</Text>
-            <Text style={styles.role}>Manager Ops & Sales</Text>
-            <Text style={styles.location}>Delhi & Gurgaon</Text>
+            <Text style={styles.name}>{data?.name}</Text>
+            <Text style={styles.role}>{data?.category}</Text>
+            <Text style={styles.location}>{data?.address}</Text>
           </View>
         </View>
 
@@ -79,13 +81,13 @@ import Storage from "../../utilites/storage";
                     await  Storage.clearAll()
                   }
                   logout().then(() => {
-                    console.log("logout")
+                    console.log("logout22")
                     dispatch(toggleLoggedIn())                    
                   })
 
                   
                 }else{
-                  navigation.navigate(item.route)
+                  navigation.navigate(item.route, { data })
                 }
               }}
             >

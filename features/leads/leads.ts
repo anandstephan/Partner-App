@@ -7,7 +7,6 @@ export const getLeads = async (): Promise<LeadArray> => {
 
   try {
     const response = await apiClient.get('/api/lead');
-
     return response.data;
   } catch (error: any) {
     console.log("error fetching leads:", error.message);
