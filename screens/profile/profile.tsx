@@ -1,4 +1,4 @@
-  import React from "react";
+  import React, { useState } from "react";
   import {
     View,
     Text,
@@ -7,6 +7,7 @@
     Pressable,
     ScrollView,
     Dimensions,
+    Alert,
   } from "react-native";
   import Icon from "react-native-vector-icons/Feather";
   import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -15,6 +16,8 @@ import { useDispatch } from "react-redux";
 import { toggleLoggedIn } from "../../store/slices/authSlice";
 import Storage from "../../utilites/storage";
 import { useUser } from "../../features/user/useUser";
+import { useUpload } from "../../features/upload/useUpload";
+import { launchImageLibrary } from "react-native-image-picker";
 
   // 👇 Define navigation types (customize routes as per your stack)
   type RootStackParamList = {
@@ -39,7 +42,48 @@ import { useUser } from "../../features/user/useUser";
     const dispatch = useDispatch()
     const navigation = useNavigation<ProfileScreenNavigationProp>();
     const {data} = useUser()
-    console.log("++++++",data)
+    const [pic,setPic] = useState(null)
+        const { mutate:upload} = useUpload()
+
+
+              const handleSelectImage = async () => {
+              const result = await launchImageLibrary({
+                mediaType: 'photo',
+                quality: 0.8,
+              });
+        
+            if (result.didCancel) return;
+        
+            const asset = result.assets?.[0];
+            if (!asset?.uri) return;
+        
+            const file = {
+              uri: asset.uri,
+              name: asset.fileName || 'photo.jpg',
+              type: asset.type || 'image/jpeg',
+            };
+        
+        
+            const payload = {
+              ...file,
+              category:"profile",
+              appName:"employeeApp"
+        
+            }
+              upload(payload, {
+                      onSuccess: (res) => {Alert.alert('✅ Photo Updated Successfully!')
+                        // updateFormData("selfieWithCustomer",res.fileUrl)
+                        console.log("RES",res)
+                        setPic(res.fileUrl)
+                      },
+                      onError: (err) => {
+                        Alert.alert("Error",err.message)
+                        console.log("Error",err)
+                      }
+                    })
+        
+          };
+    
     const menuItems: MenuItem[] = [
       { title: "Personal Information", icon: "user", route: "PersonalInfo" },
       { title: "Performance Tracker", icon: "trending-up", route: "Performance" },
@@ -49,6 +93,7 @@ import { useUser } from "../../features/user/useUser";
       { title: "Logout", icon: "log-out", route: "Logout" },
     ];
 
+    
     return (
       <ScrollView 
       style={styles.container} 
@@ -57,13 +102,25 @@ import { useUser } from "../../features/user/useUser";
         {/* Profile Menu Card */}
         <View style={styles.card}>
       {/* Profile Header */}
+
         <View style={styles.profileHeader}>
+
+          {
+            !data?.profileImage ? (
+              <Image
+              source={{ uri:pic}}
+              style={styles.avatar}
+            />
+            ):  <Pressable onPress={handleSelectImage}>
           <Image
             source={{
               uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=900",
             }}
             style={styles.avatar}
           />
+          </Pressable>
+          }
+        
           <View style={styles.profileInfo}>
             <Text style={styles.name}>{data?.name}</Text>
             <Text style={styles.role}>{data?.category}</Text>

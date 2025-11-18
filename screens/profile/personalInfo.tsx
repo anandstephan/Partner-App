@@ -17,6 +17,7 @@ import { useUpdateUser } from "../../features/user/useUser";
 export default function PersonalInformation() {
 const route = useRoute();
 const data = route?.params?.data || {};  // SAFE
+console.log("+++++",data)
 const {mutate} = useUpdateUser()
 
 

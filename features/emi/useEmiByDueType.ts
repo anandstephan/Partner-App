@@ -1,18 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createCollection } from './collection';
+import { getEmisByDueType } from './emi';
 
 
 
-
-
-export const useCreateCollection = () => {
+export const useEmiByDueType = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: createCollection,
+    mutationFn: getEmisByDueType,
     onSuccess: () => {
       // invalidate cached list after successful POST
-      queryClient.invalidateQueries(['collection']);
+      queryClient.invalidateQueries(['emiByDueType']);
     },
   });
 

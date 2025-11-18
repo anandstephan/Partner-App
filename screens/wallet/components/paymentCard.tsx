@@ -2,34 +2,28 @@ import { useNavigation } from "@react-navigation/native";
 import { StyleSheet,View,Text, Pressable } from "react-native"
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-interface Props{
-    gender:string;
-    name:string;
-    loanId:number;
-    phone:string;    
-    amount:string;
-    city:string;
-}
-const PaymentCard = (item:Props) =>{
+
+const PaymentCard = (item:any) =>{
+
   const navigation = useNavigation()
-return  <Pressable onPress={()=>navigation.navigate('emidetail')}>
+return  <Pressable onPress={()=>navigation.navigate('emidetail',{detail:item})}>
 <View style={styles.card}>
       <Ionicons
-        name={item.gender === "male" ? "person-circle" : "woman"}
+        name={"person-circle"}
         size={40}
         color="#fff"
         style={styles.avatar}
       />
       <View style={styles.details}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.subText}>{item.loanId}</Text>
-        <Text style={styles.subText}>{item.phone}</Text>
+        <Text style={styles.name}>{item?.driverId?.firstName + " "+item?.driverId?.lastName}</Text>
+        <Text style={styles.subText}>{item?.driverId?.driverId.toString()}</Text>
+        <Text style={styles.subText}>{item?.driverId?.mobile ?? ""}</Text>
       </View>
       <View style={styles.rightSection}>
-        <Text style={styles.amount}>{item.amount}</Text>
+        <Text style={styles.amount}>₹{(item?.emiSchemeId?.emiAmount ?? "0")}</Text>
         <View style={styles.locationRow}>
           <MaterialIcons name="location-pin" size={18} color="#FF5722" />
-          <Text style={styles.city}>{item.city}</Text>
+          <Text style={styles.city}>{item?.cityId.name ?? ""}</Text>
         </View>
       </View>
     </View>

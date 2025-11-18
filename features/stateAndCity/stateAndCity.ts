@@ -17,9 +17,9 @@ export const getState = async (): Promise<[]> => {
 
 export const getCity = async (params: CityInterface): Promise<[]> => {
   try {
-    console.log("+++",params)
     const response = await apiClient.get('/api/city?stateId='+params.stateId);
-
+    console.log("City",response.data.data)
+  
     return response.data.data;
   } catch (error: any) {
     if (error.response) {

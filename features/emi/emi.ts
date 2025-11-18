@@ -32,3 +32,17 @@ export const getEmisByCusterIdAndMobile = async (clusterId="68ec0ade5706fd0d7cab
   }
 };
 
+
+export const getEmisByDueType = async (dueType:string): Promise<EmiData> => {
+
+  try {
+    const response = await apiClient.get('/api/emi/');
+
+    return response.data.data;
+  } catch (error: any) {
+    if (error.response) {
+      console.log("error response:", error.response.data);
+    }
+    throw error; // taaki React Query ko bhi pata chale
+  }
+};

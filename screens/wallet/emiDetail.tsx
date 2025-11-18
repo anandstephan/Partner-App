@@ -10,16 +10,19 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/Feather";
 import Header from "../../commonComponents/Header"; // your shared header
+import { useRoute } from "@react-navigation/native";
 
 export default function EmiDetail() {
+  const {params} = useRoute()
+  console.log(params.detail)
   const driver = {
-    name: "Ravi Kumar Singh",
-    id: "LI521",
-    phone: "999 999 4444",
-    location: "Mathura",
+    name: params?.detail?.driverId?.firstName + " " + params?.detail?.driverId?.lastName,
+    id: params?.detail?.driverId?.driverId,
+    phone:  params?.detail?.driverId?.mobile,
+    location: params?.detail?.cityId?.name,
     totalPending: "₹53,455",
     paidMonths: 3,
-    totalMonths: 12,
+    totalMonths: params?.detail?.emiSchemeId?.tenure,
     details: [
       { label: "Driver Status", value: "Active" },
       { label: "Asset Status", value: "Active" },

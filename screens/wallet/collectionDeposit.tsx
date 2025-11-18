@@ -13,8 +13,11 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Header from "../../commonComponents/Header";
 import MoneyBag from "../../assets/jsx/MoneyBag";
 import Deposit from "../../assets/jsx/Deposit";
+import { useNavigation } from "@react-navigation/native";
 
 const CollectionDeposit = () => {
+
+  const navigation = useNavigation()
   const [activeTab, setActiveTab] = useState("New Collection");
   console.log("active",activeTab)
   const tabs = ["New Collection", "Deposit", "History"];
@@ -137,7 +140,7 @@ const CollectionDeposit = () => {
       />
 
       {/* Floating Button */}
-      <TouchableOpacity style={styles.fab}>
+      <TouchableOpacity style={styles.fab} onPress={()=>navigation.navigate('emi')}>
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>
     </View>
