@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/Feather";
 import Header from "../../commonComponents/Header"; // your shared header
 import { useRoute } from "@react-navigation/native";
+import EmiModal from "./components/EmiModal";
 
 export default function EmiDetail() {
   const {params} = useRoute()
@@ -108,6 +109,8 @@ export default function EmiDetail() {
           <Pressable style={({ pressed }) => [styles.payBtn, pressed && { opacity: 0.8 }]}>
             <Text style={styles.payText}>Pay Now</Text>
           </Pressable>
+
+          <EmiModal visible={true}/>
         </View>
       </ScrollView>
     </SafeAreaView>
