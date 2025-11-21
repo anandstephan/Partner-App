@@ -12,6 +12,7 @@ import Icon from "react-native-vector-icons/Feather";
 import Header from "../../commonComponents/Header"; // your shared header
 import { useRoute } from "@react-navigation/native";
 import EmiModal from "./components/EmiModal";
+import ReusableModal from "../../utilites/ReusableModal";
 
 export default function EmiDetail() {
   const {params} = useRoute()
@@ -110,7 +111,8 @@ export default function EmiDetail() {
             <Text style={styles.payText}>Pay Now</Text>
           </Pressable>
 
-          <EmiModal visible={true}/>
+          {/* <EmiModal visible={true}/> */}
+          {/* <ReusableModal visible={true}/> */}
         </View>
       </ScrollView>
     </SafeAreaView>
