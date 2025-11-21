@@ -4,144 +4,225 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  ScrollView,
   Image,
+  Pressable,
   FlatList,
+  Modal,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Icon from "react-native-vector-icons/Feather";
-import Header from "../../commonComponents/Header"; // your existing header
+import Header from "../../commonComponents/Header";
 
-type BatteryStatus = "available" | "assigned" | "faulty" | "returned";
+const batteryData = Array.from({ length: 150 }).map((_, i) => {
+  if (i < 80) return { id: i, color: "blue" };
+  if (i < 100) return { id: i, color: "yellow" };
+  if (i < 125) return { id: i, color: "red" };
+  return { id: i, color: "grey" };
+});
 
 export default function AvailableAsset() {
-  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState(null);
 
-  // Sample mock data — replace with real backend values later
-  const stats = {
-    available: 300,
-    assigned: 120,
-    faulty: 25,
-    returned: 55,
-  };
-
-  // Generate 500 batteries with random status
-  const allStatuses: BatteryStatus[] = ["available", "assigned", "faulty", "returned"];
-  const batteries = Array.from({ length: 500 }, (_, i) => ({
-    id: i + 1,
-    status: allStatuses[Math.floor(Math.random() * allStatuses.length)],
-  }));
-
-  const colorMap: Record<BatteryStatus, string> = {
-    available: "#1E90FF",
-    assigned: "#C0C0C0",
-    faulty: "#FF3B30",
-    returned: "#FFB200",
+  const getIcon = (color: string) => {
+    switch (color) {
+      case "blue":
+        return require("../../assets/png/blueBattery.png");
+      case "yellow":
+        return require("../../assets/png/yellowBattery.png");
+      case "red":
+        return require("../../assets/png/redBattery.png");
+      default:
+        return require("../../assets/png/grayBattery.png");
+    }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Header title="Inventory Management" />
-      <ScrollView contentContainerStyle={styles.scroll}>
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <Icon name="search" size={18} color="#666" style={{ marginRight: 8 }} />
-          <TextInput
-            placeholder="Search"
-            placeholderTextColor="#999"
-            value={search}
-            onChangeText={setSearch}
-            style={styles.searchInput}
-          />
-        </View>
+    <View style={styles.container}>
+      {/* Header */}
+      {/* <Text style={styles.header}>Inventory Management</Text> */}
+      <Header title="Inventory Management"/>
 
-        {/* Dealer Info Card */}
-        <View style={styles.dealerCard}>
-          <Text style={styles.dealerName}>Ram Singh – 500</Text>
-          <View style={styles.legendRow}>
-            <Legend color={colorMap.available} label={stats.available.toString()} />
-            <Legend color={colorMap.assigned} label={stats.assigned.toString()} />
-            <Legend color={colorMap.faulty} label={stats.faulty.toString()} />
-            <Legend color={colorMap.returned} label={stats.returned.toString()} />
+      {/* Search */}
+      <View style={styles.searchBox}>
+        <TextInput placeholder="Search" style={styles.searchInput} />
+      </View>
+
+      {/* Dealer Info Bar */}
+      <View style={styles.dealerStrip}>
+        <Text style={styles.dealerName}>Ram Singh - 500</Text>
+
+        <View style={styles.countRow}>
+          <View style={styles.countItem}>
+            <Image source={require("../../assets/png/blueBattery.png")} style={styles.iconSm} />
+            <Text style={styles.countText}>300</Text>
+          </View>
+
+          <View style={styles.countItem}>
+            <Image source={require("../../assets/png/yellowBattery.png")} style={styles.iconSm} />
+            <Text style={styles.countText}>120</Text>
+          </View>
+
+          <View style={styles.countItem}>
+            <Image source={require("../../assets/png/redBattery.png")} style={styles.iconSm} />
+            <Text style={styles.countText}>25</Text>
+          </View>
+
+          <View style={styles.countItem}>
+            <Image source={require("../../assets/png/grayBattery.png")} style={styles.iconSm} />
+            <Text style={styles.countText}>55</Text>
           </View>
         </View>
+      </View>
 
-        {/* Battery Grid */}
-        <FlatList
-          data={batteries}
-          keyExtractor={(item) => item.id.toString()}
-          numColumns={10}
-          scrollEnabled={false}
-          columnWrapperStyle={{ justifyContent: "space-between" }}
-          renderItem={({ item }) => (
-            <View style={[styles.iconBox, { backgroundColor: colorMap[item.status] }]}>
-              <Image
-                source={require("../../assets/png/aadhar.png")}
-                style={styles.batteryIcon}
-              />
+      {/* Battery Grid */}
+      <FlatList
+        numColumns={10}
+        data={batteryData}
+        style={{ marginTop: 10 }}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <Pressable onPress={() => setSelected(item)}>
+            <Image source={getIcon(item.color)} style={styles.batteryIcon} />
+          </Pressable>
+        )}
+      />
+
+      {/* Bottom Popup */}
+      <Modal visible={true} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+
+          <View style={styles.bottomCard}>
+            <View style={[styles.countRow,{backgroundColor:"#0A66C2"}]}>
+            <Image source={require('../../assets/png/unlock.png')}/>
+            <Text style={[styles.cardTitle,{color:"#FFF"}]}>CGR10105</Text>
+            <Image source={require('../../assets/png/lock.png')}/>
+          </View>
+            <View>
+              <View>
+                <View style={{flexDirection:"row",justifyContent:"space-between",alignItems:'center'}}>
+            <Text style={styles.cardText}>Name: Vinay Verma</Text>
+            <View style={{flexDirection:"row",justifyContent:"space-between",alignItems:"center"}}>
+              <Text>95%</Text>
+              <Image source={require('../../assets/png/blueBattery.png')} width={200} height={200}/>
             </View>
-          )}
-          ListFooterComponent={<View style={{ height: 40 }} />}
-        />
-      </ScrollView>
-    </SafeAreaView>
+            </View>
+              </View>
+            </View>
+            <View style={{flexDirection:"row",justifyContent:"space-between",alignItems:"center"}}>
+              <View style={{flexDirection:"row",justifyContent:"space-between",alignItems:"center"}}>
+            <Image source={require('../../assets/png/phone.png')} width={200} height={200}/>
+            <Text style={styles.cardText}>9877225456</Text>
+              </View>
+              <View style={{flexDirection:"row",justifyContent:"space-between",alignItems:"center"}}>
+              <Text style={styles.cardText}>Health</Text>
+              <Image source={require('../../assets/png/health.png')} width={200} height={200}/>
+              </View>
+            </View>
+            <View>
+              <View style={{flexDirection:"row",justifyContent:"space-between",alignItems:"center"}}>
+              <View style={{flexDirection:"row",justifyContent:"space-between",alignItems:"center"}}>
+              <Image source={require('../../assets/png/location.png')} width={200} height={200}/>
+              <Text style={styles.cardText}>COCO-Lucknow_CLWK177</Text>
+              </View>
+              <View style={{flexDirection:"row",justifyContent:"space-between",alignItems:"center"}}>
+              <Text style={styles.cardText}>Map</Text>
+              <Image source={require('../../assets/png/location.png')} width={200} height={200}/>
+              </View>
+              </View>
+
+            </View>
+            <Pressable
+              onPress={() => setSelected(null)}
+              style={styles.closeBtn}
+            >
+              <Text style={{ color: "#fff" }}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 }
 
-/* ---------- Subcomponent ---------- */
-const Legend = ({ color, label }: { color: string; label: string }) => (
-  <View style={styles.legendItem}>
-    <View style={[styles.legendDot, { backgroundColor: color }]} />
-    <Text style={styles.legendText}>{label}</Text>
-  </View>
-);
-
-/* ---------- Styles ---------- */
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  scroll: { padding: 16, paddingBottom: 60 },
-
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F7F7F7",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 14,
-  },
-  searchInput: { flex: 1, fontSize: 15, color: "#000" },
-
-  dealerCard: {
-    backgroundColor: "#E9F1FF",
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    marginBottom: 18,
-  },
-  dealerName: {
-    fontSize: 15,
+  container: { flex: 1,  padding: 15 },
+  header: {
+    fontSize: 22,
     fontWeight: "600",
-    color: "#003366",
     marginBottom: 10,
   },
-  legendRow: { flexDirection: "row", alignItems: "center", gap: 20 },
-  legendItem: { flexDirection: "row", alignItems: "center" },
-  legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 6,
+  searchBox: {
+    backgroundColor: "#FFF",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
-  legendText: { fontSize: 13, color: "#333" },
-
-  iconBox: {
-    width: 28,
-    height: 28,
-    marginVertical: 4,
-    borderRadius: 6,
+  searchInput: {
+    fontSize: 16,
+    backgroundColor:"#FFF"
+  },
+  dealerStrip: {
+    backgroundColor: "#FFF",
+    // padding: 12,
+    borderRadius: 12,
+    marginTop: 10,
+    
+  },
+  dealerName: {
+    fontSize: 18,
+    fontWeight: "600",
+    backgroundColor: "#0A66C2",
+    color:"#FFF",
+    textAlign:"center",
+    padding:2,
+    borderTopRightRadius:10,
+    borderTopLeftRadius:10
+    
+  },
+  countRow: {
+    flexDirection: "row",
+    // marginTop: 10,
+    justifyContent: "space-between",
+    alignItems:"center",
+    padding:5,
+    // marginHorizontal:10,
+    // paddingVertical:10,
+    // backgroundColor:"#0A66C2",
+    borderTopLeftRadius:10,
+    borderTopRightRadius:10
+  },
+  countItem: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    gap: 5,
   },
-  batteryIcon: { width: 16, height: 16, tintColor: "#fff", resizeMode: "contain" },
+  countText: { fontWeight: "600" },
+  iconSm: { width: 18, height: 18 },
+  batteryIcon: {
+    width: 25,
+    height: 25,
+    margin: 6,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    // backgroundColor: "rgba(0,0,0,0.4)",
+    marginHorizontal:10,
+    borderTopLeftRadius:10,
+    borderTopRightRadius:10
+  },
+  bottomCard: {
+    backgroundColor: "#fff",
+    // padding: 10,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+
+  },
+  cardTitle: { fontSize: 20, fontWeight: "700" },
+  cardText: { fontSize: 16, marginTop: 6 },
+  closeBtn: {
+    marginTop: 14,
+    backgroundColor: "#000",
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 8,
+  },
 });
