@@ -9,10 +9,10 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   async (config) => {   // <--- async added here
-    if (config.url !== '/api/driver/auth/login') {
+    if (config.url !== '/api/auth/login') {
       try {
         const token = await Storage.getItem('token');
-        console.log(token)
+        // console.log(token)
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }

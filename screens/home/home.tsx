@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Carousel from './components/Carousel';
@@ -7,11 +7,11 @@ import SwipeCard from './components/SwipeCard';
 import Header from './components/Header';
 import Colors from '../../constants/color';
 import PerformanceCard from './components/PerformanceCard';
-import { useEMIHomePage, useHomeLeadSummary } from '../../features/home/useHome';
+import { useEMISummary,useLeadSummary } from '../../features/home/useHome';
 
 const Home: React.FC = () => {
-  const {data} = useEMIHomePage()
-  const {data:leadSummary} = useHomeLeadSummary()
+  const {data} = useEMISummary()
+  const {data:leadSummary} = useLeadSummary()
   console.log("____",data)
     return (
         <SafeAreaView>
@@ -21,7 +21,7 @@ const Home: React.FC = () => {
           <SwipeCard/>
         <TrackerCard
         title="Lead Tracker"
-        totalLeads={12}
+        totalLeads={leadSummary?.todayCount}
         subtitle="Today"
         stages={[
           { label: "Leads", value: leadSummary?.totalLeadCount },

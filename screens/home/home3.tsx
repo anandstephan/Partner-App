@@ -5,7 +5,7 @@ import Carousel from './components/Carousel';
 import TrackerCard from './components/TrackerCard';
 import SwipeCard from './components/SwipeCard';
 import Header from './components/Header';
-import { useEMIHomePage, useHomeLeadSummary } from '../../features/home/useHome';
+import {  useEMISummary, useLeadSummary } from '../../features/home/useHome';
 import Trend from './components/Trend';
 import EMICollection from './components/EMICollectionTrend';
 import ServiceTrend from './components/ServiceTrend';
@@ -14,8 +14,8 @@ import MidCard from './components/MidCard';
 
 
 const Home3: React.FC = () => {
-  const {data} = useEMIHomePage()
-  const {data:leadSummary} = useHomeLeadSummary()
+  const {data} = useEMISummary()
+  const {data:leadSummary} = useLeadSummary()
     const [activeTab, setActiveTab] = useState<"Daily" | "Weekly" | "Monthly">("Daily");
 
   const TabButton = ({ label }: { label: "Daily" | "Weekly" | "Monthly" }) => (

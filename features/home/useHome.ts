@@ -1,19 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getHomePageEMINumbers, getLeadSummary } from './home';
+import { getEMISummary, getLeadSummary } from './home';
 import { EmiSummary, LeadSummary } from './type';
 
 
-export const useEMIHomePage = () => {
-  return useQuery<EmiSummary>({
+export const useLeadSummary = () => {
+  return useQuery<LeadSummary>({
     queryKey: ['homePageNumbers'],
-    queryFn: getHomePageEMINumbers,
+    queryFn: getLeadSummary,
   });
 };
 
 
-export const useHomeLeadSummary = () =>{
-    return useQuery<LeadSummary>({
-        queryKey: ['leadSummary'],
-        queryFn: getLeadSummary,
+export const useEMISummary = () =>{
+    return useQuery<EmiSummary>({
+        queryKey: ['emiSummary'],
+        queryFn: getEMISummary,
       });
 }

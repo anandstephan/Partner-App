@@ -56,8 +56,8 @@ const Login = () => {
 
         mutate(
                   {
-                    mobile: "9876543211",  // expected 10-digit Indian mobile
-                    password: "9876543211",  // plain text here; send over HTTPS only
+                    id: "USR00003",  // expected 10-digit Indian mobile
+                    password: "USR00003",  // plain text here; send over HTTPS only
                     type: "user"
                   },
                   {

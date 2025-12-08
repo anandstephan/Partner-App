@@ -86,7 +86,7 @@ export default function AvailableAsset() {
       />
 
       {/* Bottom Popup */}
-      <Modal visible={true} transparent animationType="slide">
+      <Modal visible={selected} transparent animationType="slide">
         <View style={styles.modalOverlay}>
 
           <View style={styles.bottomCard}>

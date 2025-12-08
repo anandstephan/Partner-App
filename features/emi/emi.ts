@@ -7,11 +7,11 @@ export const getEmis = async (): Promise<EmiData> => {
 
   try {
     const response = await apiClient.get('/api/emi/');
-
+    console.log("++++++++",response.data.data)
     return response.data.data;
   } catch (error: any) {
     if (error.response) {
-      console.log("error response:", error.response.data);
+      console.log("error response2:", error.response.data);
     }
     throw error; // taaki React Query ko bhi pata chale
   }

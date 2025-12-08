@@ -7,12 +7,12 @@ import SwipeCard from './components/SwipeCard';
 import Header from './components/Header';
 import Colors from '../../constants/color';
 import PerformanceCard from './components/PerformanceCard';
-import { useEMIHomePage, useHomeLeadSummary } from '../../features/home/useHome';
+import { useEMISummary, useLeadSummary } from '../../features/home/useHome';
 import ServiceCard from './components/ServiceCard';
 
 const Home2: React.FC = () => {
-  const {data} = useEMIHomePage()
-  const {data:leadSummary} = useHomeLeadSummary()
+  const {data} = useEMISummary()
+  const {data:leadSummary} = useLeadSummary()
   console.log("____",data)
     return (
         <SafeAreaView>

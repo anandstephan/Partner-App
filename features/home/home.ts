@@ -1,10 +1,10 @@
 import apiClient from "../../api/apiClient";
 import { EmiSummary, LeadSummary } from "./type";
 
-export const getHomePageEMINumbers = async (): Promise<EmiSummary> => {
+export const getEMISummary = async (): Promise<EmiSummary> => {
 
   try {
-    const response = await apiClient.get('/api/emi/homePageNumbers');
+    const response = await apiClient.get('/api/emi/HomePageNumbers');
     return response.data;
   } catch (error: any) {
     if (error.response) {
