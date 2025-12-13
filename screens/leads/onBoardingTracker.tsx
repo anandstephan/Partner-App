@@ -19,6 +19,7 @@ import { useOnBoard } from "../../features/onBoarding/useOnBoard";
 
 export default function OnboardingTracker() {
   const { params } = useRoute();
+
   const { data: emiData = [] } = useEmi();
   const { data: roleData = [] } = useRole();
 
@@ -43,6 +44,7 @@ export default function OnboardingTracker() {
     return null;
   }, [params, dealerId]);
 
+
   const { data: dealerData = [] } = useDealerByParams(dealerParams ?? undefined);
 
 
@@ -60,20 +62,18 @@ export default function OnboardingTracker() {
   const [selectedDealerId,setSelectedDealerId] = useState('')
   const [selectedProductType,setSelectedProductType] = useState('')
   const [selectedpaymentFrequency,setSelectedpaymentFrequency] = useState('')
-
+  console.log({selectedDealerId,selectedProductType,selectedpaymentFrequency})
   // ✅ Memoized filtered data (no state, no re-renders)
   
   const filteredData = useMemo(() => {
-    if (!emiData?.length) return [];
-    return emiData.filter(
-      (item) =>
-        item.clusterId === "68ec0ade5706fd0d7cab7639" &&
-        item.stateId === "68ec06c6ad33264418ee029b" &&
-        item.cityId === "68ec09f8f0bfd624900ca88e"
-        // && item.emiSchemeId?.dealerId === selectedDealerId && item.emiSchemeId?.productType=== selectedProductType && item.emiSchemeId?.paymentFrequency === selectedpaymentFrequency
+        console.log("Chaman",emiData)
+    if (!emiData.data?.length) return [];
+    console.log(emiData.data,"Emi")
+    return emiData.data?.filter(
+      (item) => item.emiSchemeId?.dealerId === selectedDealerId && item.emiSchemeId?.productType=== selectedProductType && item.emiSchemeId?.paymentFrequency === selectedpaymentFrequency
     );
   }, [emiData,selectedDealerId,selectedProductType,selectedpaymentFrequency]);
-
+  console.log("Filter",filteredData)
 
   const productTypesOptions = [
     {
@@ -81,7 +81,11 @@ export default function OnboardingTracker() {
     },
     {
 
-      label:"battery",value:"battery",
+      label:"Battery(Li)",value:"Battery(Li)",
+    },
+    {
+
+      label:"Battery(Ld)",value:"battery",
     },
     {
       label:"Vehicle + Battery",value:"vehicle+battery",
@@ -189,7 +193,7 @@ export default function OnboardingTracker() {
               { label: "Daily", value: "daily" },
               { label: "Weekly", value: "weekly" },
               { label: "Monthly", value: "monthly" },
-              { label: "Bi-Monthly (15 days)", value: "bi-monthly" },
+              { label: "Bi-Monthly", value: "bi-monthly" },
             ]}
             value={paymentFrequency}
             onChange={(val) =>{

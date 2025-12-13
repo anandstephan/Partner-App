@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -18,21 +18,24 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { AudioRecorder } from "../../utilites/AudioRecorder";
 import useLocation from "../../hooks/useLocation";
 import { useKyc1 } from "../../features/kyc/useKyc";
-import { useUpload } from "../../features/upload/useUpload";
+import { useUpload, useUploadMultiple } from "../../features/upload/useUpload";
+import Entypo from 'react-native-vector-icons/Entypo';
+import { useOcr } from "../../features/ocr/useOcr";
 
 export default function KycForm2() {
   const navigation = useNavigation();
   const location = useLocation()
       const { mutate:upload} = useUpload()
+      const {mutate:uploadMultiple} = useUploadMultiple()
+            const {mutate:OcrUpload} = useOcr()
     const {params} = useRoute()
  
   // ✅ Single form state
   const [formData, setFormData] = useState({
     houseOwnership: null,
-    permanentAddress: "",
     rentAgreementOrNOC: "",
     electricityBill: "",
-    waterBill:"",
+    waterBill:"55",
     panNo: "",
     lat: "",
     lng: "",
@@ -44,6 +47,9 @@ export default function KycForm2() {
     selfieWithDriver: null,
   });
 
+  const [panPic,setPanPic] = useState(null)
+  const [dlFrontPic, setDlFrontPic] = useState(null);
+  const [dlBackPic, setDlBackPic] = useState(null);
 
   const { mutate } = useKyc1();
 
@@ -77,8 +83,20 @@ export default function KycForm2() {
       appName:"employeeApp"
 
     }
+
+    if(field === 'panFrontPhoto'){
+      setPanPic(file)
+    }
+    if(field === 'dlFrontPhoto'){
+      setDlFrontPic(file)
+    }
+    if(field === 'dlBackPhoto'){
+      setDlBackPic(file)
+    }
+
       upload(payload, {
-              onSuccess: (res) => {Alert.alert('✅ Photo Updated Successfully!')
+              onSuccess: (res) => {
+                // Alert.alert('✅ Photo Updated Successfully!')
                 updateFormData(field,res.fileUrl)
               },
               onError: (err) => {
@@ -87,6 +105,41 @@ export default function KycForm2() {
               }
             })
   };
+
+ const handleSelectMultipleImage = async (field: string) => {
+  const result = await launchImageLibrary({
+    selectionLimit: 5,
+    mediaType: "photo",
+    quality: 1,
+  });
+
+  if (result.didCancel) return;
+  if (!result.assets || result.assets.length === 0) return;
+
+  // Convert each asset → file object
+  const files = result.assets.map(asset => ({
+    uri: asset.uri,
+    name: asset.fileName || "photo.jpg",
+    type: asset.type || "image/jpeg",
+    category: field,
+    appName: "employeeApp",
+  }));
+
+
+
+  // 🔥 MULTIPLE UPLOAD HERE
+  uploadMultiple(files, {
+    onSuccess: (res) => {
+      console.log("backendRes",res)
+      // If backend returns array of URLs
+      updateFormData(field, "https://plus.unsplash.com/premium_photo-1672115680958-54438df0ab82?q=80&w=1768&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+    },
+    onError: (err) => {
+      Alert.alert("Upload Error", err.message);
+      console.log(err);
+    },
+  });
+};
 
   const onNext = () => {
     try {
@@ -128,6 +181,60 @@ export default function KycForm2() {
 
   };
 
+    useEffect(()=>{
+      if(panPic!==null ){
+        const front = panPic
+        const back = panPic
+        const payload = {
+          front,
+          back,
+          docType:"pan"
+        }
+        OcrUpload(payload, {
+                onSuccess: (res) => {
+                  // updateFormData(field,res.fileUrl)
+                  console.log("===",res)
+                  setFormData(prev => (
+                    { ...prev, 
+                    ['panNo']: res.data?.docNumber, 
+              
+                  }))
+                },
+                onError: (err) => {
+                  Alert.alert("Error",err.message)
+                  console.log("Error",err)
+                }
+              })
+      }
+
+        if(dlFrontPic!==null && dlBackPic!==null){
+        const front = dlFrontPic
+        const back = dlBackPic
+        const payload = {
+          front,
+          back,
+          docType:"dl"
+        }
+        OcrUpload(payload, {
+                onSuccess: (res) => {
+                  // updateFormData(field,res.fileUrl)
+                  console.log("===DL",res)
+                  // setFormData(prev => (
+                  //   { ...prev, 
+                  //   ['panNo']: res.data?.docNumber, 
+              
+                  // }))
+                },
+                onError: (err) => {
+                  Alert.alert("Error",err.message)
+                  console.log("Error",err)
+                }
+              })
+      }
+
+
+    },[panPic,dlFrontPic,dlBackPic])
+  
 
 
   return (
@@ -143,13 +250,7 @@ export default function KycForm2() {
         <View style={styles.line} />
 
         {/* Permanent Address */}
-        <Text style={styles.label}>Permanent Address</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Your Permanent Address"
-          value={formData.permanentAddress}
-          onChangeText={(v) => updateFormData("permanentAddress", v)}
-        />
+       
         <AudioRecorder/>
         {/* houseOwnership Dropdown */}
         <Text style={styles.label}>House Ownership</Text>
@@ -166,12 +267,22 @@ export default function KycForm2() {
         />
 
         {/* NOC Documentation */}
+            <Text style={styles.label}>NOC Documentation</Text>
         <View style={styles.iconInputRow}>
+
+      
           <Pressable
           style={[styles.uploadBox,{width:"100%"}]}
           onPress={() => handleSelectImage("rentAgreementOrNOC")}>
           {formData.rentAgreementOrNOC ? (
+            <>
             <Image source={{ uri: formData.rentAgreementOrNOC }} style={styles.uploadImage} />
+               <Pressable style={{zIndex:2, position:'absolute',left:'90%',top:0}} onPress={()=>{
+                          setFormData({...formData,'rentAgreementOrNOC':null})
+                        }}>
+                        <Entypo name="cross" size={30} color="#000" />
+                        </Pressable>
+            </>
           ) : (
             <View style={styles.uploadContent}>
               <Image
@@ -185,30 +296,52 @@ export default function KycForm2() {
         </View>
 
         {/* Bill */}
-        <Text style={styles.label}>Electricity Bill</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Bill Number"
-          keyboardType="number-pad"
-          value={formData.electricityBill}
-          onChangeText={(v) => updateFormData("electricityBill", v)}
-        />
-        <Text style={styles.label}>Water Bill</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Bill Number"
-          keyboardType="number-pad"
-          value={formData.waterBill}
-          onChangeText={(v) => updateFormData("waterBill", v)}
-        />
+        <Text style={styles.label}>Electricity and Water Bill</Text>
+      
+
+           <View style={styles.iconInputRow}>
+          <Pressable
+          style={[styles.uploadBox,{width:"100%"}]}
+          onPress={() => {
+            handleSelectImage("electricityBill")
+            // handleSelectImage("waterBill")
+          }}>
+          {formData.electricityBill ? (
+            <>
+            <Image source={{ uri: formData.electricityBill }} style={styles.uploadImage} />
+               <Pressable style={{zIndex:2, position:'absolute',left:'90%',top:0}} onPress={()=>{
+                          setFormData({...formData,'electricityBill':null})
+                        }}>
+                        <Entypo name="cross" size={30} color="#000" />
+                        </Pressable>
+            </>
+          ) : (
+            <View style={styles.uploadContent}>
+              <Image
+                source={require("../../assets/png/aadhar.png")}
+                style={{ width: 40, height: 40 }}
+              />
+              <Text style={{ marginTop: 6 }}>Electricity/Water Bill</Text>
+            </View>
+          )}
+        </Pressable>
+        </View>
+      
         {/* House Pic */}
         <Text style={styles.label}>Choose House Pic</Text>
         <Pressable
           style={styles.uploadBox}
-          onPress={() => handleSelectImage("housePhoto")}
+          onPress={() => handleSelectMultipleImage("housePhoto")}
         >
           {formData.housePhoto ? (
+            <>
             <Image source={{ uri: formData.housePhoto }} style={styles.uploadImage} />
+              <Pressable style={{zIndex:2, position:'absolute',left:'90%',top:0}} onPress={()=>{
+                          setFormData({...formData,'housePhoto':null})
+                        }}>
+                        <Entypo name="cross" size={30} color="#000" />
+                        </Pressable>
+            </>
           ) : (
             <View style={styles.uploadContent}>
               <Image
@@ -227,7 +360,15 @@ export default function KycForm2() {
           onPress={() => handleSelectImage("selfieWithDriver")}
         >
           {formData.selfieWithDriver ? (
+            <>
+            
             <Image source={{ uri: formData.selfieWithDriver }} style={styles.uploadImage} />
+                    <Pressable style={{zIndex:2, position:'absolute',left:'90%',top:0}} onPress={()=>{
+                          setFormData({...formData,'selfieWithDriver':null})
+                        }}>
+                        <Entypo name="cross" size={30} color="#000" />
+                        </Pressable>
+            </>
           ) : (
             <View style={styles.uploadContent}>
               <Image
@@ -242,8 +383,9 @@ export default function KycForm2() {
         {/* Location */}
         <Pressable onPress={()=>{
          console.log(location)
+          setFormData({...formData,lat:location.lat,lng:location.lng})
         }}>
-        <Text style={styles.label}>Get a Location</Text>
+        <Text style={[styles.label,styles.btn]}>Get a Location</Text>
         </Pressable>
         <View style={styles.row}>
           <TextInput
@@ -252,6 +394,7 @@ export default function KycForm2() {
             keyboardType="decimal-pad"
             value={formData.lat}
             onChangeText={(v) => updateFormData("lat", location.lat)}
+            editable={false}
           />
           <TextInput
             style={[styles.input, styles.half]}
@@ -259,6 +402,7 @@ export default function KycForm2() {
             keyboardType="decimal-pad"
             value={formData.lng}
             onChangeText={(v) => updateFormData("lng", location.lng)}
+            editable={false}
           />
         </View>
 
@@ -266,10 +410,18 @@ export default function KycForm2() {
         <Text style={styles.label}>Choose Locality Pic</Text>
         <Pressable
           style={styles.uploadBox}
-          onPress={() => handleSelectImage("localityPhotos")}
+          onPress={() => handleSelectMultipleImage("localityPhotos")}
         >
           {formData.localityPhotos ? (
+            <>
+            
             <Image source={{ uri: formData.localityPhotos }} style={styles.uploadImage} />
+                  <Pressable style={{zIndex:2, position:'absolute',left:'90%',top:0}} onPress={()=>{
+                          setFormData({...formData,'localityPhotos':null})
+                        }}>
+                        <Entypo name="cross" size={30} color="#000" />
+                        </Pressable>
+            </>
           ) : (
             <View style={styles.uploadContent}>
               <Image
@@ -288,7 +440,15 @@ export default function KycForm2() {
           onPress={() => handleSelectImage("panFrontPhoto")}
         >
           {formData.panFrontPhoto ? (
-            <Image source={{ uri: formData.panFrontPhoto }} style={styles.uploadImage} />
+            <>
+            <Image source={{ uri: formData.panFrontPhoto }} style={styles.uploadImage} />      
+                  <Pressable style={{zIndex:2, position:'absolute',left:'90%',top:0}} onPress={()=>{
+                          setFormData({...formData,'panFrontPhoto':null})
+                        }}>
+                        <Entypo name="cross" size={30} color="#000" />
+                        </Pressable>      
+            </>
+
           ) : (
             <View style={styles.uploadContent}>
               <Image
@@ -307,6 +467,7 @@ export default function KycForm2() {
           autoCapitalize="characters"
           value={formData.panNo}
           onChangeText={(v) => updateFormData("panNo", v)}
+          editable={false}
         />
 
         {/* DL Details */}
@@ -317,12 +478,23 @@ export default function KycForm2() {
             onPress={() => handleSelectImage("dlFrontPhoto")}
           >
             {formData.dlFrontPhoto ? (
-              <Image source={{ uri: formData.dlFrontPhoto }} style={[styles.uploadImage,{width:100}]} />
+              <>
+              <Image 
+              source={{ uri: formData.dlFrontPhoto }} 
+              style={[styles.uploadImage,{width:100}]} />
+              <Pressable 
+              style={{zIndex:2, position:'absolute',left:'90%',top:0}} 
+              onPress={()=>{
+                setFormData({...formData,'dlFrontPhoto':null})
+              }}>
+              <Entypo name="cross" size={30} color="#000" />
+              </Pressable>  
+              </>
             ) : (
               <View style={styles.row}>
                 <Image
                   source={require("../../assets/png/aadhar.png")}
-                  style={{ width: 50, height: 50 }}
+                  style={{ width:50, height: 50 }}
                 />
                 <Text>DL Front</Text>
               </View>
@@ -334,7 +506,15 @@ export default function KycForm2() {
             onPress={() => handleSelectImage("dlBackPhoto")}
           >
             {formData.dlBackPhoto ? (
+              <>
+                  <Pressable style={{zIndex:2, position:'absolute',left:'90%',top:0}} onPress={()=>{
+                          setFormData({...formData,'dlBackPhoto':null})
+                        }}>
+                        <Entypo name="cross" size={30} color="#000" />
+                        </Pressable>  
+              
               <Image source={{ uri: formData.dlBackPhoto }} style={[styles.uploadImage,{width:100}]}/>
+              </>
             ) : (
               <View style={styles.row}>
                 <Image
@@ -396,6 +576,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginTop: 5,
+  },
+  btn:{
+    backgroundColor:Colors.secondary,
+    padding:10,
+    borderRadius:8,
+    width:150
   },
   placeholderStyle: { color: "gray", fontSize: 14 },
   selectedTextStyle: { fontSize: 14 },

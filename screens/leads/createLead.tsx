@@ -11,7 +11,6 @@ import {
   Image,
 } from 'react-native';
 
-import Entypo from 'react-native-vector-icons/Entypo'
 import Header from '../../commonComponents/Header';
 import { RenderDropdown } from '../../utilites/renderDropdown';
 import { useCreateLead } from '../../features/createLead/useCreateLead';
@@ -20,11 +19,15 @@ import { useUpload } from '../../features/upload/useUpload';
 import { useAllState } from '../../hooks/useAllState';
 import { useCity } from '../../hooks/useCity';
 import { getCluster } from '../../features/stateAndCity/stateAndCity';
+import Entypo from 'react-native-vector-icons/Entypo';
+
+
 const CreateLead = () => {
     const navigation = useNavigation()
   const { data: states, isLoading } = useAllState();
-
+    console.log("States",states)
      const { mutate: fetchCities }  = useCity()
+
      const [formData, setFormData] = useState({
           leadSource: '',
           firstName: '',
@@ -52,19 +55,18 @@ const CreateLead = () => {
           segmentProposed: '',
           remarks: '',
           loanNo: '', // keeping since it was in your 2nd object too
-          segment: 'Current' // keeping original for UI form usage
       });
 
 
       const [allCities,setAllCities] = useState([])
       const [allCluster,setAllClusters] = useState([])
 
-  const leadSources = ['Online', 'Referral', 'Walk-in', 'Phone Call', 'Social Media'];
-  const vehicleTypes = ['Car', 'Bike', 'Truck', 'Bus', 'Auto'];
-  const dlStatuses = ['Valid', 'Expired', 'Applied', 'Not Applied'];
-  const loanStatuses = ['Approved', 'Pending', 'Rejected', 'Not Applied'];
-
-
+  const leadSources = ['Direct', 'Referral', 'Activity'];
+  const vehicleTypes = ['3W-Passenger','3W-Cargo','Others'];
+  const dlStatuses = ['Available', 'Not Available','Applied and not Received', 'Renewal Due'];
+  const loanStatuses = ['Closed','Open','Not Applicable'];
+  const currentSegment = ['Lead-Acid','Lithium','Rental E-Rickshaw','Other (Need input Here)']
+  const proposedSegment = ['Rental Plan','Lithium','3W-Passenger','Others (Need input Here)','3W-Cargo']
   useEffect(()=>{
      function getAllCitiesCrosspondenceToState(){
       if(formData.state.length!==0){
@@ -131,7 +133,8 @@ const CreateLead = () => {
 
     }
       upload(payload, {
-              onSuccess: (res) => {Alert.alert('✅ Photo Updated Successfully!')
+              onSuccess: (res) => {
+                // Alert.alert('✅ Photo Updated Successfully!')
                 updateFormData("selfieWithCustomer",res.fileUrl)
               },
               onError: (err) => {
@@ -338,20 +341,23 @@ const CreateLead = () => {
           <View style={styles.row}>
             <View style={styles.halfWidth}>
               <Text style={styles.label}>Current</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.segment}
-                onChangeText={(value) => updateFormData("segment", value)}
-                placeholder=""
+              
+                <RenderDropdown
+                field="segmentCurrent"
+                placeholder="Current"
+                options={currentSegment}
+                currentValue={formData.segmentCurrent}
+                onSelect={(field, value) => setFormData({ ...formData, [field]: value })}
               />
             </View>
             <View style={styles.halfWidth}>
               <Text style={styles.label}>Proposed</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.segment }
-                onChangeText={(value) => updateFormData("segment", value)}
-                placeholder=""
+               <RenderDropdown
+                field="segmentProposed"
+                placeholder="Current"
+                options={proposedSegment}
+                currentValue={formData.segmentProposed}
+                onSelect={(field, value) => setFormData({ ...formData, [field]: value })}
               />
             </View>
           </View>
@@ -360,10 +366,22 @@ const CreateLead = () => {
         {/* Selfie with Customer */}
         <View style={styles.section}>
           {
-            formData.selfieWithCustomer ? <Image source={{uri: formData.selfieWithCustomer}} style={{
+            formData.selfieWithCustomer ? 
+            <View style={{zIndex:2}}>
+            <Image source={{uri: formData.selfieWithCustomer}} style={{
               height:100,
+              zIndex:1
               // width:100
-            }}/> :  <Pressable style={styles.selfieButton} onPress={handleSelectImage}>
+            }}/> 
+            <Pressable style={{zIndex:2, position:'absolute',left:'85%',top:-10}} onPress={()=>{
+              setFormData({...formData,selfieWithCustomer:null})
+            }}>
+            <Entypo name="cross" size={30} color="#000" />
+            </Pressable>
+
+            </View>
+            :  
+            <Pressable style={styles.selfieButton} onPress={handleSelectImage}>
             <Entypo name="camera" size={25}/>
             <Text style={styles.selfieText}>Selfie with Customer</Text>
           </Pressable>

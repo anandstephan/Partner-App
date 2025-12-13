@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const uploadToS3 = async (file:any) => {
-  console.log("File",file)
+  console.log("file",file)
   try {
 
     const formData = new FormData();
@@ -12,8 +12,8 @@ export const uploadToS3 = async (file:any) => {
     } as any);
 
     
-    formData.append("category", "test2");
-    formData.append("appName", "test");
+    formData.append("category", file.category);
+    formData.append("appName", file.appName);
 
 
     const response = await axios.post(
@@ -25,12 +25,47 @@ export const uploadToS3 = async (file:any) => {
         },
       }
     );
-    console.log("response",formData)
 
-    console.log("✅ Upload successful:", response.data);
     return response.data;
   } catch (error) {
     console.log("❌ Upload failed:", error);
+    throw error;
+  }
+};
+
+
+export const uploadMultipleToS3 = async (files: any[]) => {
+  console.log("myFile",files)
+  try {
+    const formData = new FormData();
+
+    // 👉 Append each file under the SAME key: "files"
+    files.forEach((file, index) => {
+    
+      formData.append("files", {
+        uri: file.uri,
+        type: file.type,
+        name: file.name || `file_${index}.jpg`,
+      } as any);
+    });
+
+    // Extra fields (if required)
+    formData.append("category", "test2");
+    formData.append("appName", "test");
+
+    const response = await axios.post(
+      "https://backendverse.digivoltt.com/api/others/api/s3/upload/multiple",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    console.log("______RRRR",response.data)
+    return response.data;
+  } catch (error) {
+    console.log("❌ Multiple upload failed:", error);
     throw error;
   }
 };

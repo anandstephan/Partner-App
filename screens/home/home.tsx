@@ -12,7 +12,6 @@ import { useEMISummary,useLeadSummary } from '../../features/home/useHome';
 const Home: React.FC = () => {
   const {data} = useEMISummary()
   const {data:leadSummary} = useLeadSummary()
-  console.log("____",data)
     return (
         <SafeAreaView>
           <Header/>

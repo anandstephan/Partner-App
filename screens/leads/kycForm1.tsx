@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -18,14 +18,21 @@ import Colors from "../../constants/color";
 import Header from "../../commonComponents/Header";
 import { useUpload } from "../../features/upload/useUpload";
 import { uploadToS3 } from "../../features/upload/uploadService";
+import Entypo from 'react-native-vector-icons/Entypo';
+import { useOcr } from "../../features/ocr/useOcr";
+import { ocrService } from "../../features/ocr/ocrService";
+import CheckBox from 'react-native-check-box'
+import { check } from "react-native-permissions";
+
 // import { uploadService } from "../../features/upload/uploadService";
 
 export default function KycForm1() {
   const navigation = useNavigation();
   const {params:{leadInfo}} = useRoute()
       const { mutate:upload} = useUpload()
-  console.log("LeadInfo",leadInfo)
-  const mutation = useUpload();
+      const {mutate:OcrUpload} = useOcr()
+  // console.log("LeadInfo",leadInfo)
+  const [checked,setChecked] = useState(false)
 
   // ✅ Single unified form state
   const [formData, setFormData] = useState({
@@ -36,12 +43,16 @@ export default function KycForm1() {
     nameAsPerAadhaar:"",
     gender: null,
     marritalStatus: null,
-    dob: new Date(),
+    dob: null,
     aadhaarFrontPhoto: null,
     aadhaarBackPhoto: null,
     addressAsPerAadhaar: "",
-    selfie:"https://example.com/uploads/selfie.jpg",
+    permanentAddress:"",
+    selfie:null,
   });
+
+  const [aadharFrontFile, setAadharFrontFile] = useState(null);
+  const [aadharBackFile,setAadharBackFile] = useState(null)
 
   // ✅ Universal update function
   const updateFormData = (field: string, value: any) => {
@@ -94,8 +105,16 @@ export default function KycForm1() {
       appName:"employeeApp"
 
     }
+    if(field==="aadhaarFrontPhoto"){
+      setAadharFrontFile(file)
+    }
+    if(field==="aadhaarBackPhoto"){
+      setAadharBackFile(file)
+    }
+
       upload(payload, {
-              onSuccess: (res) => {Alert.alert('✅ Photo Updated Successfully!')
+              onSuccess: (res) => {
+                // Alert.alert('✅ Photo Updated Successfully!')
                 updateFormData(field,res.fileUrl)
               },
               onError: (err) => {
@@ -103,8 +122,48 @@ export default function KycForm1() {
                 console.log("Error",err)
               }
             })
+      
+
+        
     
   };
+
+  useEffect(()=>{
+    if(aadharFrontFile!==null && aadharBackFile!==null){
+      const front = aadharFrontFile
+      const back = aadharBackFile
+      const payload = {
+        front,
+        back,
+        docType:"aadhaar"
+      }
+      OcrUpload(payload, {
+              onSuccess: (res) => {
+                // updateFormData(field,res.fileUrl)
+                console.log("===",res)
+                setFormData(prev => (
+                  { ...prev, 
+                  ['aadhaarNo']: res.data?.docNumber, 
+                  ['addressAsPerAadhaar']: res.data?.fullAddress,
+                  ['nameAsPerAadhaar']:res.data?.fullName, 
+                  ['dob']:res.data?.dateOfBirth 
+                }))
+              },
+              onError: (err) => {
+                Alert.alert("Error",err.message)
+                console.log("Error",err)
+              }
+            })
+    }
+  },[aadharFrontFile,aadharBackFile])
+
+  useEffect(() => {
+  if (checked) {
+    updateFormData("permanentAddress", formData.addressAsPerAadhaar);
+  }else{
+    updateFormData("permanentAddress", "");
+  }
+}, [checked]);
 
   return (
     <>
@@ -119,16 +178,29 @@ export default function KycForm1() {
         <View style={styles.line} />
 
         {/* Selfie */}
-        
-        <Pressable
-          style={{ justifyContent: "center", alignItems: "center" }}
+        {
+          formData.selfie ? <View style={{justifyContent:'center',alignItems:'center'}}>
+            <Image source={{uri:formData.selfie}} style={{...styles.circle}}/>
+            <Pressable style={{zIndex:2, position:'absolute',left:'55%',top:0}} onPress={()=>{
+              setFormData({...formData,'selfie':null})
+            }}>
+            <Entypo name="cross" size={30} color="#000" />
+            </Pressable>
+
+          </View>
+          :
+            <Pressable
+          style={{ justifyContent: "center", alignItems: "center", }}
           onPress={() => handleSelectImage("selfie")}
         >
           <View style={styles.circle}>
             <Icon name="user" size={40} color={Colors.white} />
           </View>
           <Text style={{ marginTop: 8 }}>Selfie with Customer</Text>
+
         </Pressable>
+        }
+      
 
         {/* Gender */}
         <Text style={styles.label}>Gender</Text>
@@ -181,10 +253,20 @@ export default function KycForm1() {
             onPress={() => handleSelectImage("aadhaarFrontPhoto")}
           >
             {formData.aadhaarFrontPhoto ? (
+              <>
               <Image
                 source={{ uri: formData.aadhaarFrontPhoto }}
                 style={styles.uploadImage}
-              />
+              />    
+            <Pressable 
+            style={{zIndex:2, position:'absolute',left:'85%',top:0}} 
+            onPress={()=>{
+              setFormData({...formData,'aadhaarFrontPhoto':null})
+            }}>
+            <Entypo name="cross" size={30} color="#000" />
+            </Pressable>
+              </>
+            
             ) : (
               <View style={styles.row}>
                 <Image
@@ -202,10 +284,17 @@ export default function KycForm1() {
             onPress={() => handleSelectImage("aadhaarBackPhoto")}
           >
             {formData.aadhaarBackPhoto ? (
+              <>
+           <Pressable style={{zIndex:2, position:'absolute',left:'85%',top:0}} onPress={()=>{
+              setFormData({...formData,'aadhaarBackPhoto':null})
+            }}>
+            <Entypo name="cross" size={30} color="#000" />
+            </Pressable>
               <Image
                 source={{ uri: formData.aadhaarBackPhoto }}
                 style={styles.uploadImage}
               />
+              </>
             ) : (
               <View style={styles.row}>
                 <Image
@@ -225,6 +314,7 @@ export default function KycForm1() {
           placeholder="Enter Your Aadhar Number"
           value={formData.aadhaarNo}
           onChangeText={(val) => updateFormData("aadhaarNo", val)}
+          editable={false}
         />
 
         {/* Aadhaar Name */}
@@ -232,23 +322,31 @@ export default function KycForm1() {
         <TextInput
           style={styles.input}
           placeholder="Enter Your Name as per Aadhar"
-          value={formData.nameAsPerAadhaares}
+          value={formData.nameAsPerAadhaar}
           onChangeText={(val) => updateFormData("nameAsPerAadhaar", val)}
+            editable={false}
         />
 
         {/* DOB */}
         <Text style={styles.label}>DOB</Text>
 
-          <Text>{formData.dob.toDateString()}</Text>
+          {/* <Text>{formData.dob.toDateString()}</Text> */}
+          <TextInput
+          style={styles.input}
+          placeholder="Enter Your Date Of Birth"
+          value={formData.dob+""}
+          onChangeText={(val) => updateFormData("dob", val)}
+            editable={false}
+        />
         <View style={{marginVertical:10}}>
-        <DateTimePicker
+        {/* <DateTimePicker
           value={formData.dob}
           mode="date"
           display="default"
           onChange={(event, date) => {
             if (date) updateFormData("dob", date);
           }}
-        />
+        /> */}
         </View>
 
         {/* Address */}
@@ -258,6 +356,34 @@ export default function KycForm1() {
           placeholder="Enter Aadhaar address"
           value={formData.addressAsPerAadhaar}
           onChangeText={(val) => updateFormData("addressAsPerAadhaar", val)}
+          editable={false}
+        />
+        <View style={{
+          flexDirection:"row",
+          justifyContent:"flex-start",
+          alignItems:'center'
+        }}>
+        <CheckBox
+      
+        rightText="Same As Permanent Address"
+          style={{flex: 1, padding: 10}}
+          onClick={() => {
+            console.log("checked",checked)
+            setChecked(!checked)
+          }}
+          checked={checked}
+          
+          />
+        </View>
+       
+
+         <Text style={styles.label}>Permanent Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Your Permanent Address"
+          value={formData.permanentAddress}
+          onChangeText={(v) => updateFormData("permanentAddress", v)}
+          editable={!checked}
         />
         {/* <Text>{JSON.stringify(formData)}</Text> */}
           {/* <Text>{JSON.stringify(leadInfo._id)}</Text> */}
@@ -321,7 +447,10 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 5,
   },
-  uploadImage: { width: "100%", height: 100, borderRadius: 5 },
+  uploadImage: { 
+    width: "100%", 
+    height: 100, 
+    borderRadius: 5 },
   input: {
     borderBottomWidth: 1,
     borderColor: "#ccc",

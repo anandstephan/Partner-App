@@ -3,6 +3,7 @@ import { Storage } from '../utilites/storage'; // ensure named import if you exp
 
 const apiClient = axios.create({
   baseURL: 'https://backendverse.digivoltt.com',
+  // baseURL:"http://localhost:5000",
   timeout: 5000,
   withCredentials: true,
 });
@@ -12,7 +13,7 @@ apiClient.interceptors.request.use(
     if (config.url !== '/api/auth/login') {
       try {
         const token = await Storage.getItem('token');
-        // console.log(token)
+        console.log(token,"Token")
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }

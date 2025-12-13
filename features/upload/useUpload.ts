@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { uploadToS3 } from './uploadService';
+import { uploadMultipleToS3, uploadToS3 } from './uploadService';
 
 export const useUpload = () =>{
  
@@ -20,3 +20,22 @@ export const useUpload = () =>{
   return mutation
 
 }
+
+
+export const useUploadMultiple = () =>{
+  const queryClient = useQueryClient();   
+
+  const mutation = useMutation({
+    mutationFn: (files: any[]) => uploadMultipleToS3(files),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries(['uploadMultiple']);
+    },
+
+    onError: (error) => {
+      console.log("❌ Upload Error:", error);
+    },
+  });
+
+  return mutation;
+};

@@ -1,5 +1,5 @@
 export interface CollectionDetails {
-  leadId: string;
+  driverId: string;
   collectionType: string;   // e.g. "DOWN_PAYMENT"
   amount: number;
   paymentMode: string;      // e.g. "cash"

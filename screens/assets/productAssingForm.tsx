@@ -18,6 +18,7 @@ import { useProductAssign } from "../../features/productAssign/useProductAssign"
 import { useRoute } from "@react-navigation/native";
 import { launchImageLibrary } from "react-native-image-picker";
 import { useUpload } from "../../features/upload/useUpload";
+import QRCodeScanner from 'react-native-qrcode-scanner';
 
 export default function ProductAssignForm() {
 
@@ -25,8 +26,8 @@ export default function ProductAssignForm() {
 
   const {params} = useRoute()
     const { mutate:upload} = useUpload()
-  const [batteryId, setBatteryId] = useState("343@");
-  const [chargerId, setChargerId] = useState("87E");
+  const [batteryId, setBatteryId] = useState("");
+  const [chargerId, setChargerId] = useState("");
 
   const [BatteryhandoverDate, setBatteryHandoverDate] = useState(null);
   const [ChargerhandoverDate, setChargerHandoverDate] = useState(null);
@@ -40,6 +41,23 @@ export default function ProductAssignForm() {
 
   const [brandingMaterial, setBrandingMaterial] = useState<boolean | null>(true);
 
+
+
+  const CustomQRCodeScanner = ({onSuccess,msg}:any)=>{
+    return       <View style={{ height: 100,...styles.inputRowCard,marginHorizontal:20,marginVertical:20 }}>
+      <QRCodeScanner
+        onRead={onSuccess}
+        showMarker={false}
+        cameraStyle={{ height: "100%" }}
+        containerStyle={{ flex: 1,marginLeft: -50 }}
+          topContent={
+          <Text style={styles.centerText}>
+            {msg}
+          </Text>
+        }
+      />
+    </View>
+  }
 
   const handleSubmit = () => {  
     console.log("Batter",BatteryhandoverDate.toUTCString())
@@ -112,32 +130,28 @@ export default function ProductAssignForm() {
       <Header title="Product Assign" />
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* ---- Product IDs ---- */}
+        <CustomQRCodeScanner msg="Scan the QR code for Vehicle ID"/>
         <View style={styles.card}>
-          <InputWithIcon
-            icon={require("../../assets/png/aadhar.png")}
-            label="Battery ID"
-            value={batteryId}
-            onChange={setBatteryId}
-          />
-          <InputWithIcon
-            icon={require("../../assets/png/aadhar.png")}
-            label="Charger ID"
-            value={chargerId}
-            onChange={setChargerId}
-          />
-  
+          <TextInput placeholder="Vehicle ID" value="" style={styles.input} />
+        </View>
+            {batteryPhoto ? 
+          <Image source={{uri:batteryPhoto}} style={{width:100,height:100}} /> : 
+            <Pressable onPress={()=>handlePic('battery')}>
+                      <View style={styles.uploadContent}>
+                        <Image
+                          source={require("../../assets/png/aadhar.png")}
+                          style={{ width: 40, height: 40 }}
+                        />
+                        <Text style={{ marginTop: 6 }}>Vehicle Photo</Text>
+                      </View>
+                      </Pressable>
+          }
 
-        {/* ---- Dates ---- */}
-          <Text style={styles.label}>Battery handover Date</Text>
-          <DateTimePicker
-          value={BatteryhandoverDate || new Date()}
-          display="default"
-          mode="date"
-          onChange={(event,date)=>{
-              setBatteryHandoverDate(date)
-          }}
-          />
-          {batteryPhoto ? 
+        <CustomQRCodeScanner msg="Scan the QR code for Battery ID"/>
+         <View style={styles.card}>
+          <TextInput placeholder="Battery OEM ID" value="" style={styles.input} />
+        </View>
+              {batteryPhoto ? 
           <Image source={{uri:batteryPhoto}} style={{width:100,height:100}} /> : 
             <Pressable onPress={()=>handlePic('battery')}>
                       <View style={styles.uploadContent}>
@@ -149,7 +163,49 @@ export default function ProductAssignForm() {
                       </View>
                       </Pressable>
           }
-          <Text style={styles.label}>Charger handover Date</Text>
+                  <CustomQRCodeScanner msg="Scan the QR code for Charger ID"/>
+         <View style={styles.card}>
+          <TextInput placeholder="Charger OEM ID" value="" style={styles.input} />
+        </View>
+              {batteryPhoto ? 
+          <Image source={{uri:batteryPhoto}} style={{width:100,height:100}} /> : 
+            <Pressable onPress={()=>handlePic('battery')}>
+                      <View style={styles.uploadContent}>
+                        <Image
+                          source={require("../../assets/png/aadhar.png")}
+                          style={{ width: 40, height: 40 }}
+                        />
+                        <Text style={{ marginTop: 6 }}>Charger Photo</Text>
+                      </View>
+                      </Pressable>
+          }
+        <View style={styles.card}>
+          {/* <InputWithIcon
+            icon={require("../../assets/png/aadhar.png")}
+            label="Scan Your Battery ID"
+            value={batteryId}
+            onChange={setBatteryId}
+          />
+          <InputWithIcon
+            icon={require("../../assets/png/aadhar.png")}
+            label="Charger ID"
+            value={chargerId}
+            onChange={setChargerId}
+          /> */}
+  
+
+        {/* ---- Dates ---- */}
+          <Text style={styles.label}>  handover Date</Text>
+          <DateTimePicker
+          value={BatteryhandoverDate || new Date()}
+          display="default"
+          mode="date"
+          onChange={(event,date)=>{
+              setBatteryHandoverDate(date)
+          }}
+          />
+    
+          <Text style={styles.label}>EMI Start Date</Text>
           <DateTimePicker
           value={ChargerhandoverDate || new Date()}
           display="default"
@@ -157,7 +213,7 @@ export default function ProductAssignForm() {
           onChange={(event,date)=>setChargerHandoverDate(date)}
           />
 
-            {chargerPhoto ? 
+            {/* {chargerPhoto ? 
           <Image source={{uri:chargerPhoto}} style={{width:100,height:100}} /> : 
                       <Pressable onPress={()=>handlePic('charger')}>
                       <View style={styles.uploadContent}>
@@ -168,8 +224,8 @@ export default function ProductAssignForm() {
                         <Text style={{ marginTop: 6 }}>Charger Photo</Text>
                       </View>
                       </Pressable>
-          } 
-         <Text style={styles.label}>EMI Date</Text>
+          }  */}
+         <Text style={styles.label}>EMI End Date</Text>
           <DateTimePicker
           value={emiStartDate || new Date()}
           display="default"
@@ -331,8 +387,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 2,
-
-
+  },
+  centerText:{
+    fontSize: 15,
+    fontWeight: "600",
+    marginTop:8
   },
   iconImage: { 
     width: 24, 
@@ -348,7 +407,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    fontSize: 15,
+    fontSize: 18,
     color: "#000",
     borderWidth: 0.4,
     borderColor: "#ddd",

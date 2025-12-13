@@ -5,7 +5,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const PaymentCard = (item:any) =>{
 
-  const navigation = useNavigation()
+   const navigation = useNavigation()
 return  <Pressable onPress={()=>navigation.navigate('emidetail',{detail:item})}>
 <View style={styles.card}>
       <Ionicons

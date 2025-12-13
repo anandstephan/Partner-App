@@ -20,7 +20,7 @@ export const getRole = async (): Promise<[UserRole]> => {
 
 export const getDealerByStateCityCluserRole = async (params: any): Promise<[UserRole]> => {
     console.log("params",JSON.stringify(params))
-    params.stateId = '68ec06c6ad33264418ee029b'// isko change krna hai
+    // params.stateId = '68ec06c6ad33264418ee029b'// isko change krna hai
     
   try {
     const response = await apiClient.get('/api/user?role='+params.role.replace(/"/g, '')+'&stateId='+params.stateId.replace(/"/g, '')+'&cityId='+params.cityId.replace(/"/g, '')+'&clusterId='+params.clusterId.replace(/"/g, ''));

@@ -1,5 +1,4 @@
-import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,128 +6,137 @@ import {
   StyleSheet,
   FlatList,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import PaymentCard from "./components/paymentCard";
 import Header from "../../commonComponents/Header";
-import { useEmi } from "../../features/emi/useEmi";
+import PaymentCard from "./components/paymentCard";
+import { getEmis } from "../../features/emi/emi";
 import { useEmiByDueType } from "../../features/emi/useEmiByDueType";
 
 const Payment = () => {
+  const [activeTab, setActiveTab] = useState("upcoming");
 
-  const [activeTab, setActiveTab] = useState("Upcoming EMI’s");
+  const { mutate } = useEmiByDueType();
 
-  const {data} = useEmi()
-  const [finalData,setFinalData] = useState(data)
+  const [page, setPage] = useState(1);
+  const [emiList, setEmiList] = useState([]);
+  const [hasNextPage, setHasNextPage] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-    const {mutate} = useEmiByDueType()
+  // 🔥 Main pagination loader
+  const loadEmis = async () => {
+    if (!hasNextPage || loading) return;
+    setLoading(true);
 
+    const res = await getEmis(page, 20, activeTab); // active tab pass
+    console.log("PAGE DATA:", res);
 
+    if (page === 1) {
+      setEmiList(res.data);
+    } else {
+      setEmiList((prev) => [...prev, ...res.data]);
+    }
 
+    setHasNextPage(res.pageInfo.hasNextPage);
+    setPage((prev) => prev + 1);
+    setLoading(false);
+  };
 
-  const tabs = [{name:"Upcoming EMI’s",value:"upcoming"}, {name:"Due Today",value:"today"}, {name:"Past Due",value:"past"}];
+  useEffect(() => {
+    loadEmis(); // first load
+  }, []);
 
-  // const data = [
-  //   {
-  //     id: "1",
-  //     name: "Ravi Kumar Singh",
-  //     loanId: "LI521",
-  //     phone: "999 999 4444",
-  //     amount: "₹ 5000",
-  //     city: "Mathura",
-  //     gender: "male",
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "Ram Kumar",
-  //     loanId: "LI221",
-  //     phone: "999 111 4444",
-  //     amount: "₹ 3350",
-  //     city: "Jaipur",
-  //     gender: "male",
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "Lalita Kumari",
-  //     loanId: "LI1221",
-  //     phone: "881 111 3254",
-  //     amount: "₹ 3350",
-  //     city: "Delhi",
-  //     gender: "female",
-  //   },
-  //   {
-  //     id: "4",
-  //     name: "Babita",
-  //     loanId: "LI1521",
-  //     phone: "985 111 3254",
-  //     amount: "₹ 4840",
-  //     city: "Rajasthan",
-  //     gender: "female",
-  //   },
-  // ];
+  // 🔄 Tab click pe reset + fresh load
+  const onTabChange = (value: string) => {
+    console.log(value,"vvvv")
+    setActiveTab(value);
+    setPage(1);
+    setHasNextPage(true);
+    setEmiList([]);
+
+    mutate(value, {
+      onSuccess: (res) => {
+        console.log("FILTERED DATA:", res);
+        setEmiList(res);
+        setHasNextPage(res.pageInfo.hasNextPage);
+      },
+    });
+  };
+
+  const tabs = [
+    { name: "Upcoming EMI’s", value: "upcoming" },
+    { name: "Due Today", value: "today" },
+    { name: "Past Due", value: "past" },
+  ];
 
   const renderItem = ({ item }: any) => {
-    return  <PaymentCard {...item}/>
-  }
-
-   
-  
+    return <PaymentCard {...item} />;
+  };
 
   return (
     <>
-         {/* Header */}
-    <Header title="EMI Tracker"/>
-    <View style={styles.container}>
-      {/* Search Bar */}
-      <View style={styles.searchBar}>
-        <Ionicons name="search" size={18} color="#888" />
-        <TextInput
-          placeholder="Search"
-          style={styles.searchInput}
-          placeholderTextColor="#888"
+      <Header title="EMI Tracker" />
+      <View style={styles.container}>
+        {/* Search Bar */}
+        <View style={styles.searchBar}>
+          <Ionicons name="search" size={18} color="#888" />
+          <TextInput
+            placeholder="Search"
+            style={styles.searchInput}
+            placeholderTextColor="#888"
+          />
+        </View>
+
+        {/* Tabs */}
+        <View style={styles.tabRow}>
+          {tabs.map((tab) => (
+            <Pressable
+              key={tab.name}
+              style={[
+                styles.tab,
+                activeTab === tab.value && styles.activeTab,
+              ]}
+              onPress={() => onTabChange(tab.value)}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === tab.value && styles.activeTabText,
+                ]}
+              >
+                {tab.name}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        {/* EMI LIST */}
+        <FlatList
+          data={emiList}
+          keyExtractor={(item) => item?._id}
+          renderItem={renderItem}
+          onEndReached={() => {
+            if (hasNextPage && !loading) loadEmis();
+          }}
+          onEndReachedThreshold={0.4}
+          ListEmptyComponent={
+            !loading && (
+              <Text style={{ textAlign: "center", marginTop: 50 }}>
+                No EMI Records Found {JSON.stringify(emiList)}
+              </Text>
+            )
+          }
+          ListFooterComponent={
+            loading ? (
+              <ActivityIndicator
+                size="large"
+                style={{ marginVertical: 20 }}
+              />
+            ) : null
+          }
         />
       </View>
-
-      {/* Tabs */}
-      <View style={styles.tabRow}>
-        {tabs.map((tab) => (
-          <Pressable
-            key={tab.name}
-            style={[
-              styles.tab,
-              activeTab === tab.value && styles.activeTab,
-            ]}
-            onPress={() => {
-              setActiveTab(tab.value)
-              mutate(tab.value,{
-                onSuccess:(res)=>{
-                  console.log("res333"+tab.value,res)
-                  setFinalData(res)
-                }
-              })
-            }}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === tab.value && styles.activeTabText,
-              ]}
-            >
-              {tab.name}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-
-      {/* EMI Cards */}
-      <FlatList
-        data={finalData}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
-    </View>
     </>
   );
 };
@@ -140,16 +148,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f9f9f9",
     padding: 16,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginLeft: 10,
   },
   searchBar: {
     flexDirection: "row",

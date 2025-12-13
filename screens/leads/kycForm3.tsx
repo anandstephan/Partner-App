@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -18,16 +18,21 @@ import Header from "../../commonComponents/Header";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useFinalKyc, useKyc2 } from "../../features/kyc/useKyc";
 import { useUpload } from "../../features/upload/useUpload";
-
+import Entypo from 'react-native-vector-icons/Entypo';
+import { useOcr } from "../../features/ocr/useOcr";
+import CheckBox from 'react-native-check-box'
 export default function KycForm3() {
   const navigation = useNavigation();
   const {params} = useRoute();
   const{mutate} = useKyc2();
   const { mutate:upload} = useUpload()
+        const {mutate:OcrUpload} = useOcr()
   const {mutate:submitkyc} = useFinalKyc()
+  const [rcFrontPic,setRcFrontPic] = useState(null)
+  const [rcBackPic, setRcBackPic] = useState(null);
+    const [checked,setChecked] = useState(false)
 
-
-  console.log("====>",params.kycId)
+  console.log("====>","693b21b68e5c8c09d6478ead")
   // ✅ Unified form state
   const [formData, setFormData] = useState({
     // RC Details
@@ -49,24 +54,25 @@ export default function KycForm3() {
 
     // Guarantor 1
   guarantor1: {
-  refOneNameAsPerAadhaar: "Suresh Kumar",
-  refOneMobileNo: "9876543210",
-  refOneAadhaarPANPhoto: [
-    "https://example.com/uploads/ref1_aadhaar.jpg",
-    "https://example.com/uploads/ref1_pan.jpg"
-  ],
-  refOneAadhaarNo: "1234 5678 9012",
-  refOnePanNo: "ABCDE1234F",
-  refOneDOB: "1985-07-10",
-  refOneAddressAsPerAadhaar: "B-25, Sector 5, Dwarka, Delhi",
-  refOnePermanentAddress: "B-25, Sector 5, Dwarka, Delhi"
+  refOneNameAsPerAadhaar: "",
+  refOneMobileNo: "",
+  refOneAadhaarFrontPic :null,
+  refOneAadhaarBackPic :null,
+  refOneAadhaarNo: "",
+  refOnePanNo: "",
+  refOneDOB: "",
+  refOneAddressAsPerAadhaar: "",
+  refOnePermanentAddress: "",
+  refOneAadhaarPANPhoto:""
   },
 
     // Guarantor 2
   guarantor2: {
       refTwoNameAsPerAadhaar: "",
       refTwoMobileNo: "",
-      refTwoAadhaarPANPhoto: [],
+      refTwoAadhaarFrontPic :null,
+      refTwoAadhaarBackPic :null,
+      refTwoPanPic: null,
       refTwoAadhaarNo: "",
       refTwoPanNo: "",
       refTwoDOB: "",
@@ -76,9 +82,13 @@ export default function KycForm3() {
   });
 
   // DOB Pickers visibility
-  const [showDobPicker1, setShowDobPicker1] = useState(false);
-  const [showDobPicker2, setShowDobPicker2] = useState(false);
-
+  const [refOneAadhaarFrontPhoto,setRefOneAadhaarFrontPhoto] = useState(null)
+  const [refOneAadhaarBackPhoto,setRefOneAadhaarBackPhoto] = useState(null)
+  const [refOnePanPic,setRefOneAadhaarPanPic] = useState(null)
+  const [refTwoAadhaarFrontPic,setRefTwoAadhaarFrontPic] = useState(null)
+  const [refTwoAadhaarBackPic,setRefTwoAadhaarBackPic] = useState(null)
+  const [refTwoPanPhoto,setRefTwoPanPhoto] = useState(null)
+  
   // ✅ Universal update handler
   const updateFormData = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -98,6 +108,7 @@ export default function KycForm3() {
 
   // ✅ Universal image picker
   const handleSelectImage = async (fieldPath: string) => {
+    console.log("FFFFFF",fieldPath)
     const result = await launchImageLibrary({ mediaType: "photo", quality: 1 });
     if (result.didCancel) return;
     const asset = result.assets?.[0];
@@ -113,8 +124,38 @@ export default function KycForm3() {
           appName:"employeeApp"
     
         }
+
+        if(fieldPath === "rcFrontPhoto"){
+          setRcFrontPic(file)
+        }
+        if(fieldPath === "rcBackPhoto"){
+          setRcBackPic(file)
+        }
+        if(fieldPath === 'guarantor1.refOneAadhaarFrontPic'){
+          setRefOneAadhaarFrontPhoto(file)
+        }
+
+        if(fieldPath === 'guarantor1.refOneAadhaarBackPic'){
+          setRefOneAadhaarBackPhoto(file)
+        }
+
+        if(fieldPath === 'guarantor1.refOneAadhaarPANPhoto'){
+          setRefOneAadhaarPanPic(file)
+        }
+        if(fieldPath === 'guarantor2.refTwoAadhaarFrontPic'){
+          setRefTwoAadhaarFrontPic(file)
+        }
+        if(fieldPath === 'guarantor2.refTwoAadhaarBackPic'){
+          setRefTwoAadhaarBackPic(file)
+        }
+
+        if(fieldPath === 'guarantor2.refTwoPanPic'){
+          setRefTwoPanPhoto(file)
+        }
+
           upload(payload, {
-                  onSuccess: (res) => {Alert.alert('✅ Photo Updated Successfully!')
+                  onSuccess: (res) => {
+                    // Alert.alert('✅ Photo Updated Successfully!')
                     updateFormData(fieldPath,res.fileUrl)
                   },
                   onError: (err) => {
@@ -155,7 +196,7 @@ export default function KycForm3() {
 
 
 
-    mutate({kycId:params.kycId,payload:formData},     {
+    mutate({kycId:"693b21b68e5c8c09d6478ead",payload:formData},     {
                         onSuccess: () => {
                           Alert.alert('✅ KYC Updated Successfully!')
                           // navigation.navigate("kycForm3",newData);  
@@ -169,17 +210,184 @@ export default function KycForm3() {
 
   };
 
+  useEffect(()=>{
+    if(rcFrontPic !== null && rcBackPic !== null){
+         const front = rcFrontPic
+            const back = rcBackPic
+            const payload = {
+              front,
+              back,
+              docType:"rc"
+            }
+            OcrUpload(payload, {
+                    onSuccess: (res) => {
+                      // updateFormData(field,res.fileUrl)
+                      console.log("===999",res)
+                      // setFormData(prev => (
+                      //   { ...prev, 
+                      //   ['aadhaarNo']: res.data?.docNumber, 
+                      //   ['addressAsPerAadhaar']: res.data?.fullAddress,
+                      //   ['nameAsPerAadhaar']:res.data?.fullName, 
+                      //   ['dob']:res.data?.dateOfBirth 
+                      // }))
+                       setFormData(prev => (
+                        { ...prev, 
+                        ['rcNo']: res.data?.docNumber, 
+                        // ['addressAsPerAadhaar']: res.data?.fullAddress,
+                        // ['nameAsPerAadhaar']:res.data?.fullName, 
+                        // ['dob']:res.data?.dateOfBirth 
+                      }))
+                    },
+                    onError: (err) => {
+                      Alert.alert("Error",err.message)
+                      console.log("Error",err)
+                    }
+                  })
+    }
+
+    if(refOneAadhaarFrontPhoto !== null && refOneAadhaarBackPhoto !== null){
+        const front = refOneAadhaarFrontPhoto
+            const back = refOneAadhaarBackPhoto
+            const payload = {
+              front,
+              back,
+              docType:"aadhaar"
+            }
+            OcrUpload(payload, {
+                    onSuccess: (res) => {
+                      // updateFormData(field,res.fileUrl)
+                      console.log("===AAdhar",res)
+                    setFormData(prev => ({
+                        ...prev,
+                        guarantor1: {
+                          ...prev.guarantor1,
+                          refOneAadhaarNo: res.data?.docNumber,
+                          refOnePermanentAddress: res.data?.fullAddress,
+                          refOneNameAsPerAadhaar: res.data?.fullName,
+                          refOneDOB: res.data?.dateOfBirth
+                        }
+                      }));
+                    },
+                    onError: (err) => {
+                      Alert.alert("Error",err.message)
+                      console.log("Error",err)
+                    }
+                  })
+    }
+    if(refOnePanPic !== null){
+           const front = refOnePanPic
+            const back = refOnePanPic
+            const payload = {
+              front,
+              back,
+              docType:"pan"
+            }
+            OcrUpload(payload, {
+                    onSuccess: (res) => {
+                      // updateFormData(field,res.fileUrl)
+                      console.log("===pan",res)
+                    setFormData(prev => ({
+                        ...prev,
+                        guarantor1: {
+                          ...prev.guarantor1,
+                          refOnePanNo: res.data?.docNumber
+                        }
+                      }));
+                    },
+                    onError: (err) => {
+                      Alert.alert("Error",err.message)
+                      console.log("Error",err)
+                    }
+                  })
+    }
+
+    if(refTwoAadhaarFrontPic!==null && refTwoAadhaarBackPic!==null){
+        const front = refTwoAadhaarFrontPic
+            const back = refTwoAadhaarBackPic
+            const payload = {
+              front,
+              back,
+              docType:"aadhaar"
+            }
+            OcrUpload(payload, {
+                    onSuccess: (res) => {
+                      // updateFormData(field,res.fileUrl)
+                      console.log("===AAdhar",res)
+                    setFormData(prev => ({
+                        ...prev,
+                        guarantor2: {
+                          ...prev.guarantor2,
+                          refTwoAadhaarNo: res.data?.docNumber,
+                          refTwoPermanentAddress: res.data?.fullAddress,
+                          refTwoNameAsPerAadhaar: res.data?.fullName,
+                          refTwoDOB: res.data?.dateOfBirth
+                          
+                        }
+                      }));
+                    },
+                    onError: (err) => {
+                      Alert.alert("Error",err.message)
+                      console.log("Error",err)
+                    }
+                  })
+    }
+
+    if(refTwoPanPhoto !== null){
+           const front = refTwoPanPhoto
+            const back = refTwoPanPhoto
+            const payload = {
+              front,
+              back,
+              docType:"pan"
+            }
+            OcrUpload(payload, {
+                    onSuccess: (res) => {
+                      // updateFormData(field,res.fileUrl)
+                      console.log("===pan",res)
+                    setFormData(prev => ({
+                        ...prev,
+                        guarantor2: {
+                          ...prev.guarantor2,
+                          refTwoPanNo: res.data?.docNumber
+                        }
+                      }));
+                    },
+                    onError: (err) => {
+                      Alert.alert("Error",err.message)
+                      console.log("Error",err)
+                    }
+                  })
+    }
+
+  },[rcFrontPic,rcBackPic,refOneAadhaarFrontPhoto,refOneAadhaarBackPhoto,refOnePanPic,refTwoAadhaarFrontPic,refTwoAadhaarBackPic,refTwoPanPhoto])
+
+
   // ✅ Reusable Upload Component
-  const UploadBox = ({ uri, label, onPress }: any) => (
+  const UploadBox = ({ uri, label, onPress, }: any) => (
     <Pressable style={styles.uploadBox} onPress={onPress}>
       {uri ? (
+        <>
+
         <Image source={{ uri }} style={styles.uploadImage} />
+         <Pressable style={{zIndex:2, position:'absolute',left:'90%',top:0}} onPress={()=>{
+            console.log('PPPPP',uri)
+                // setFormData({...formData,[key]:null})
+              }}>
+              <Entypo name="cross" size={30} color="#000" />
+              </Pressable>
+        </>
       ) : (
         <View style={styles.uploadContent}>
-          <Image
+          <>
+            {formData[uri ]}
+            <Image
             source={require("../../assets/png/aadhar.png")}
             style={{ width: 40, height: 40 }}
           />
+               
+          
+          </>
+        
           <Text style={{ marginTop: 6 }}>{label}</Text>
         </View>
       )}
@@ -201,6 +409,7 @@ export default function KycForm3() {
         <View style={styles.row}>
           <UploadBox
             uri={formData.rcFrontPhoto}
+          
             label="RC Front"
             onPress={() => handleSelectImage("rcFrontPhoto")}
           />
@@ -217,6 +426,7 @@ export default function KycForm3() {
           placeholder="Enter RC Number"
           value={formData.rcNo}
           onChangeText={(v) => updateFormData("rcNo", v)}
+          editable={false}
         />
 
         <Text style={styles.label}>Vehicle Registration Date</Text>
@@ -272,7 +482,15 @@ export default function KycForm3() {
           >
 
             {formData.vehicleNOCDocument ? (
+                      <>
+                      
                       <Image source={{ uri: formData.vehicleNOCDocument }} style={styles.uploadImage} />
+                    <Pressable style={{zIndex:2, position:'absolute',left:'90%',top:0}} onPress={()=>{
+                                  setFormData({...formData,'vehicleNOCDocument':null})
+                                }}>
+                                <Entypo name="cross" size={30} color="#000" />
+                                </Pressable>
+                                              </>
                     ) : (
                       <View style={[styles.uploadContent,{width:200}]}>
                         <Image
@@ -355,14 +573,14 @@ export default function KycForm3() {
 
         <View style={styles.row}>
           <UploadBox
-            uri={formData.guarantor1.refOneAadhaarPANPhoto}
+            uri={formData.guarantor1.refOneAadhaarFrontPic}
             label="Aadhaar Front"
-            onPress={() => handleSelectImage("guarantor1.refOneAadhaarPANPhoto")}
+            onPress={() => handleSelectImage("guarantor1.refOneAadhaarFrontPic")}
           />
           <UploadBox
-            uri={formData.guarantor1}
+            uri={formData.guarantor1.refOneAadhaarBackPic}
             label="Aadhaar Back"
-            onPress={() => handleSelectImage("guarantor1.refOneAadhaarPANPhoto")}
+            onPress={() => handleSelectImage("guarantor1.refOneAadhaarBackPic")}
           />
         </View>
 
@@ -374,6 +592,7 @@ export default function KycForm3() {
           onChangeText={(v) =>
             updateGuarantor("guarantor1", "refOneAadhaarNo", v)
           }
+          editable={false}
         />
 
         <Text style={styles.label}>Aadhaar Name</Text>
@@ -382,35 +601,21 @@ export default function KycForm3() {
           placeholder="Enter Name as per Aadhaar"
           value={formData.guarantor1.refOneNameAsPerAadhaar}
           onChangeText={(v) => updateGuarantor("guarantor1", "refOneNameAsPerAadhaar", v)}
+          editable={false}
         />
 
         <Text style={styles.label}>DOB</Text>
-        <Pressable
+  
+          <TextInput
           style={styles.input}
-          onPress={() => setShowDobPicker1(true)}
-        >
-          <Text>{formData.guarantor1.refOneDOB.toString()}</Text>
-        </Pressable>
-        {showDobPicker1 && (
-          <DateTimePicker
-            value={formData.guarantor1.refOneDOB.toString() || new Date()}
-            mode="date"
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowDobPicker1(false);
-              if (selectedDate)
-                updateGuarantor("guarantor1", "refOneDOB", selectedDate);
-            }}
-          />
-        )}
-
-        <Text style={styles.label}>Current Address</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Current Address"
-          value={formData.guarantor1.refOneAddressAsPerAadhaar}
-          onChangeText={(v) => updateGuarantor("guarantor1", "refOneAddressAsPerAadhaar", v)}
+          placeholder="Date of Birth"
+          value={formData.guarantor1.refOneDOB}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor1", "refOneDOB", v)
+          }
+          editable={false}
         />
+
 
         <Text style={styles.label}>Permanent Address</Text>
         <TextInput
@@ -420,6 +625,25 @@ export default function KycForm3() {
           onChangeText={(v) =>
             updateGuarantor("guarantor1", "refOnePermanentAddress", v)
           }
+          editable={false}
+        />
+        
+        <CheckBox
+        rightText="Same As Permanent Address"
+          style={{flex: 1, padding: 10}}
+          onClick={() => {
+            console.log("checked",checked)
+            setChecked(!checked)
+          }}
+          checked={checked}
+          
+          />
+        <Text style={styles.label}>Current Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Current Address"
+          value={formData.guarantor1.refOneAddressAsPerAadhaar}
+          onChangeText={(v) => updateGuarantor("guarantor1", "refOneAddressAsPerAadhaar", v)}
         />
 
         <UploadBox
@@ -434,6 +658,7 @@ export default function KycForm3() {
           placeholder="Enter PAN Number"
           value={formData.guarantor1.refOnePanNo}
           onChangeText={(v) => updateGuarantor("guarantor1", "refOnePanNo", v)}
+          editable={false}
         />
 
         <Text style={styles.label}>Mobile Number</Text>
@@ -446,11 +671,40 @@ export default function KycForm3() {
 
         {/* --- GUARANTOR 2 --- */}
         <View style={[styles.rowBetween, { marginTop: 30 }]}>
-  <Text style={styles.title}>Guarantor 2 Details</Text>
-        `</View>
+          <Text style={styles.title}>Guarantor 2 Details</Text>
+        </View>
         <View style={styles.line} />
 
-        <Text style={styles.label}>Name as per Aadhaar</Text>
+          <View style={styles.row}>
+          <UploadBox
+            uri={formData.guarantor2.refTwoAadhaarFrontPic}
+            label="Aadhaar Front Photo"
+            onPress={() =>
+              handleSelectImage("guarantor2.refTwoAadhaarFrontPic")
+            }
+          />
+          <UploadBox
+            uri={formData.guarantor2.refTwoAadhaarBackPic}
+            label="Aadhaar Back Photo"
+            onPress={() =>
+              handleSelectImage("guarantor2.refTwoAadhaarBackPic")
+            }
+          />
+        </View>
+
+
+        <Text style={styles.label}>Aadhaar No</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Aadhaar No"
+          value={formData.guarantor2.refTwoAadhaarNo}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "refTwoAadhaarNo", v)
+          }
+          editable={false}
+        />
+
+        <Text style={styles.label}>Aadhaar Name</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Name as per Aadhaar"
@@ -458,6 +712,51 @@ export default function KycForm3() {
           onChangeText={(v) =>
             updateGuarantor("guarantor2", "refTwoNameAsPerAadhaar", v)
           }
+        />
+          <Text style={styles.label}>DOB</Text>
+           <TextInput
+          style={styles.input}
+          placeholder="Date of Birth"
+          value={formData.guarantor2.refTwoDOB}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "refTwoDOB", v)
+          }
+          editable={false}
+        />
+
+            <Text style={styles.label}>Permanent Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Permanent Address"
+          value={formData.guarantor2.refTwoPermanentAddress}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "refTwoPermanentAddress", v)
+          }
+        />
+
+      <Text style={styles.label}>Current Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Current Address"
+          value={formData.guarantor2.refTwoAddressAsPerAadhaar}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "refTwoAddressAsPerAadhaar", v)
+          }
+        />
+      <UploadBox
+          uri={formData.guarantor2.refTwoPanPic}
+          label="PAN Pic"
+          onPress={() => handleSelectImage("guarantor2.refTwoPanPic")}
+        />
+        <Text style={styles.label}>PAN Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter PAN Number"
+          value={formData.guarantor2.refTwoPanNo}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "refTwoPanNo", v)
+          }
+          editable={false}
         />
 
         <Text style={styles.label}>Mobile Number</Text>
@@ -471,94 +770,10 @@ export default function KycForm3() {
           }
         />
 
-        <View style={styles.row}>
-          <UploadBox
-            uri={formData.guarantor2.refTwoAadhaarPANPhoto?.[0]}
-            label="Aadhaar Photo"
-            onPress={() =>
-              handleSelectImage("guarantor2.refTwoAadhaarPANPhoto[0]")
-            }
-          />
-          <UploadBox
-            uri={formData.guarantor2.refTwoAadhaarPANPhoto?.[1]}
-            label="PAN Photo"
-            onPress={() =>
-              handleSelectImage("guarantor2.refTwoAadhaarPANPhoto[1]")
-            }
-          />
-        </View>
+      
+    
 
-        <Text style={styles.label}>Aadhaar Number</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Aadhaar Number"
-          value={formData.guarantor2.refTwoAadhaarNo}
-          onChangeText={(v) =>
-            updateGuarantor("guarantor2", "refTwoAadhaarNo", v)
-          }
-        />
-
-        <Text style={styles.label}>PAN Number</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter PAN Number"
-          value={formData.guarantor2.refTwoPanNo}
-          onChangeText={(v) =>
-            updateGuarantor("guarantor2", "refTwoPanNo", v)
-          }
-        />
-
-        <Text style={styles.label}>Date of Birth</Text>
-        <Pressable
-          style={styles.input}
-          onPress={() => setShowDobPicker2(true)}
-        >
-          <Text>
-            {formData.guarantor2.refTwoDOB
-              ? new Date(formData.guarantor2.refTwoDOB).toDateString()
-              : "Select DOB"}
-          </Text>
-        </Pressable>
-        {showDobPicker2 && (
-          <DateTimePicker
-            value={
-              formData.guarantor2.refTwoDOB
-                ? new Date(formData.guarantor2.refTwoDOB)
-                : new Date()
-            }
-            mode="date"
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowDobPicker2(false);
-              if (selectedDate)
-                updateGuarantor(
-                  "guarantor2",
-                  "refTwoDOB",
-                  selectedDate.toISOString().split("T")[0]
-                );
-            }}
-          />
-        )}
-
-        <Text style={styles.label}>Address (As per Aadhaar)</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Aadhaar Address"
-          value={formData.guarantor2.refTwoAddressAsPerAadhaar}
-          onChangeText={(v) =>
-            updateGuarantor("guarantor2", "refTwoAddressAsPerAadhaar", v)
-          }
-        />
-
-        <Text style={styles.label}>Permanent Address</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Permanent Address"
-          value={formData.guarantor2.refTwoPermanentAddress}
-          onChangeText={(v) =>
-            updateGuarantor("guarantor2", "refTwoPermanentAddress", v)
-          }
-        />
+    
 `
 
         {/* Footer Buttons */}
@@ -576,8 +791,8 @@ export default function KycForm3() {
             onPress={() => {
                 const filteredData = {...formData.guarantor2,...formData.guarantor1}
                 // const removeKeys = [
-                //   "refTwoAadhaarPANPhoto[0]",
-                //   "refTwoAadhaarPANPhoto[1]",
+                //   "refTwoPanPic[0]",
+                //   "refTwoPanPic[1]",
                 //   "aadhaarFrontPic",
                 //   "aadhaarBackPic",
                 //   "aadhaarNumber",
@@ -592,8 +807,8 @@ export default function KycForm3() {
                 //   delete filteredData[key];
                 // });
 
-                delete filteredData['refTwoAadhaarPANPhoto[0]']
-                delete filteredData['refTwoAadhaarPANPhoto[1]']
+                delete filteredData['refTwoPanPic[0]']
+                delete filteredData['refTwoPanPic[1]']
                 delete filteredData['aadhaarFrontPic']
                 delete filteredData['aadhaarBackPic']
                 delete filteredData['aadhaarNumber']
@@ -606,11 +821,11 @@ export default function KycForm3() {
 
                 console.log("filteredData",JSON.stringify(filteredData))
                 // return;
-                  submitkyc({kycId:params.kycId,payload:filteredData},{
+                  submitkyc({kycId:"693b21b68e5c8c09d6478ead",payload:filteredData},{
                         onSuccess: () => {
                           Alert.alert('✅ Guarantor Detail Updated Successfully!')
                           // navigation.navigate("kycForm3",newData);  
-                          // navigation.goBack()
+                          navigation.goBack()
                         },
                         onError: (err) => {
                           Alert.alert("Error",err.message)
