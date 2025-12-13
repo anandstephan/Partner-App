@@ -32,7 +32,7 @@ export default function KycForm3() {
   const [rcBackPic, setRcBackPic] = useState(null);
     const [checked,setChecked] = useState(false)
 
-  console.log("====>","693b21b68e5c8c09d6478ead")
+  console.log("====>",params?.kycId)
   // ✅ Unified form state
   const [formData, setFormData] = useState({
     // RC Details
@@ -72,7 +72,7 @@ export default function KycForm3() {
       refTwoMobileNo: "",
       refTwoAadhaarFrontPic :null,
       refTwoAadhaarBackPic :null,
-      refTwoPanPic: null,
+      refTwoAadhaarPANPhoto: null,
       refTwoAadhaarNo: "",
       refTwoPanNo: "",
       refTwoDOB: "",
@@ -149,7 +149,7 @@ export default function KycForm3() {
           setRefTwoAadhaarBackPic(file)
         }
 
-        if(fieldPath === 'guarantor2.refTwoPanPic'){
+        if(fieldPath === 'guarantor2.refTwoAadhaarPANPhoto'){
           setRefTwoPanPhoto(file)
         }
 
@@ -196,7 +196,7 @@ export default function KycForm3() {
 
 
 
-    mutate({kycId:"693b21b68e5c8c09d6478ead",payload:formData},     {
+    mutate({kycId:params?.kycId,payload:formData},     {
                         onSuccess: () => {
                           Alert.alert('✅ KYC Updated Successfully!')
                           // navigation.navigate("kycForm3",newData);  
@@ -744,9 +744,9 @@ export default function KycForm3() {
           }
         />
       <UploadBox
-          uri={formData.guarantor2.refTwoPanPic}
+          uri={formData.guarantor2.refTwoAadhaarPANPhoto}
           label="PAN Pic"
-          onPress={() => handleSelectImage("guarantor2.refTwoPanPic")}
+          onPress={() => handleSelectImage("guarantor2.refTwoAadhaarPANPhoto")}
         />
         <Text style={styles.label}>PAN Number</Text>
         <TextInput
@@ -791,8 +791,8 @@ export default function KycForm3() {
             onPress={() => {
                 const filteredData = {...formData.guarantor2,...formData.guarantor1}
                 // const removeKeys = [
-                //   "refTwoPanPic[0]",
-                //   "refTwoPanPic[1]",
+                //   "refTwoAadhaarPANPhoto[0]",
+                //   "refTwoAadhaarPANPhoto[1]",
                 //   "aadhaarFrontPic",
                 //   "aadhaarBackPic",
                 //   "aadhaarNumber",
@@ -807,8 +807,8 @@ export default function KycForm3() {
                 //   delete filteredData[key];
                 // });
 
-                delete filteredData['refTwoPanPic[0]']
-                delete filteredData['refTwoPanPic[1]']
+                delete filteredData['refTwoAadhaarPANPhoto[0]']
+                delete filteredData['refTwoAadhaarPANPhoto[1]']
                 delete filteredData['aadhaarFrontPic']
                 delete filteredData['aadhaarBackPic']
                 delete filteredData['aadhaarNumber']
@@ -821,7 +821,7 @@ export default function KycForm3() {
 
                 console.log("filteredData",JSON.stringify(filteredData))
                 // return;
-                  submitkyc({kycId:"693b21b68e5c8c09d6478ead",payload:filteredData},{
+                  submitkyc({kycId:params?.kycId,payload:filteredData},{
                         onSuccess: () => {
                           Alert.alert('✅ Guarantor Detail Updated Successfully!')
                           // navigation.navigate("kycForm3",newData);  

@@ -3,8 +3,8 @@ import { EmiData } from './type.ts';
 
 
 export const getEmis = async (page = 1, limit = 20, dueType?: string) => {
-  const url = `/api/emi?page=${page}&limit=${limit}`;
-  
+  // const url = `/api/emi?page=${page}&limit=${limit}`;
+  const url = '/api/emiSchemeLoan/emiScheme'
   const res = await apiClient.get(url);
   return res.data; // full response needed (pageInfo + data)
 };

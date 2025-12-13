@@ -10,6 +10,7 @@ export const createKyc = async (payload:KYC1): Promise<void> => {
   
    return response.data;     
    } catch (error) {
+      console.log("Error",error)
          throw new Error(error);
    }
 }
@@ -29,6 +30,7 @@ export const createKyc1 = async (kycId:string,payload:KYC2): Promise<void> => {
 
 export const createKyc2 = async (kycId:string,payload:ReferenceDetails): Promise<void> => {
    console.log("payload22",payload,kycId)
+   console.log("++++",JSON.stringify(payload))
    try {
     
    const response = await apiClient.post('/api/kyc/'+kycId+"/submit",payload);

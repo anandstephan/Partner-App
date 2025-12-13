@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -29,6 +29,15 @@ const Leads = () => {
   const [modalVisible,setModalVisible] = useState(false)
   const [leadInfo,setLeadInfo] = useState('')
   const {data,isLoading} = useLead()
+  const [currentPage, setCurrentPage] = useState(null);
+  const [leadData, setLeadData] = useState(null);
+
+    useEffect(() => {
+    if (data) {
+      setLeadData(data?.data);
+    }
+    }, [data]);
+
 
   if(isLoading){
     return <View style={{flex:1,justifyContent:"center",alignItems:'center'}}>
@@ -57,24 +66,61 @@ const Leads = () => {
         <View style={styles.progressStats}>
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Leads</Text>
-            <Text style={styles.statValue}>122</Text>
+            <Text style={styles.statValue}>{data?.data?.length}</Text>
           </View>
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>KYC</Text>
-            <Text style={styles.statValue}>80</Text>
+            <Text style={styles.statValue}>{data?.data?.filter(item => item?.leadStatus === 'moved_to_kyc').length}</Text>
           </View>
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Onboarding</Text>
-            <Text style={styles.statValue}>50</Text>
+            <Text style={styles.statValue}>{data?.data?.filter(item => item?.leadStatus === 'kyc_submitted').length}</Text>
           </View>
         </View>
         <View style={{ marginHorizontal: 40 }}>
-          <ProgressBar progress={60} />
+          <ProgressBar progress={currentPage} />
         </View>
         <View style={[styles.rowContainer,{top:-10,marginHorizontal:40}]}>
-          <View style={styles.circle} />
-          <View style={styles.circle} />
-          <View style={styles.circle} />
+   <Pressable onPress={() => {
+    setCurrentPage(0)
+      setLeadData(data?.data?.filter(item => item.leadStatus === 'new'))
+    }}>
+  <View
+    style={[
+      styles.circle,
+      currentPage >= 0 && { backgroundColor: "gray" }
+    ]}
+  />
+</Pressable>
+
+<Pressable onPress={() => {
+  setCurrentPage(50)
+  // setLeadData(data)
+   
+  setLeadData(data?.data?.filter(item => item.leadStatus === 'moved_to_kyc'))
+}}>
+  <View
+    style={[
+      styles.circle,
+      currentPage >=50 && { backgroundColor: "gray" }
+    ]}
+  />
+</Pressable>
+
+<Pressable onPress={() => {
+  setCurrentPage(100)
+  setLeadData(data?.data?.filter(item => item.leadStatus === 'kyc_submitted'))
+}}>
+  <View
+    style={[
+      styles.circle,
+      currentPage >= 100 && { backgroundColor: "gray" }
+    ]}
+  />
+</Pressable>
+
+      
+      
         </View>
       </View>
 
@@ -107,7 +153,7 @@ const Leads = () => {
             height={width}
           />
           {/* Lead Rows */}
-          {data?.data?.map((lead:Lead,idx:number) => (
+          {leadData?.map((lead:Lead,idx:number) => (
             <LeadRow key={idx} lead={lead} idx={idx} setModalVisible={setModalVisible} setLeadInfo={setLeadInfo}  />
           ))}
 

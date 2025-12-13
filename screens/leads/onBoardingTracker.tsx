@@ -27,22 +27,22 @@ export default function OnboardingTracker() {
 
       const { mutate, isPending, error, isError } = useCreateCollection();
       const {mutate:submitOnBoard} = useOnBoard()
-  const dealerParams = useMemo(() => {
-    if (
-      params?.leadInfo?.stateId &&
-      params?.leadInfo?.cityId &&
-      params?.leadInfo?.clusterId &&
-      dealerId
-    ) {
-      return {
-        stateId: params.leadInfo.stateId,
-        cityId: params.leadInfo.cityId,
-        clusterId: params.leadInfo.clusterId,
-        role: dealerId,
-      };
-    }
-    return null;
-  }, [params, dealerId]);
+          const dealerParams = useMemo(() => {
+            if (
+              params?.leadInfo?.stateId &&
+              params?.leadInfo?.cityId &&
+              params?.leadInfo?.clusterId &&
+              dealerId
+            ) {
+              return {
+                stateId: params.leadInfo.stateId,
+                cityId: params.leadInfo.cityId,
+                clusterId: params.leadInfo.clusterId,
+                role: dealerId,
+              };
+            }
+            return null;
+          }, [params, dealerId]);
 
 
   const { data: dealerData = [] } = useDealerByParams(dealerParams ?? undefined);
@@ -66,14 +66,13 @@ export default function OnboardingTracker() {
   // ✅ Memoized filtered data (no state, no re-renders)
   
   const filteredData = useMemo(() => {
-        console.log("Chaman",emiData)
+
     if (!emiData.data?.length) return [];
-    console.log(emiData.data,"Emi")
     return emiData.data?.filter(
-      (item) => item.emiSchemeId?.dealerId === selectedDealerId && item.emiSchemeId?.productType=== selectedProductType && item.emiSchemeId?.paymentFrequency === selectedpaymentFrequency
+      (item) => item?.dealerId?._id === selectedDealerId && item?.productType=== selectedProductType && item?.paymentFrequency === selectedpaymentFrequency
     );
   }, [emiData,selectedDealerId,selectedProductType,selectedpaymentFrequency]);
-  console.log("Filter",filteredData)
+ 
 
   const productTypesOptions = [
     {
@@ -95,11 +94,10 @@ export default function OnboardingTracker() {
   const selectedSchemeDetails = useMemo(() => {
     if (!selectedScheme) return {};
     const scheme = filteredData.find(
-      (item) => item?.emiSchemeId?._id === selectedScheme
+      (item) => item?._id.toString() === selectedScheme.toString()
     );
-    return scheme?.emiSchemeId ?? {};
+    return scheme ?? {};
   }, [selectedScheme, filteredData]);
-
   const update = (k: string, v: string) => setForm((prev) => ({ ...prev, [k]: v }));
 
   const submit = () => {
@@ -108,11 +106,11 @@ export default function OnboardingTracker() {
         "collectionType": "DOWN_PAYMENT",
         "amount": 2000,
         "paymentMode": "cash",
-        "productType": selectedProductType,
+        "productType": selectedProductType === "Battery(Li)" ? 'battery':'',
         "partnerType": "driver"
     },{
       onSuccess:(res) =>{
-        console.log("mutate",res?.data._id)
+        console.log("mutate",res)
 
     form['emiSchemeId'] = selectedScheme
   
@@ -131,7 +129,7 @@ export default function OnboardingTracker() {
         // navigation.goBack()
       },
       onError: (err) => {
-        Alert.alert("Error",err.message)
+        // Alert.alert("Error",err.message)
         console.log("Error",err)
       }
     })
@@ -181,6 +179,7 @@ export default function OnboardingTracker() {
             onChange={(val) =>{
               setSelectedProductType(val.value)
             }}
+            value={selectedProductType}
           />
             <Dropdown
             style={styles.input}
@@ -195,7 +194,7 @@ export default function OnboardingTracker() {
               { label: "Monthly", value: "monthly" },
               { label: "Bi-Monthly", value: "bi-monthly" },
             ]}
-            value={paymentFrequency}
+            value={selectedpaymentFrequency}
             onChange={(val) =>{
               setSelectedpaymentFrequency(val.value)
             }}
@@ -209,10 +208,11 @@ export default function OnboardingTracker() {
             valueField="value"
             placeholder="EMI Scheme Name"
             value={selectedScheme}
+            // onChange={(i) => console.log("BValue",i)}
             onChange={(i) => setSelectedScheme(i.value)}
             data={filteredData.map((item) => ({
-              label: item?.emiSchemeId?.schemeName,
-              value: item?.emiSchemeId?._id,
+              label: item?.schemeName,
+              value: item?._id,
             }))}
           />
 
