@@ -8,3 +8,22 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+
+# React Native
+-keep class com.facebook.react.** { *; }
+-keep class com.facebook.hermes.** { *; }
+-keep class com.facebook.jni.** { *; }
+
+# Reanimated
+-keep class com.swmansion.reanimated.** { *; }
+
+# MMKV
+-keep class com.tencent.mmkv.** { *; }
+
+# Networking
+-keep class okhttp3.** { *; }
+
+# JNI
+-keepclassmembers class * {
+    native <methods>;
+}

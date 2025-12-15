@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    // elevation: 1,
   },
   placeholder: { color: "#999", fontSize: 14 },
   value: { color: "#000", fontSize: 14 },

@@ -2,8 +2,8 @@ import axios from 'axios';
 import { Storage } from '../utilites/storage'; // ensure named import if you exported like `export const Storage = { ... }`
 
 const apiClient = axios.create({
-  // baseURL: 'https://backendverse.digivoltt.com',
-  baseURL:"http://localhost:5000",
+  baseURL: 'https://backendverse.digivoltt.com',
+  // baseURL:"http://localhost:5000",
   timeout: 5000,
   withCredentials: true,
 });

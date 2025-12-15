@@ -8,9 +8,11 @@ import {
   Pressable,
   Image,
   Alert,
+  Platform,
+  PermissionsAndroid
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
-import { launchImageLibrary } from "react-native-image-picker";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import Icon from "react-native-vector-icons/FontAwesome";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Colors from "../../constants/color";
@@ -31,6 +33,8 @@ export default function KycForm3() {
   const [rcFrontPic,setRcFrontPic] = useState(null)
   const [rcBackPic, setRcBackPic] = useState(null);
     const [checked,setChecked] = useState(false)
+
+const [showRegDatePicker, setShowRegDatePicker] = useState(false);
 
   console.log("====>",params?.kycId)
   // ✅ Unified form state
@@ -106,10 +110,36 @@ export default function KycForm3() {
     }));
   };
 
+  
+      const requestCameraPermission = async () => {
+        if (Platform.OS !== "android") return true;
+      
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: "Camera Permission",
+            message: "Camera permission is required to take photos",
+            buttonPositive: "OK",
+          }
+        );
+      
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      };
+
+
   // ✅ Universal image picker
   const handleSelectImage = async (fieldPath: string) => {
+
+        const hasPermission = await requestCameraPermission();
+            if (!hasPermission) {
+              Alert.alert("Permission required", "Camera permission denied");
+              return;
+            }
+
+
+    
     console.log("FFFFFF",fieldPath)
-    const result = await launchImageLibrary({ mediaType: "photo", quality: 1 });
+    const result = await launchCamera({ mediaType: "photo", quality: 0.2 });
     if (result.didCancel) return;
     const asset = result.assets?.[0];
     if (!asset?.uri) return;
@@ -429,21 +459,54 @@ export default function KycForm3() {
           editable={false}
         />
 
-        <Text style={styles.label}>Vehicle Registration Date</Text>
+        {/* <Text style={styles.label}>Vehicle Registration Date</Text> */}
         {/* <TextInput
           style={styles.input}
           placeholder="Enter Registration Date"
           value={formData.vehicleRegistrationDate}
           onChangeText={(v) => updateFormData("vehicleRegistrationDate", v)}
         /> */}
-         <DateTimePicker
-          value={formData.vehicleRegistrationDate || new Date()}
+         {/* <DateTimePicker
+          value={new Date(formData.vehicleRegistrationDate) || new Date()}
           mode="date"
           display="default"
           onChange={(event, date) => {
             if (date) updateFormData("vehicleRegistrationDate", date);
           }}
-        />
+        /> */}
+        <Text style={styles.label}>Vehicle Registration Date</Text>
+
+            <Pressable onPress={() => setShowRegDatePicker(true)}>
+            <TextInput
+              style={styles.input}
+              placeholder="Select Registration Date"
+              value={
+                formData.vehicleRegistrationDate
+                  ? new Date(formData.vehicleRegistrationDate).toDateString()
+                  : ""
+              }
+              editable={false}
+              pointerEvents="none"
+            />
+            </Pressable>
+
+              {showRegDatePicker && (
+                <DateTimePicker
+                  value={
+                    formData.vehicleRegistrationDate
+                      ? new Date(formData.vehicleRegistrationDate)
+                      : new Date()
+                  }
+                  mode="date"
+                  display={Platform.OS === "android" ? "default" : "spinner"}
+                  onChange={(event, date) => {
+                    setShowRegDatePicker(false); // 👈 Android fix
+                    if (date) {
+                      updateFormData("vehicleRegistrationDate", date.toISOString());
+                    }
+                  }}
+                />
+              )}
 
         <Text style={styles.label}>Make</Text>
         <TextInput

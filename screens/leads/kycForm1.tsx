@@ -8,9 +8,11 @@ import {
   Pressable,
   Image,
   Alert,
+  Platform,
+  PermissionsAndroid,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
-import { launchImageLibrary } from "react-native-image-picker";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -82,11 +84,32 @@ export default function KycForm1() {
     { label: "Others", value: "other" },
   ];
 
+const requestCameraPermission = async () => {
+  if (Platform.OS !== "android") return true;
+
+  const granted = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.CAMERA,
+    {
+      title: "Camera Permission",
+      message: "Camera permission is required to take photos",
+      buttonPositive: "OK",
+    }
+  );
+
+  return granted === PermissionsAndroid.RESULTS.GRANTED;
+};
+
   // ✅ Image Picker + Upload
   const handleSelectImage = async (field: "aadhaarFrontPhoto" | "aadhaarBackPhoto" | "selfie") => {
-    const result = await launchImageLibrary({
+      const hasPermission = await requestCameraPermission();
+  if (!hasPermission) {
+    Alert.alert("Permission required", "Camera permission denied");
+    return;
+  }
+    
+    const result = await launchCamera({
       mediaType: "photo",
-      quality: 0.8,
+      quality: 0.2,
     });
     console.log("Result", result);
     if (result.didCancel) return;
