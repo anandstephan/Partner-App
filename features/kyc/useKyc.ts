@@ -12,6 +12,9 @@ export const useKyc1 = () => {
       // invalidate cached list after successful POST
       queryClient.invalidateQueries(['kyc1']);
     },
+    onError: (err) => {
+      console.log("Error",err)
+    }
   });
 
   return mutation;

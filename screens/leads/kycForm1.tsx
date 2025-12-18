@@ -23,7 +23,7 @@ import { uploadToS3 } from "../../features/upload/uploadService";
 import Entypo from 'react-native-vector-icons/Entypo';
 import { useOcr } from "../../features/ocr/useOcr";
 import { ocrService } from "../../features/ocr/ocrService";
-import CheckBox from 'react-native-check-box'
+import CheckBox from '@react-native-community/checkbox';
 import { check } from "react-native-permissions";
 
 // import { uploadService } from "../../features/upload/uploadService";
@@ -31,6 +31,7 @@ import { check } from "react-native-permissions";
 export default function KycForm1() {
   const navigation = useNavigation();
   const {params:{leadInfo}} = useRoute()
+  console.log("+++++",leadInfo)
       const { mutate:upload} = useUpload()
       const {mutate:OcrUpload} = useOcr()
   // console.log("LeadInfo",leadInfo)
@@ -40,7 +41,7 @@ export default function KycForm1() {
   const [formData, setFormData] = useState({
     firstName: ""+leadInfo.firstName,
     lastName: "last"+leadInfo.lastName,
-    smartPhoneUser: null,
+    smartPhoneUser: false,
     aadhaarNo: "",
     nameAsPerAadhaar:"",
     gender: null,
@@ -50,7 +51,7 @@ export default function KycForm1() {
     aadhaarBackPhoto: null,
     addressAsPerAadhaar: "",
     permanentAddress:"",
-    selfie:null,
+    selfie:leadInfo?.selfieWithCustomer,
   });
 
   const [aadharFrontFile, setAadharFrontFile] = useState(null);
@@ -101,13 +102,13 @@ const requestCameraPermission = async () => {
 
   // ✅ Image Picker + Upload
   const handleSelectImage = async (field: "aadhaarFrontPhoto" | "aadhaarBackPhoto" | "selfie") => {
-      const hasPermission = await requestCameraPermission();
-  if (!hasPermission) {
-    Alert.alert("Permission required", "Camera permission denied");
-    return;
-  }
+  //     const hasPermission = await requestCameraPermission();
+  // if (!hasPermission) {
+  //   Alert.alert("Permission required", "Camera permission denied");
+  //   return;
+  // }
     
-    const result = await launchCamera({
+    const result = await launchImageLibrary({
       mediaType: "photo",
       quality: 0.2,
     });
@@ -204,11 +205,11 @@ const requestCameraPermission = async () => {
         {
           formData.selfie ? <View style={{justifyContent:'center',alignItems:'center'}}>
             <Image source={{uri:formData.selfie}} style={{...styles.circle}}/>
-            <Pressable style={{zIndex:2, position:'absolute',left:'55%',top:0}} onPress={()=>{
+            {/* <Pressable style={{zIndex:2, position:'absolute',left:'55%',top:0}} onPress={()=>{
               setFormData({...formData,'selfie':null})
             }}>
             <Entypo name="cross" size={30} color="#000" />
-            </Pressable>
+            </Pressable> */}
 
           </View>
           :
@@ -382,22 +383,32 @@ const requestCameraPermission = async () => {
           editable={false}
         />
         <View style={{
-          flexDirection:"row",
-          justifyContent:"flex-start",
-          alignItems:'center'
+          flexDirection:'row',
+          alignItems:'center',
+          justifyContent:'flex-start',
+          marginHorizontal:10
         }}>
+        <View
+        style={{ transform: [{ scale: 0.5 }],marginLeft:-15,}}
+        >
         <CheckBox
-      
-        rightText="Same As Permanent Address"
-          style={{flex: 1, padding: 10}}
-          onClick={() => {
-            console.log("checked",checked)
+          onValueChange={() => {
+            console.log("checked09",checked)
             setChecked(!checked)
           }}
-          checked={checked}
-          
+          lineWidth={2}
+          value={checked}
+          boxType="square"
+        onFillColor={Colors.secondary}
+        onTintColor={Colors.secondary}
           />
         </View>
+        <View style={{flex:1,marginRight:10}}>
+        <Text>Permanent Add. Same as Current Address</Text>
+        </View>
+
+        </View>
+      
        
 
          <Text style={styles.label}>Permanent Address</Text>

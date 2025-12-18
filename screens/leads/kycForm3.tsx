@@ -130,16 +130,16 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
   // ✅ Universal image picker
   const handleSelectImage = async (fieldPath: string) => {
 
-        const hasPermission = await requestCameraPermission();
-            if (!hasPermission) {
-              Alert.alert("Permission required", "Camera permission denied");
-              return;
-            }
+    //     const hasPermission = await requestCameraPermission();
+    //         if (!hasPermission) {
+    //           Alert.alert("Permission required", "Camera permission denied");
+    //           return;
+    //         }
 
 
     
-    console.log("FFFFFF",fieldPath)
-    const result = await launchCamera({ mediaType: "photo", quality: 0.2 });
+    // console.log("FFFFFF",fieldPath)
+    const result = await launchImageLibrary({ mediaType: "photo", quality: 0.2 });
     if (result.didCancel) return;
     const asset = result.assets?.[0];
     if (!asset?.uri) return;

@@ -10,11 +10,13 @@ export default function useLocation() {
 
   const requestPermission = async () => {
     if (Platform.OS !== "android") return true;
-
+    
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
     );
+    console.log("+++++|||",granted!==PermissionsAndroid.RESULTS.GRANTED);
 
+    // return;
     if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
       Alert.alert("Permission required", "Location permission is required");
       return false;
@@ -41,12 +43,13 @@ export default function useLocation() {
           setLoading(false);
         },
         error => {
-          setError(error.message);
-          Alert.alert("Location error", error.message);
-          setLoading(false);
+          console.log("ERRRRRR",error.message)
+          // setError(error.message);
+          // Alert.alert("Location error", error.message);
+          // setLoading(false);
         },
         {
-          enableHighAccuracy: false, // 🔥 important
+          enableHighAccuracy: true, // 🔥 important
           timeout: 20000,
           maximumAge: 10000,
           forceRequestLocation: true,

@@ -50,13 +50,16 @@
     });
 
     const [panPic,setPanPic] = useState(null)
-    const [dlFrontPic, setDlFrontPic] = useState(null);
-    const [dlBackPic, setDlBackPic] = useState(null);
 
     const { mutate } = useKyc1();
 
     // ✅ Universal update function
     const updateFormData = (field: string, value: any) => {
+      if(field === "housePhoto" || field === 'localityPhotos'){
+      
+        setFormData((prev) => ({ ...prev, [field]: value}));
+        // return
+      }
       setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -87,12 +90,12 @@
 
     // ✅ Universal image picker
     const handleSelectImage = async (field: string) => {
-           const hasPermission = await requestCameraPermission();
-        if (!hasPermission) {
-          Alert.alert("Permission required", "Camera permission denied");
-          return;
-        }
-      const result = await launchCamera({ mediaType: "photo", quality: 0.2 });
+        //    const hasPermission = await requestCameraPermission();
+        // if (!hasPermission) {
+        //   Alert.alert("Permission required", "Camera permission denied");
+        //   return;
+        // }
+      const result = await launchImageLibrary({ mediaType: "photo", quality: 0.2 });
       if (result.didCancel) return;
       const asset = result.assets?.[0];
       if (!asset?.uri) return;
@@ -111,12 +114,7 @@
       if(field === 'panFrontPhoto'){
         setPanPic(file)
       }
-      if(field === 'dlFrontPhoto'){
-        setDlFrontPic(file)
-      }
-      if(field === 'dlBackPhoto'){
-        setDlBackPic(file)
-      }
+      
 
         upload(payload, {
                 onSuccess: (res) => {
@@ -154,9 +152,9 @@
     // 🔥 MULTIPLE UPLOAD HERE
     uploadMultiple(files, {
       onSuccess: (res) => {
-        console.log("backendRes",res)
+        console.log("backendResMUltipilePic",res)
         // If backend returns array of URLs
-        updateFormData(field, "https://plus.unsplash.com/premium_photo-1672115680958-54438df0ab82?q=80&w=1768&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+        updateFormData(field, res.files[0].fileUrl);
       },
       onError: (err) => {
         Alert.alert("Upload Error", err.message);
@@ -231,33 +229,10 @@
                 })
         }
 
-          if(dlFrontPic!==null && dlBackPic!==null){
-          const front = dlFrontPic
-          const back = dlBackPic
-          const payload = {
-            front,
-            back,
-            docType:"dl"
-          }
-          OcrUpload(payload, {
-                  onSuccess: (res) => {
-                    // updateFormData(field,res.fileUrl)
-                    console.log("===DL",res)
-                    // setFormData(prev => (
-                    //   { ...prev, 
-                    //   ['panNo']: res.data?.docNumber, 
-                
-                    // }))
-                  },
-                  onError: (err) => {
-                    Alert.alert("Error",err.message)
-                    console.log("Error",err)
-                  }
-                })
-        }
 
 
-      },[panPic,dlFrontPic,dlBackPic])
+
+      },[panPic])
     
 
 
@@ -406,10 +381,10 @@
 
           {/* Location */}
           <Pressable onPress={()=>{
-          console.log(location)
-          // location.fetchLocation()
+          // console.log(location)
+          location.fetchLocation()
             // setFormData({...formData,lat:location.lat,lng:location.lng})
-            setFormData({...formData,lat:"28.51768627084503",lng:"77.19762830234326"})
+            // setFormData({...formData,lat:"28.51768627084503",lng:"77.19762830234326"})
           }}>
           <Text style={[styles.label,styles.btn]}>Get a Location</Text>
           </Pressable>

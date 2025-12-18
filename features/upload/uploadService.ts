@@ -25,7 +25,7 @@ export const uploadToS3 = async (file:any) => {
         },
       }
     );
-
+    console.log("response",response.data)
     return response.data;
   } catch (error) {
     console.log("❌ Upload failed:", error);
@@ -51,10 +51,11 @@ export const uploadMultipleToS3 = async (files: any[]) => {
 
     // Extra fields (if required)
     formData.append("category", "test2");
-    formData.append("appName", "test");
-
+    formData.append("appName", "partnerApp");
+    // const url = 'http://localhost:5000/api/others/api/s3/upload/multiple'
+     const url ="https://backendverse.digivoltt.com/api/others/api/s3/upload/multiple"
     const response = await axios.post(
-      "https://backendverse.digivoltt.com/api/others/api/s3/upload/multiple",
+      url,
       formData,
       {
         headers: {
@@ -62,7 +63,6 @@ export const uploadMultipleToS3 = async (files: any[]) => {
         },
       }
     );
-    console.log("______RRRR",response.data)
     return response.data;
   } catch (error) {
     console.log("❌ Multiple upload failed:", error);
