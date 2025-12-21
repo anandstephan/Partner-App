@@ -33,7 +33,11 @@ export default function useLocation() {
       setLoading(false);
       return;
     }
+    console.log("hasPermission",hasPermission)
 
+    
+  // 🔥 IMPORTANT FIX → Delay after permission
+  await new Promise(res => setTimeout(res, 400));
     try {
       Geolocation.getCurrentPosition(
         position => {

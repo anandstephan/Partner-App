@@ -11,7 +11,7 @@ const Stack = createNativeStackNavigator();
 
 
 const Index = () =>{
-return <Stack.Navigator screenOptions={{headerShown:false}} >
+return <Stack.Navigator screenOptions={{headerShown:false}} initialRouteName='kycForm2' >
     <Stack.Screen name='leads' component={Leads}/> 
     <Stack.Screen name="createLead" component={CreateLead}/>
     <Stack.Screen name="kycForm1" component={KycForm1}/>

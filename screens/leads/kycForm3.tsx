@@ -22,7 +22,7 @@ import { useFinalKyc, useKyc2 } from "../../features/kyc/useKyc";
 import { useUpload } from "../../features/upload/useUpload";
 import Entypo from 'react-native-vector-icons/Entypo';
 import { useOcr } from "../../features/ocr/useOcr";
-import CheckBox from 'react-native-check-box'
+import CheckBox from '@react-native-community/checkbox';
 export default function KycForm3() {
   const navigation = useNavigation();
   const {params} = useRoute();
@@ -31,8 +31,9 @@ export default function KycForm3() {
         const {mutate:OcrUpload} = useOcr()
   const {mutate:submitkyc} = useFinalKyc()
   const [rcFrontPic,setRcFrontPic] = useState(null)
-  const [rcBackPic, setRcBackPic] = useState(null);
-    const [checked,setChecked] = useState(false)
+    const [checkedForGuarantor1,setCheckedForGuarantor1] = useState(false)
+    const [checkedForGuarantor2,setCheckedForGuarantor2] = useState(false)
+    
 
 const [showRegDatePicker, setShowRegDatePicker] = useState(false);
 
@@ -41,7 +42,7 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
   const [formData, setFormData] = useState({
     // RC Details
     rcFrontPhoto: null,
-    rcBackPhoto: null,
+
     rcNo: "",
     vehicleRegistrationDate: "",
     vehicleMake: "",
@@ -110,6 +111,19 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
     }));
   };
 
+    useEffect(() => {
+      if (checkedForGuarantor1) {
+        updateGuarantor("guarantor1", "refOnePermanentAddress", formData.guarantor1.refOneAddressAsPerAadhaar)
+      }else{
+  updateGuarantor("guarantor1", "refOnePermanentAddress", "")
+      }
+
+      if (checkedForGuarantor2) {
+        updateGuarantor("guarantor2", "refTwoPermanentAddress", formData.guarantor2.refTwoAddressAsPerAadhaar)
+      }else{
+        updateGuarantor("guarantor2", "refTwoPermanentAddress", "")
+      }
+    }, [checkedForGuarantor1,checkedForGuarantor2]);
   
       const requestCameraPermission = async () => {
         if (Platform.OS !== "android") return true;
@@ -130,11 +144,11 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
   // ✅ Universal image picker
   const handleSelectImage = async (fieldPath: string) => {
 
-    //     const hasPermission = await requestCameraPermission();
-    //         if (!hasPermission) {
-    //           Alert.alert("Permission required", "Camera permission denied");
-    //           return;
-    //         }
+        const hasPermission = await requestCameraPermission();
+            if (!hasPermission) {
+              Alert.alert("Permission required", "Camera permission denied");
+              return;
+            }
 
 
     
@@ -143,6 +157,15 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
     if (result.didCancel) return;
     const asset = result.assets?.[0];
     if (!asset?.uri) return;
+     // ⛔ File size check — 20MB limit
+  const fileSize = asset.fileSize || 0;
+  const MAX_SIZE = 20 * 1024 * 1024; // 20MB in bytes
+
+  if (fileSize > MAX_SIZE) {
+    Alert.alert("File Too Large", "Please upload an image smaller than 20MB.");
+    return;
+  }
+
         const file = {
           uri: asset.uri,
           name: asset.fileName || "photo.jpg",
@@ -158,9 +181,7 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
         if(fieldPath === "rcFrontPhoto"){
           setRcFrontPic(file)
         }
-        if(fieldPath === "rcBackPhoto"){
-          setRcBackPic(file)
-        }
+      
         if(fieldPath === 'guarantor1.refOneAadhaarFrontPic'){
           setRefOneAadhaarFrontPhoto(file)
         }
@@ -224,7 +245,7 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
   const onSave = () => {
     console.log("✅ Final Form Data:", JSON.stringify(formData) );
 
-
+//params?.kycId = 6944e40a69dbf92888bd89d9
 
     mutate({kycId:params?.kycId,payload:formData},     {
                         onSuccess: () => {
@@ -241,9 +262,9 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
   };
 
   useEffect(()=>{
-    if(rcFrontPic !== null && rcBackPic !== null){
+    if(rcFrontPic !== null ){
          const front = rcFrontPic
-            const back = rcBackPic
+            const back = rcFrontPic
             const payload = {
               front,
               back,
@@ -292,7 +313,7 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
                         guarantor1: {
                           ...prev.guarantor1,
                           refOneAadhaarNo: res.data?.docNumber,
-                          refOnePermanentAddress: res.data?.fullAddress,
+                          refOneAddressAsPerAadhaar: res.data?.fullAddress,
                           refOneNameAsPerAadhaar: res.data?.fullName,
                           refOneDOB: res.data?.dateOfBirth
                         }
@@ -348,7 +369,7 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
                         guarantor2: {
                           ...prev.guarantor2,
                           refTwoAadhaarNo: res.data?.docNumber,
-                          refTwoPermanentAddress: res.data?.fullAddress,
+                          refTwoAddressAsPerAadhaar: res.data?.fullAddress,
                           refTwoNameAsPerAadhaar: res.data?.fullName,
                           refTwoDOB: res.data?.dateOfBirth
                           
@@ -371,6 +392,7 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
               docType:"pan"
             }
             OcrUpload(payload, {
+
                     onSuccess: (res) => {
                       // updateFormData(field,res.fileUrl)
                       console.log("===pan",res)
@@ -389,7 +411,7 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
                   })
     }
 
-  },[rcFrontPic,rcBackPic,refOneAadhaarFrontPhoto,refOneAadhaarBackPhoto,refOnePanPic,refTwoAadhaarFrontPic,refTwoAadhaarBackPic,refTwoPanPhoto])
+  },[rcFrontPic,refOneAadhaarFrontPhoto,refOneAadhaarBackPhoto,refOnePanPic,refTwoAadhaarFrontPic,refTwoAadhaarBackPic,refTwoPanPhoto])
 
 
   // ✅ Reusable Upload Component
@@ -443,11 +465,7 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
             label="RC Front"
             onPress={() => handleSelectImage("rcFrontPhoto")}
           />
-          <UploadBox
-            uri={formData.rcBackPhoto}
-            label="RC Back"
-            onPress={() => handleSelectImage("rcBackPhoto")}
-          />
+ 
         </View>
 
         <Text style={styles.label}>RC Number</Text>
@@ -459,21 +477,6 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
           editable={false}
         />
 
-        {/* <Text style={styles.label}>Vehicle Registration Date</Text> */}
-        {/* <TextInput
-          style={styles.input}
-          placeholder="Enter Registration Date"
-          value={formData.vehicleRegistrationDate}
-          onChangeText={(v) => updateFormData("vehicleRegistrationDate", v)}
-        /> */}
-         {/* <DateTimePicker
-          value={new Date(formData.vehicleRegistrationDate) || new Date()}
-          mode="date"
-          display="default"
-          onChange={(event, date) => {
-            if (date) updateFormData("vehicleRegistrationDate", date);
-          }}
-        /> */}
         <Text style={styles.label}>Vehicle Registration Date</Text>
 
             <Pressable onPress={() => setShowRegDatePicker(true)}>
@@ -679,7 +682,32 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
           editable={false}
         />
 
+        <Text style={styles.label}>Aadhaar Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Aadhaar Address"
+          value={formData.guarantor1.refOneAddressAsPerAadhaar}
+          onChangeText={(v) => updateGuarantor("guarantor1", "refOneAddressAsPerAadhaar", v)}
+        />
 
+          <View style={{flexDirection:"row",justifyContent:"flex-start",alignItems:'center',marginHorizontal:10}}>
+          <View style={{ transform: [{ scale: 0.5 }],marginLeft:-15,}}>
+                <CheckBox
+                  onValueChange={() => {
+                    console.log("checked09",checkedForGuarantor1)
+                    setCheckedForGuarantor1(!checkedForGuarantor1)
+                  }}
+                  lineWidth={2}
+                  value={checkedForGuarantor1}
+                  boxType="square"
+                  onFillColor={Colors.secondary}
+                  onTintColor={Colors.primary}
+            />
+          </View>
+          <View style={{flex:1,marginRight:10}}>
+            <Text>Permanent Add. Same as Current Address</Text>
+          </View>
+        </View>
         <Text style={styles.label}>Permanent Address</Text>
         <TextInput
           style={styles.input}
@@ -691,23 +719,9 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
           editable={false}
         />
         
-        <CheckBox
-        rightText="Same As Permanent Address"
-          style={{flex: 1, padding: 10}}
-          onClick={() => {
-            console.log("checked",checked)
-            setChecked(!checked)
-          }}
-          checked={checked}
-          
-          />
-        <Text style={styles.label}>Current Address</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Current Address"
-          value={formData.guarantor1.refOneAddressAsPerAadhaar}
-          onChangeText={(v) => updateGuarantor("guarantor1", "refOneAddressAsPerAadhaar", v)}
-        />
+
+     
+
 
         <UploadBox
           uri={formData.guarantor1.refOneAadhaarPANPhoto}
@@ -786,6 +800,35 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
           }
           editable={false}
         />
+         <Text style={styles.label}>Current Address</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Current Address"
+          value={formData.guarantor2.refTwoAddressAsPerAadhaar}
+          onChangeText={(v) =>
+            updateGuarantor("guarantor2", "refTwoAddressAsPerAadhaar", v)
+          }
+        />
+
+
+          <View style={{flexDirection:"row",justifyContent:"flex-start",alignItems:'center',marginHorizontal:10}}>
+          <View style={{ transform: [{ scale: 0.5 }],marginLeft:-15,}}>
+                <CheckBox
+                  onValueChange={() => {
+                    console.log("checked09",checkedForGuarantor2)
+                    setCheckedForGuarantor2(!checkedForGuarantor2)
+                  }}
+                  lineWidth={2}
+                  value={checkedForGuarantor2}
+                  boxType="square"
+                  onFillColor={Colors.secondary}
+                  onTintColor={Colors.primary}
+            />
+          </View>
+          <View style={{flex:1,marginRight:10}}>
+            <Text>Permanent Add. Same as Current Address</Text>
+          </View>
+        </View>
 
             <Text style={styles.label}>Permanent Address</Text>
         <TextInput
@@ -797,15 +840,7 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
           }
         />
 
-      <Text style={styles.label}>Current Address</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Current Address"
-          value={formData.guarantor2.refTwoAddressAsPerAadhaar}
-          onChangeText={(v) =>
-            updateGuarantor("guarantor2", "refTwoAddressAsPerAadhaar", v)
-          }
-        />
+     
       <UploadBox
           uri={formData.guarantor2.refTwoAadhaarPANPhoto}
           label="PAN Pic"
@@ -853,22 +888,7 @@ const [showRegDatePicker, setShowRegDatePicker] = useState(false);
             style={[styles.footerBtn, styles.saveBtn]}
             onPress={() => {
                 const filteredData = {...formData.guarantor2,...formData.guarantor1}
-                // const removeKeys = [
-                //   "refTwoAadhaarPANPhoto[0]",
-                //   "refTwoAadhaarPANPhoto[1]",
-                //   "aadhaarFrontPic",
-                //   "aadhaarBackPic",
-                //   "aadhaarNumber",
-                //   "name",
-                //   "address",
-                //   "permanentAddress",
-                //   "panPic",
-                //   "panNumber",
-                //   "mobile"
-                // ];
-                // removeKeys.forEach((key) => {
-                //   delete filteredData[key];
-                // });
+               
 
                 delete filteredData['refTwoAadhaarPANPhoto[0]']
                 delete filteredData['refTwoAadhaarPANPhoto[1]']

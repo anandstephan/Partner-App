@@ -2,6 +2,7 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -78,13 +79,16 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace "com.partnerapp"
+    
     defaultConfig {
         applicationId "com.partnerapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 5
         versionName "1.0"
+        missingDimensionStrategy 'react-native-camera', 'general'
     }
+    
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -93,17 +97,17 @@ android {
             keyPassword 'android'
         }
     }
+    
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
-     release {
-    signingConfig signingConfigs.debug
-    minifyEnabled true
-    shrinkResources true
-    proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-}
-
+        release {
+            signingConfig signingConfigs.debug
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
     }
 }
 

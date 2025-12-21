@@ -48,15 +48,15 @@ export default function ActionAlert({showModal,setModalVisible,leadInfo}:modalPr
             <Entypo name="check" size={35} color={Colors.white} />
             </View>
             <Pressable onPress={()=>{
-
+              // navigation.navigate("kycForm3")
               if(leadInfo.leadStatus === 'kyc_submitted'){
 
               navigation.navigate('onBoarding',{leadInfo})
               }else{
-                              navigation.navigate('kycForm1',{leadInfo})
+                navigation.navigate('kycForm1',{leadInfo})
                                             
               }
-setModalVisible(false)
+            setModalVisible(false)
             }}>
             <View style={styles.btnContainer}>
               <Text style={styles.txtStyle}>Move to KYC</Text>

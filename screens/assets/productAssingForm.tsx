@@ -18,7 +18,7 @@ import { useProductAssign } from "../../features/productAssign/useProductAssign"
 import { useRoute } from "@react-navigation/native";
 import { launchImageLibrary } from "react-native-image-picker";
 import { useUpload } from "../../features/upload/useUpload";
-import QRCodeScanner from 'react-native-qrcode-scanner';
+import { Camera, useCameraDevice, useCodeScanner, useCameraPermission } from 'react-native-vision-camera';
 
 export default function ProductAssignForm() {
 
@@ -41,26 +41,42 @@ export default function ProductAssignForm() {
 
   const [brandingMaterial, setBrandingMaterial] = useState<boolean | null>(true);
 
+  const CustomQRCodeScanner = ({onSuccess}:any)=>{
+    const device = useCameraDevice('back');
+  const { hasPermission } = useCameraPermission();
 
+  // 1. QR कोड स्कैनर सेटअप
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr', 'ean-13'], // आप अन्य कोड टाइप्स भी जोड़ सकते हैं
+    onCodeScanned: (codes) => {
+      if (codes.length > 0) {
+        const value = codes[0].value;
+        Alert.alert("Scanned QR Code", value);
+        console.log(`Scanned ${codes.length} codes!`);
+      }
+    }
+  });
 
-  const CustomQRCodeScanner = ({onSuccess,msg}:any)=>{
+  if (!hasPermission) return <Text>No Camera Permission</Text>;
+  if (device == null) return <Text>Loading Camera...</Text>;
     return       <View style={{ height: 100,...styles.inputRowCard,marginHorizontal:20,marginVertical:20 }}>
-      <QRCodeScanner
-        onRead={onSuccess}
-        showMarker={false}
-        cameraStyle={{ height: "100%" }}
-        containerStyle={{ flex: 1,marginLeft: -50 }}
-          topContent={
-          <Text style={styles.centerText}>
-            {msg}
-          </Text>
-        }
+     <Camera
+        style={StyleSheet.absoluteFill}
+        device={device}
+        isActive={true}
+        codeScanner={codeScanner} // स्कैनर को यहाँ पास करें
       />
+      
+      {/* Overlay for UI (Optional) */}
+      <View style={styles.overlay}>
+        <View style={styles.scannerFrame} />
+        <Text style={styles.text}>Align QR Code inside the box</Text>
+      </View>
     </View>
   }
 
   const handleSubmit = () => {  
-    console.log("Batter",BatteryhandoverDate.toUTCString())
+    console.log("Batter",BatteryhandoverDate?.toUTCString())
     const formData = {
       leadId: params?.leadId,
       batteryId,
@@ -130,7 +146,12 @@ export default function ProductAssignForm() {
       <Header title="Product Assign" />
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* ---- Product IDs ---- */}
-        <CustomQRCodeScanner msg="Scan the QR code for Vehicle ID"/>
+        {/* <CustomQRCodeScanner msg="Scan the QR code for Vehicle ID"/> */}
+        <CustomQRCodeScanner
+  onSuccess={(code) => {
+    console.log("QR:", code);
+  }}
+/>
         <View style={styles.card}>
           <TextInput placeholder="Vehicle ID" value="" style={styles.input} />
         </View>
@@ -147,7 +168,7 @@ export default function ProductAssignForm() {
                       </Pressable>
           }
 
-        <CustomQRCodeScanner msg="Scan the QR code for Battery ID"/>
+        {/* <CustomQRCodeScanner msg="Scan the QR code for Battery ID"/> */}
          <View style={styles.card}>
           <TextInput placeholder="Battery OEM ID" value="" style={styles.input} />
         </View>
@@ -163,7 +184,7 @@ export default function ProductAssignForm() {
                       </View>
                       </Pressable>
           }
-                  <CustomQRCodeScanner msg="Scan the QR code for Charger ID"/>
+                  {/* <CustomQRCodeScanner msg="Scan the QR code for Charger ID"/> */}
          <View style={styles.card}>
           <TextInput placeholder="Charger OEM ID" value="" style={styles.input} />
         </View>
@@ -196,22 +217,22 @@ export default function ProductAssignForm() {
 
         {/* ---- Dates ---- */}
           <Text style={styles.label}>  handover Date</Text>
-          <DateTimePicker
+          {/* <DateTimePicker
           value={BatteryhandoverDate || new Date()}
-          display="default"
+          // display="default"
           mode="date"
           onChange={(event,date)=>{
               setBatteryHandoverDate(date)
           }}
-          />
+          /> */}
     
           <Text style={styles.label}>EMI Start Date</Text>
-          <DateTimePicker
+          {/* <DateTimePicker
           value={ChargerhandoverDate || new Date()}
-          display="default"
+          // display="default"
           mode="date"
           onChange={(event,date)=>setChargerHandoverDate(date)}
-          />
+          /> */}
 
             {/* {chargerPhoto ? 
           <Image source={{uri:chargerPhoto}} style={{width:100,height:100}} /> : 
@@ -226,12 +247,12 @@ export default function ProductAssignForm() {
                       </Pressable>
           }  */}
          <Text style={styles.label}>EMI End Date</Text>
-          <DateTimePicker
+          {/* <DateTimePicker
           value={emiStartDate || new Date()}
-          display="default"
+          // display="default"
           mode="date"
           onChange={(event,date)=>setEmiStartDate(date)}
-          />
+          /> */}
         {/* ---- Warranty ---- */}
           <InputField
             label="Battery Warranty Tenure"
@@ -447,4 +468,22 @@ const styles = StyleSheet.create({
   },
   submitText: { color: "#fff", fontWeight: "600", fontSize: 16 },
     uploadContent: { alignItems: "center", justifyContent: "center" },
+    overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  scannerFrame: {
+    width: 250,
+    height: 250,
+    borderWidth: 2,
+    borderColor: 'white',
+    borderRadius: 10,
+  },
+  text: {
+    color: 'white',
+    marginTop: 20,
+    fontSize: 16,
+  }
 });

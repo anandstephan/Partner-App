@@ -26,15 +26,12 @@ import { ocrService } from "../../features/ocr/ocrService";
 import CheckBox from '@react-native-community/checkbox';
 import { check } from "react-native-permissions";
 
-// import { uploadService } from "../../features/upload/uploadService";
-
 export default function KycForm1() {
   const navigation = useNavigation();
   const {params:{leadInfo}} = useRoute()
   console.log("+++++",leadInfo)
-      const { mutate:upload} = useUpload()
-      const {mutate:OcrUpload} = useOcr()
-  // console.log("LeadInfo",leadInfo)
+  const { mutate:upload} = useUpload()
+  const {mutate:OcrUpload} = useOcr()
   const [checked,setChecked] = useState(false)
 
   // ✅ Single unified form state
@@ -69,6 +66,84 @@ export default function KycForm1() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // ✅ Validation function
+  const validateForm = () => {
+    // Check selfie
+    if (!formData.selfie) {
+      Alert.alert("Validation Error", "Please upload selfie with customer");
+      return false;
+    }
+
+    // Check gender
+    if (!formData.gender) {
+      Alert.alert("Validation Error", "Please select gender");
+      return false;
+    }
+
+    // Check marital status
+    if (!formData.marritalStatus) {
+      Alert.alert("Validation Error", "Please select marital status");
+      return false;
+    }
+
+    // Check smart phone user (should always have a value, but just in case)
+    if (formData.smartPhoneUser === null || formData.smartPhoneUser === undefined) {
+      Alert.alert("Validation Error", "Please select if customer is a smartphone user");
+      return false;
+    }
+
+    // Check Aadhaar front photo
+    if (!formData.aadhaarFrontPhoto) {
+      Alert.alert("Validation Error", "Please upload Aadhaar front photo");
+      return false;
+    }
+
+    // Check Aadhaar back photo
+    if (!formData.aadhaarBackPhoto) {
+      Alert.alert("Validation Error", "Please upload Aadhaar back photo");
+      return false;
+    }
+
+    // Check Aadhaar number
+    if (!formData.aadhaarNo || formData.aadhaarNo.trim() === "") {
+      Alert.alert("Validation Error", "Aadhaar number is required");
+      return false;
+    }
+
+    // Validate Aadhaar number format (12 digits)
+    const aadhaarRegex = /^\d{12}$/;
+    if (!aadhaarRegex.test(formData.aadhaarNo.replace(/\s/g, ''))) {
+      Alert.alert("Validation Error", "Please enter a valid 12-digit Aadhaar number");
+      return false;
+    }
+
+    // Check name as per Aadhaar
+    if (!formData.nameAsPerAadhaar || formData.nameAsPerAadhaar.trim() === "") {
+      Alert.alert("Validation Error", "Name as per Aadhaar is required");
+      return false;
+    }
+
+    // Check DOB
+    if (!formData.dob) {
+      Alert.alert("Validation Error", "Date of birth is required");
+      return false;
+    }
+
+    // Check address as per Aadhaar
+    if (!formData.addressAsPerAadhaar || formData.addressAsPerAadhaar.trim() === "") {
+      Alert.alert("Validation Error", "Address as per Aadhaar is required");
+      return false;
+    }
+
+    // Check permanent address
+    if (!formData.permanentAddress || formData.permanentAddress.trim() === "") {
+      Alert.alert("Validation Error", "Permanent address is required");
+      return false;
+    }
+
+    return true;
+  };
+
   // Dropdown data
   const smartphoneOptions = [
     { label: "Yes", value: "yes" },
@@ -85,72 +160,79 @@ export default function KycForm1() {
     { label: "Others", value: "other" },
   ];
 
-const requestCameraPermission = async () => {
-  if (Platform.OS !== "android") return true;
+  const requestCameraPermission = async () => {
+    if (Platform.OS !== "android") return true;
 
-  const granted = await PermissionsAndroid.request(
-    PermissionsAndroid.PERMISSIONS.CAMERA,
-    {
-      title: "Camera Permission",
-      message: "Camera permission is required to take photos",
-      buttonPositive: "OK",
-    }
-  );
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+      {
+        title: "Camera Permission",
+        message: "Camera permission is required to take photos",
+        buttonPositive: "OK",
+      }
+    );
 
-  return granted === PermissionsAndroid.RESULTS.GRANTED;
-};
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
+  };
 
   // ✅ Image Picker + Upload
-  const handleSelectImage = async (field: "aadhaarFrontPhoto" | "aadhaarBackPhoto" | "selfie") => {
-  //     const hasPermission = await requestCameraPermission();
-  // if (!hasPermission) {
-  //   Alert.alert("Permission required", "Camera permission denied");
-  //   return;
-  // }
-    
-    const result = await launchImageLibrary({
-      mediaType: "photo",
-      quality: 0.2,
-    });
-    console.log("Result", result);
-    if (result.didCancel) return;
-    const asset = result.assets?.[0];
-    if (!asset?.uri) return;
-
-    const file = {
-      uri: asset.uri,
-      name: asset.fileName || "photo.jpg",
-      type: asset.type || "image/jpeg",
-    };
-    
-    const payload = {
-      ...file,
-      category:field,
-      appName:"employeeApp"
-
+const handleSelectImage = async (
+  field: "aadhaarFrontPhoto" | "aadhaarBackPhoto" | "selfie"
+) => {
+     const permission = await requestCameraPermission();
+    if (!permission) {
+                    Alert.alert("Permission required", "Camera permission denied");
+                    return;
     }
-    if(field==="aadhaarFrontPhoto"){
-      setAadharFrontFile(file)
-    }
-    if(field==="aadhaarBackPhoto"){
-      setAadharBackFile(file)
-    }
+  const result = await launchCamera({
+    mediaType: "photo",
+    quality: 0.2,
+  });
 
-      upload(payload, {
-              onSuccess: (res) => {
-                // Alert.alert('✅ Photo Updated Successfully!')
-                updateFormData(field,res.fileUrl)
-              },
-              onError: (err) => {
-                Alert.alert("Error",err.message)
-                console.log("Error",err)
-              }
-            })
-      
+  if (result.didCancel) return;
 
-        
-    
+  const asset = result.assets?.[0];
+  if (!asset?.uri) return;
+
+  // ⛔ File size check — 20MB limit
+  const fileSize = asset.fileSize || 0;
+  const MAX_SIZE = 20 * 1024 * 1024; // 20MB in bytes
+
+  if (fileSize > MAX_SIZE) {
+    Alert.alert("File Too Large", "Please upload an image smaller than 20MB.");
+    return;
+  }
+
+  const file = {
+    uri: asset.uri,
+    name: asset.fileName || "photo.jpg",
+    type: asset.type || "image/jpeg",
   };
+
+  const payload = {
+    ...file,
+    category: field,
+    appName: "employeeApp",
+  };
+
+  if (field === "aadhaarFrontPhoto") {
+    setAadharFrontFile(file);
+  }
+  if (field === "aadhaarBackPhoto") {
+    setAadharBackFile(file);
+  }
+
+  upload(payload, {
+    onSuccess: (res) => {
+      updateFormData(field, res.fileUrl);
+    },
+    onError: (err) => {
+      Alert.alert("Error", err.message);
+      console.log("Error", err);
+    },
+  });
+};
+
 
   useEffect(()=>{
     if(aadharFrontFile!==null && aadharBackFile!==null){
@@ -162,32 +244,42 @@ const requestCameraPermission = async () => {
         docType:"aadhaar"
       }
       OcrUpload(payload, {
-              onSuccess: (res) => {
-                // updateFormData(field,res.fileUrl)
-                console.log("===",res)
-                setFormData(prev => (
-                  { ...prev, 
-                  ['aadhaarNo']: res.data?.docNumber, 
-                  ['addressAsPerAadhaar']: res.data?.fullAddress,
-                  ['nameAsPerAadhaar']:res.data?.fullName, 
-                  ['dob']:res.data?.dateOfBirth 
-                }))
-              },
-              onError: (err) => {
-                Alert.alert("Error",err.message)
-                console.log("Error",err)
-              }
-            })
+        onSuccess: (res) => {
+          console.log("===",res)
+          setFormData(prev => (
+            { ...prev, 
+            ['aadhaarNo']: res.data?.docNumber, 
+            ['addressAsPerAadhaar']: res.data?.fullAddress,
+            ['nameAsPerAadhaar']:res.data?.fullName, 
+            ['dob']:res.data?.dateOfBirth 
+          }))
+        },
+        onError: (err) => {
+          Alert.alert("Error",err.message)
+          console.log("Error",err)
+        }
+      })
     }
   },[aadharFrontFile,aadharBackFile])
 
   useEffect(() => {
-  if (checked) {
-    updateFormData("permanentAddress", formData.addressAsPerAadhaar);
-  }else{
-    updateFormData("permanentAddress", "");
-  }
-}, [checked]);
+    if (checked) {
+      updateFormData("permanentAddress", formData.addressAsPerAadhaar);
+    }else{
+      updateFormData("permanentAddress", "");
+    }
+  }, [checked]);
+
+  // ✅ Handle Next button click with validation
+  const handleNext = () => {
+    if (validateForm()) {
+      const data = {
+        ...formData,
+        leadId: leadInfo._id,
+      }
+      navigation.navigate("kycForm2", data)
+    }
+  };
 
   return (
     <>
@@ -205,26 +297,18 @@ const requestCameraPermission = async () => {
         {
           formData.selfie ? <View style={{justifyContent:'center',alignItems:'center'}}>
             <Image source={{uri:formData.selfie}} style={{...styles.circle}}/>
-            {/* <Pressable style={{zIndex:2, position:'absolute',left:'55%',top:0}} onPress={()=>{
-              setFormData({...formData,'selfie':null})
-            }}>
-            <Entypo name="cross" size={30} color="#000" />
-            </Pressable> */}
-
           </View>
           :
-            <Pressable
-          style={{ justifyContent: "center", alignItems: "center", }}
-          onPress={() => handleSelectImage("selfie")}
-        >
-          <View style={styles.circle}>
-            <Icon name="user" size={40} color={Colors.white} />
-          </View>
-          <Text style={{ marginTop: 8 }}>Selfie with Customer</Text>
-
-        </Pressable>
+          <Pressable
+            style={{ justifyContent: "center", alignItems: "center", }}
+            onPress={() => handleSelectImage("selfie")}
+          >
+            <View style={styles.circle}>
+              <Icon name="user" size={40} color={Colors.white} />
+            </View>
+            <Text style={{ marginTop: 8 }}>Selfie with Customer</Text>
+          </Pressable>
         }
-      
 
         {/* Gender */}
         <Text style={styles.label}>Gender</Text>
@@ -278,19 +362,19 @@ const requestCameraPermission = async () => {
           >
             {formData.aadhaarFrontPhoto ? (
               <>
-              <Image
-                source={{ uri: formData.aadhaarFrontPhoto }}
-                style={styles.uploadImage}
-              />    
-            <Pressable 
-            style={{zIndex:2, position:'absolute',left:'85%',top:0}} 
-            onPress={()=>{
-              setFormData({...formData,'aadhaarFrontPhoto':null})
-            }}>
-            <Entypo name="cross" size={30} color="#000" />
-            </Pressable>
+                <Image
+                  source={{ uri: formData.aadhaarFrontPhoto }}
+                  style={styles.uploadImage}
+                />    
+                <Pressable 
+                  style={{zIndex:2, position:'absolute',left:'85%',top:0}} 
+                  onPress={()=>{
+                    setFormData({...formData,'aadhaarFrontPhoto':null})
+                  }}
+                >
+                  <Entypo name="cross" size={30} color="#000" />
+                </Pressable>
               </>
-            
             ) : (
               <View style={styles.row}>
                 <Image
@@ -309,15 +393,18 @@ const requestCameraPermission = async () => {
           >
             {formData.aadhaarBackPhoto ? (
               <>
-           <Pressable style={{zIndex:2, position:'absolute',left:'85%',top:0}} onPress={()=>{
-              setFormData({...formData,'aadhaarBackPhoto':null})
-            }}>
-            <Entypo name="cross" size={30} color="#000" />
-            </Pressable>
-              <Image
-                source={{ uri: formData.aadhaarBackPhoto }}
-                style={styles.uploadImage}
-              />
+                <Pressable 
+                  style={{zIndex:2, position:'absolute',left:'85%',top:0}} 
+                  onPress={()=>{
+                    setFormData({...formData,'aadhaarBackPhoto':null})
+                  }}
+                >
+                  <Entypo name="cross" size={30} color="#000" />
+                </Pressable>
+                <Image
+                  source={{ uri: formData.aadhaarBackPhoto }}
+                  style={styles.uploadImage}
+                />
               </>
             ) : (
               <View style={styles.row}>
@@ -348,29 +435,19 @@ const requestCameraPermission = async () => {
           placeholder="Enter Your Name as per Aadhar"
           value={formData.nameAsPerAadhaar}
           onChangeText={(val) => updateFormData("nameAsPerAadhaar", val)}
-            editable={false}
+          editable={false}
         />
 
         {/* DOB */}
         <Text style={styles.label}>DOB</Text>
-
-          {/* <Text>{formData.dob.toDateString()}</Text> */}
-          <TextInput
+        <TextInput
           style={styles.input}
           placeholder="Enter Your Date Of Birth"
           value={formData.dob+""}
           onChangeText={(val) => updateFormData("dob", val)}
-            editable={false}
+          editable={false}
         />
         <View style={{marginVertical:10}}>
-        {/* <DateTimePicker
-          value={formData.dob}
-          mode="date"
-          display="default"
-          onChange={(event, date) => {
-            if (date) updateFormData("dob", date);
-          }}
-        /> */}
         </View>
 
         {/* Address */}
@@ -382,36 +459,32 @@ const requestCameraPermission = async () => {
           onChangeText={(val) => updateFormData("addressAsPerAadhaar", val)}
           editable={false}
         />
+        
         <View style={{
           flexDirection:'row',
           alignItems:'center',
           justifyContent:'flex-start',
           marginHorizontal:10
         }}>
-        <View
-        style={{ transform: [{ scale: 0.5 }],marginLeft:-15,}}
-        >
-        <CheckBox
-          onValueChange={() => {
-            console.log("checked09",checked)
-            setChecked(!checked)
-          }}
-          lineWidth={2}
-          value={checked}
-          boxType="square"
-        onFillColor={Colors.secondary}
-        onTintColor={Colors.secondary}
-          />
-        </View>
-        <View style={{flex:1,marginRight:10}}>
-        <Text>Permanent Add. Same as Current Address</Text>
+          <View style={{ transform: [{ scale: 0.5 }],marginLeft:-15,}}>
+            <CheckBox
+              onValueChange={() => {
+                console.log("checked09",checked)
+                setChecked(!checked)
+              }}
+              lineWidth={2}
+              value={checked}
+              boxType="square"
+              onFillColor={Colors.secondary}
+              onTintColor={Colors.primary}
+            />
+          </View>
+          <View style={{flex:1,marginRight:10}}>
+            <Text>Permanent Add. Same as Current Address</Text>
+          </View>
         </View>
 
-        </View>
-      
-       
-
-         <Text style={styles.label}>Permanent Address</Text>
+        <Text style={styles.label}>Permanent Address</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Your Permanent Address"
@@ -419,18 +492,11 @@ const requestCameraPermission = async () => {
           onChangeText={(v) => updateFormData("permanentAddress", v)}
           editable={!checked}
         />
-        {/* <Text>{JSON.stringify(formData)}</Text> */}
-          {/* <Text>{JSON.stringify(leadInfo._id)}</Text> */}
+
         {/* Submit */}
         <Pressable
           style={styles.submitButton}
-          onPress={() => {
-            const data = {
-              ...formData,
-              leadId: leadInfo._id,
-            }
-            navigation.navigate("kycForm2",data)
-          }}
+          onPress={handleNext}
         >
           <Text style={styles.submitText}>Next</Text>
         </Pressable>
@@ -484,7 +550,8 @@ const styles = StyleSheet.create({
   uploadImage: { 
     width: "100%", 
     height: 100, 
-    borderRadius: 5 },
+    borderRadius: 5 
+  },
   input: {
     borderBottomWidth: 1,
     borderColor: "#ccc",
